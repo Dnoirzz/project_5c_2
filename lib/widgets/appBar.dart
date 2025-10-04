@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../scr/formulir_scr/formulir_main.dart';
+import '../scr/profile_scr/profile_main.dart';
+import '../scr/dashboard_scr.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -154,10 +156,10 @@ class ProfileMenu extends StatelessWidget {
         break;
       case 2:
         // Navigate ke profil
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => const ProfilPage()),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileMain()),
+        );
         break;
       case 3:
         // Navigate ke settings
@@ -250,7 +252,15 @@ class AppDrawer extends StatelessWidget {
                     icon: Icons.dashboard_outlined,
                     title: 'Dashboard',
                     bold: true,
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DashboardPage(),
+                        ),
+                      );
+                    },
                   ),
                   _buildDrawerItem(
                     context,
