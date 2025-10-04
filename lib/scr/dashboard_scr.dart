@@ -44,8 +44,9 @@ class _DashboardPageState extends State<DashboardPage> {
         title: 'Dashboard',
         showMenuButton: true,
         showProfileMenu: true,
+        currentPage: 'dashboard',
       ),
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(currentPage: 'dashboard'),
 
       // ===================== BODY DASHBOARD =======================
       body: SingleChildScrollView(

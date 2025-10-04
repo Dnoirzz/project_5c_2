@@ -75,8 +75,9 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
         title: 'Formulir Pendaftaran',
         showMenuButton: true,
         showProfileMenu: true,
+        currentPage: 'formulir',
       ),
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(currentPage: 'formulir'),
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Column(
