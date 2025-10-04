@@ -18,6 +18,7 @@ class FormulirPendaftaranMain extends StatefulWidget {
 
 class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   int _currentPage = 0;
+  final ScrollController _scrollController = ScrollController();
 
   final List<String> _stepTitles = [
     'Data Pribadi',
@@ -29,6 +30,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -37,6 +39,8 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
       setState(() {
         _currentPage++;
       });
+      // Scroll ke atas setelah berpindah halaman
+      _scrollToTop();
     }
   }
 
@@ -45,7 +49,22 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
       setState(() {
         _currentPage--;
       });
+      // Scroll ke atas setelah berpindah halaman
+      _scrollToTop();
     }
+  }
+
+  void _scrollToTop() {
+    // Delay kecil untuk memastikan widget sudah di-render
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0.0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
@@ -59,6 +78,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
       ),
       drawer: const AppDrawer(),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           children: [
             // ========== HEADER BOX (TIDAK BERUBAH) ==========

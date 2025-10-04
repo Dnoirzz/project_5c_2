@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Portal Mahasiswa',
-      home: SplashScreen(),
+      home: (SplashScreen()),
     );
   }
 }
