@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_scr.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -71,7 +72,11 @@ class RegisterScreen extends StatelessWidget {
                     const SizedBox(height: 20),
 
                     // Gambar / ikon
-                    Icon(Icons.person_add_alt, size: 80, color: Colors.blueGrey),
+                    Icon(
+                      Icons.person_add_alt,
+                      size: 80,
+                      color: Colors.blueGrey,
+                    ),
 
                     const SizedBox(height: 20),
 
@@ -150,7 +155,12 @@ class RegisterScreen extends StatelessWidget {
                         const Text("sudah punya akun? "),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            );
                           },
                           child: const Text(
                             "login",

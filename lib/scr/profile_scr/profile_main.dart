@@ -48,8 +48,9 @@ class _ProfileMainState extends State<ProfileMain>
         title: 'Profil Saya',
         showMenuButton: true,
         showProfileMenu: true,
+        currentPage: 'profile',
       ),
-      drawer: const AppDrawer(),
+      drawer: const AppDrawer(currentPage: 'profile'),
       body: SingleChildScrollView(
         child: Column(
           children: [
