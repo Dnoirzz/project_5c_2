@@ -100,30 +100,6 @@ actions: [
 ]
 ```
 
----
-
-### 3. **AppDrawer** - Drawer Menu Navigasi
-
-Sidebar drawer dengan menu navigasi utama aplikasi.
-
-#### Menu Items:
-- Dashboard
-- Formulir Pendaftaran
-- Pengumuman
-- Bantuan
-
-#### Contoh Penggunaan:
-
-```dart
-Scaffold(
-  appBar: CustomAppBar(...),
-  drawer: const AppDrawer(),
-  body: ...
-)
-```
-
----
-
 ## 🎨 Warna Tema
 
 Semua komponen menggunakan warna konsisten:
