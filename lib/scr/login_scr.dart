@@ -68,7 +68,7 @@ class LoginScreen extends StatelessWidget {
                             Icons.email,
                             color: Color(0xFF36566F),
                           ),
-                          labelText: "Email atau Nim",
+                          labelText: "Email",
                           border: const OutlineInputBorder(),
                         ),
                       ),
@@ -97,7 +97,7 @@ class LoginScreen extends StatelessWidget {
                           Row(
                             children: [
                               Checkbox(value: false, onChanged: (val) {}),
-                              const Text("ingat saya"),
+                              const Text("Remember me"),
                             ],
                           ),
                           TextButton(
@@ -111,7 +111,7 @@ class LoginScreen extends StatelessWidget {
                               );
                             },
                             child: const Text(
-                              "lupa password?",
+                              "Lupa Password?",
                               style: TextStyle(color: Colors.blue),
                             ),
                           ),
