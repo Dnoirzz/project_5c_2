@@ -58,6 +58,7 @@ class DataPribadiTab extends StatelessWidget {
           _buildInfoField('Kabupaten/Kota', 'Kota Pontianak'),
           _buildInfoField('Kecamatan', 'Pontianak Selatan'),
           _buildInfoField('Kelurahan/Desa', 'Benua Melayu Laut'),
+          _buildInfoField('Kode Pos', '78121'),
         ],
       ),
     );
