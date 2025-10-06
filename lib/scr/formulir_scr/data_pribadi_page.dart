@@ -20,6 +20,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   Province? _selectedProvince;
   Regency? _selectedRegency;
   District? _selectedDistrict;
+  // ignore: unused_field
   Village? _selectedVillage;
 
   // TextEditingController untuk setiap field
@@ -29,6 +30,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   final TextEditingController _alamatController = TextEditingController();
   final TextEditingController _noHpController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _kodePosController = TextEditingController();
 
   // Location controllers
   final TextEditingController _provinceController = TextEditingController();
@@ -54,6 +56,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     _alamatController.dispose();
     _noHpController.dispose();
     _emailController.dispose();
+    _kodePosController.dispose();
     _provinceController.dispose();
     _regencyController.dispose();
     _districtController.dispose();
@@ -416,6 +419,14 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                   });
                 },
                 enabled: _selectedDistrict != null,
+              ),
+
+              // Kode Pos
+              _inputField(
+                "Kode Pos",
+                "Masukkan kode pos",
+                controller: _kodePosController,
+                keyboardType: TextInputType.number,
               ),
             ],
           ),
