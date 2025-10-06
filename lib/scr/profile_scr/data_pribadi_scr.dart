@@ -45,17 +45,19 @@ class DataPribadiTab extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // Content Fields
+          // Content Fields - sesuai dengan formulir pendaftaran
           _buildInfoField('Nama Lengkap', 'Aldi Mahendra'),
           _buildInfoField('NIK', '1234567890123456'),
-          _buildInfoField('Tempat,Tanggal Lahir', 'Pontianak, 15 Januari 2005'),
-          _buildInfoField('Jenis Kelamin', 'Laki-laki'),
-          _buildInfoField('Agama', 'Islam'),
-          _buildInfoField('Golongan Darah', 'O+'),
-          _buildInfoField('No. Telepon', '081234567890'),
+          _buildInfoField('Tempat Lahir', 'Pontianak'),
+          _buildInfoField('Tanggal Lahir', '15 Januari 2005'),
+          _buildInfoField('No. HP', '081234567890'),
           _buildInfoField('Email', 'aldi.mahendra@email.com'),
-          _buildInfoField('Alamat', 'Jl. Sudirman No. 123, Jakarta Pusat'),
-          _buildInfoField('Kode Pos', '12345'),
+          _buildInfoField('Jenis Kelamin', 'Laki-laki'),
+          _buildInfoField('Alamat', 'Jl. KOYOSO No. 123'),
+          _buildInfoField('Provinsi', 'Kalimantan Barat'),
+          _buildInfoField('Kabupaten/Kota', 'Kota Pontianak'),
+          _buildInfoField('Kecamatan', 'Pontianak Selatan'),
+          _buildInfoField('Kelurahan/Desa', 'Benua Melayu Laut'),
         ],
       ),
     );
