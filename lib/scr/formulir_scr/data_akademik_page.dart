@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class DataAkademikPage extends StatefulWidget {
   const DataAkademikPage({super.key});
@@ -9,7 +8,7 @@ class DataAkademikPage extends StatefulWidget {
 }
 
 class _DataAkademikPageState extends State<DataAkademikPage> {
-  DateTime? _tahunLulus;
+  String? _selectedTahunLulus;
   String? _selectedJurusan;
   String? _selectedProdi;
 
@@ -24,23 +23,16 @@ class _DataAkademikPageState extends State<DataAkademikPage> {
     super.dispose();
   }
 
-  Future<void> _pickTahunLulus() async {
+  List<String> _getTahunLulusList() {
     final currentYear = DateTime.now().year;
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _tahunLulus ?? DateTime(currentYear - 1),
-      firstDate: DateTime(1950), // Tahun minimal 1950
-      lastDate: DateTime(currentYear), // Tidak bisa pilih tahun masa depan
-      initialDatePickerMode: DatePickerMode.year, // ✅ Hanya tampilkan tahun
-    );
-    if (picked != null) {
-      setState(() => _tahunLulus = picked);
-    }
-  }
+    final List<String> years = [];
 
-  String _formatTahunLulus() {
-    if (_tahunLulus == null) return "Pilih tahun lulus";
-    return DateFormat('yyyy').format(_tahunLulus!);
+    // Generate tahun dari 1950 sampai tahun sekarang
+    for (int year = currentYear; year >= 2018; year--) {
+      years.add(year.toString());
+    }
+
+    return years;
   }
 
   List<String> _getJurusanList() {
@@ -101,40 +93,65 @@ class _DataAkademikPageState extends State<DataAkademikPage> {
               // Asal Sekolah
               _inputField(
                 "Asal Sekolah",
-                "Masukkan nama sekolah asal",
+                "Masukkan Nama Sekolah",
                 controller: _asalSekolahController,
               ),
 
-              // Tahun Lulus Picker
-              InkWell(
-                onTap: _pickTahunLulus,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: "Tahun Lulus",
-                    labelStyle: const TextStyle(color: Colors.grey),
-                    border: const OutlineInputBorder(),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF4F6C7A)),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
+              // Tahun Lulus - Dropdown
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Tahun Lulus",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _formatTahunLulus(),
-                        style: const TextStyle(fontSize: 16),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _selectedTahunLulus,
+                    isExpanded: true,
+                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                    decoration: InputDecoration(
+                      hintText: "Pilih tahun lulus",
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
                       ),
-                      const Icon(Icons.calendar_today, color: Colors.grey),
-                    ],
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Color(0xFF4F6C7A)),
+                      ),
+                    ),
+                    items:
+                        _getTahunLulusList().map((String tahun) {
+                          return DropdownMenuItem<String>(
+                            value: tahun,
+                            child: Text(
+                              tahun,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedTahunLulus = newValue;
+                      });
+                    },
                   ),
-                ),
+                ],
               ),
               const SizedBox(height: 16),
 

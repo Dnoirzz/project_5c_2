@@ -45,15 +45,12 @@ class InformasiAkademikTab extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // Content Fields
-          _buildInfoField('Fakultas', 'Fakultas Teknik'),
-          _buildInfoField('Jurusan', 'Teknik Informatika'),
-          _buildInfoField('Program Studi', 'Sistem Informasi'),
-          _buildInfoField('Jalur Masuk', 'SNBT'),
-          _buildInfoField('Tahun Angkatan', '2024/2025'),
-          _buildInfoField('Kelas/Shift', 'Pagi'),
-          _buildInfoField('Asal Sekolah', 'SMA Negri I jakarta'),
+          // Content Fields - sesuai dengan formulir pendaftaran
+          _buildInfoField('Asal Sekolah', 'SMA Negeri 1 Jakarta'),
           _buildInfoField('Tahun Lulus', '2024'),
+          _buildInfoField('Nilai Rata-rata', '85.5'),
+          _buildInfoField('Jurusan yang Dipilih', 'Teknik Elektro'),
+          _buildInfoField('Prodi yang Dipilih', 'D3 - Teknik Listrik'),
         ],
       ),
     );

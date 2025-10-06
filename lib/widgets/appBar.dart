@@ -142,19 +142,6 @@ class ProfileMenu extends StatelessWidget {
               value: 3,
               child: Row(
                 children: [
-                  Icon(Icons.settings_outlined, size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Settings',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 4,
-              child: Row(
-                children: [
                   Icon(Icons.logout, color: Colors.red, size: 18),
                   SizedBox(width: 8),
                   Text('Keluar', style: TextStyle(color: Colors.red)),
@@ -187,12 +174,6 @@ class ProfileMenu extends StatelessWidget {
         }
         break;
       case 3:
-        // Navigate ke settings
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fitur Settings akan segera hadir')),
-        );
-        break;
-      case 4:
         // Logout - Navigate to landing page
         Navigator.pushAndRemoveUntil(
           context,
@@ -321,6 +302,20 @@ class AppDrawer extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Fitur Pengumuman akan segera hadir'),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.settings_outlined,
+                    title: 'Settings',
+                    bold: true,
+                    onTap: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Fitur Settings akan segera hadir'),
                         ),
                       );
                     },

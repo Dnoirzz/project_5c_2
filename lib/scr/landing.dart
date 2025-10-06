@@ -39,7 +39,7 @@ class LandingPage extends StatelessWidget {
 
                 // Ilustrasi (gambar dari assets)
                 Image.asset(
-                  "assets/students.png",
+                  "assets/images/students.png",
                   height: 180,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
