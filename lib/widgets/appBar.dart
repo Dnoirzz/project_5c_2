@@ -3,6 +3,7 @@ import '../scr/formulir_scr/formulir_main.dart';
 import '../scr/profile_scr/profile_main.dart';
 import '../scr/dashboard_scr.dart';
 import '../scr/landing.dart';
+import '../scr/setting_scr/setting.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -311,25 +312,13 @@ class AppDrawer extends StatelessWidget {
                     icon: Icons.settings_outlined,
                     title: 'Settings',
                     bold: true,
+                    isDisabled: currentPage == 'settings',
                     onTap: () {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Fitur Settings akan segera hadir'),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    icon: Icons.help_outline,
-                    title: 'Bantuan',
-                    bold: true,
-                    onTap: () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Fitur Bantuan akan segera hadir'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SettingsScreen(),
                         ),
                       );
                     },
