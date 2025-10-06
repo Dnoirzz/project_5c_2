@@ -6,7 +6,14 @@ import '../../models/location_models.dart';
 import '../../services/location_service.dart';
 
 class DataPribadiPage extends StatefulWidget {
-  const DataPribadiPage({super.key});
+  final Map<String, dynamic>? savedData;
+  final Function(Map<String, dynamic>) onDataChanged;
+
+  const DataPribadiPage({
+    super.key,
+    this.savedData,
+    required this.onDataChanged,
+  });
 
   @override
   State<DataPribadiPage> createState() => _DataPribadiPageState();
@@ -38,10 +45,105 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   final TextEditingController _districtController = TextEditingController();
   final TextEditingController _villageController = TextEditingController();
 
+  void _notifyDataChanged() {
+    Map<String, dynamic> data = {};
+
+    // Text fields
+    if (_namaLengkapController.text.isNotEmpty)
+      data['namaLengkap'] = _namaLengkapController.text;
+    if (_nikController.text.isNotEmpty) data['nik'] = _nikController.text;
+    if (_tempatLahirController.text.isNotEmpty)
+      data['tempatLahir'] = _tempatLahirController.text;
+    if (_alamatController.text.isNotEmpty)
+      data['alamat'] = _alamatController.text;
+    if (_noHpController.text.isNotEmpty) data['noHp'] = _noHpController.text;
+    if (_emailController.text.isNotEmpty) data['email'] = _emailController.text;
+    if (_kodePosController.text.isNotEmpty)
+      data['kodePos'] = _kodePosController.text;
+
+    // Selected values
+    if (_tanggalLahir != null)
+      data['tanggalLahir'] = _tanggalLahir!.toIso8601String();
+    if (_jenisKelamin != null) data['jenisKelamin'] = _jenisKelamin;
+
+    // Location data
+    if (_selectedProvince != null)
+      data['province'] = _selectedProvince!.toJson();
+    if (_selectedRegency != null) data['regency'] = _selectedRegency!.toJson();
+    if (_selectedDistrict != null)
+      data['district'] = _selectedDistrict!.toJson();
+    if (_selectedVillage != null) data['village'] = _selectedVillage!.toJson();
+
+    widget.onDataChanged(data);
+  }
+
+  void _setupTextFieldListeners() {
+    _namaLengkapController.addListener(_notifyDataChanged);
+    _nikController.addListener(_notifyDataChanged);
+    _tempatLahirController.addListener(_notifyDataChanged);
+    _alamatController.addListener(_notifyDataChanged);
+    _noHpController.addListener(_notifyDataChanged);
+    _emailController.addListener(_notifyDataChanged);
+    _kodePosController.addListener(_notifyDataChanged);
+  }
+
   @override
   void initState() {
     super.initState();
     _initializeLocationData();
+    _setupTextFieldListeners();
+
+    // Restore saved data if available
+    if (widget.savedData != null) {
+      // Restore text fields
+      if (widget.savedData?['namaLengkap'] != null) {
+        _namaLengkapController.text = widget.savedData!['namaLengkap'];
+      }
+      if (widget.savedData?['nik'] != null) {
+        _nikController.text = widget.savedData!['nik'];
+      }
+      if (widget.savedData?['tempatLahir'] != null) {
+        _tempatLahirController.text = widget.savedData!['tempatLahir'];
+      }
+      if (widget.savedData?['alamat'] != null) {
+        _alamatController.text = widget.savedData!['alamat'];
+      }
+      if (widget.savedData?['kodePos'] != null) {
+        _kodePosController.text = widget.savedData!['kodePos'];
+      }
+      if (widget.savedData?['noHp'] != null) {
+        _noHpController.text = widget.savedData!['noHp'];
+      }
+      if (widget.savedData?['email'] != null) {
+        _emailController.text = widget.savedData!['email'];
+      }
+
+      // Restore selected values
+      if (widget.savedData?['tanggalLahir'] != null) {
+        _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
+      }
+      if (widget.savedData?['jenisKelamin'] != null) {
+        _jenisKelamin = widget.savedData!['jenisKelamin'];
+      }
+
+      // Restore location data
+      if (widget.savedData?['province'] != null) {
+        _selectedProvince = Province.fromJson(widget.savedData!['province']);
+        _provinceController.text = _selectedProvince?.name ?? '';
+      }
+      if (widget.savedData?['regency'] != null) {
+        _selectedRegency = Regency.fromJson(widget.savedData?['regency']);
+        _regencyController.text = _selectedRegency?.name ?? '';
+      }
+      if (widget.savedData?['district'] != null) {
+        _selectedDistrict = District.fromJson(widget.savedData?['district']);
+        _districtController.text = _selectedDistrict?.name ?? '';
+      }
+      if (widget.savedData?['village'] != null) {
+        _selectedVillage = Village.fromJson(widget.savedData?['village']);
+        _villageController.text = _selectedVillage?.name ?? '';
+      }
+    }
   }
 
   Future<void> _initializeLocationData() async {
@@ -50,6 +152,16 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
 
   @override
   void dispose() {
+    // Remove listeners
+    _namaLengkapController.removeListener(_notifyDataChanged);
+    _nikController.removeListener(_notifyDataChanged);
+    _tempatLahirController.removeListener(_notifyDataChanged);
+    _alamatController.removeListener(_notifyDataChanged);
+    _noHpController.removeListener(_notifyDataChanged);
+    _emailController.removeListener(_notifyDataChanged);
+    _kodePosController.removeListener(_notifyDataChanged);
+
+    // Dispose controllers
     _namaLengkapController.dispose();
     _nikController.dispose();
     _tempatLahirController.dispose();
@@ -72,7 +184,10 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      setState(() => _tanggalLahir = picked);
+      setState(() {
+        _tanggalLahir = picked;
+        _notifyDataChanged();
+      });
     }
   }
 
@@ -89,6 +204,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
       _regencyController.clear();
       _districtController.clear();
       _villageController.clear();
+      _notifyDataChanged();
     });
   }
 
@@ -98,6 +214,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
       _selectedVillage = null;
       _districtController.clear();
       _villageController.clear();
+      _notifyDataChanged();
     });
   }
 
@@ -105,6 +222,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     setState(() {
       _selectedVillage = null;
       _villageController.clear();
+      _notifyDataChanged();
     });
   }
 
@@ -222,6 +340,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                       onTap: () {
                         setState(() {
                           _jenisKelamin = 'Laki-laki';
+                          _notifyDataChanged();
                         });
                       },
                       child: Container(
@@ -231,38 +350,33 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                         ),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color:
-                                _jenisKelamin == 'Laki-laki'
-                                    ? const Color(0xFF4F6C7A)
-                                    : Colors.grey.shade300,
+                            color: _jenisKelamin == 'Laki-laki'
+                                ? const Color(0xFF4F6C7A)
+                                : Colors.grey.shade300,
                           ),
                           borderRadius: BorderRadius.circular(8),
-                          color:
-                              _jenisKelamin == 'Laki-laki'
-                                  ? const Color(0xFF4F6C7A).withOpacity(0.1)
-                                  : Colors.white,
+                          color: _jenisKelamin == 'Laki-laki'
+                              ? const Color(0xFF4F6C7A).withOpacity(0.1)
+                              : Colors.white,
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.male,
-                              color:
-                                  _jenisKelamin == 'Laki-laki'
-                                      ? const Color(0xFF4F6C7A)
-                                      : Colors.grey,
+                              color: _jenisKelamin == 'Laki-laki'
+                                  ? const Color(0xFF4F6C7A)
+                                  : Colors.grey,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               'Laki-laki',
                               style: TextStyle(
-                                color:
-                                    _jenisKelamin == 'Laki-laki'
-                                        ? const Color(0xFF4F6C7A)
-                                        : Colors.grey,
-                                fontWeight:
-                                    _jenisKelamin == 'Laki-laki'
-                                        ? FontWeight.w500
-                                        : FontWeight.normal,
+                                color: _jenisKelamin == 'Laki-laki'
+                                    ? const Color(0xFF4F6C7A)
+                                    : Colors.grey,
+                                fontWeight: _jenisKelamin == 'Laki-laki'
+                                    ? FontWeight.w500
+                                    : FontWeight.normal,
                               ),
                             ),
                           ],
@@ -276,6 +390,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                       onTap: () {
                         setState(() {
                           _jenisKelamin = 'Perempuan';
+                          _notifyDataChanged();
                         });
                       },
                       child: Container(
@@ -285,38 +400,33 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                         ),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color:
-                                _jenisKelamin == 'Perempuan'
-                                    ? const Color(0xFF4F6C7A)
-                                    : Colors.grey.shade300,
+                            color: _jenisKelamin == 'Perempuan'
+                                ? const Color(0xFF4F6C7A)
+                                : Colors.grey.shade300,
                           ),
                           borderRadius: BorderRadius.circular(8),
-                          color:
-                              _jenisKelamin == 'Perempuan'
-                                  ? const Color(0xFF4F6C7A).withOpacity(0.1)
-                                  : Colors.white,
+                          color: _jenisKelamin == 'Perempuan'
+                              ? const Color(0xFF4F6C7A).withOpacity(0.1)
+                              : Colors.white,
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.female,
-                              color:
-                                  _jenisKelamin == 'Perempuan'
-                                      ? const Color(0xFF4F6C7A)
-                                      : Colors.grey,
+                              color: _jenisKelamin == 'Perempuan'
+                                  ? const Color(0xFF4F6C7A)
+                                  : Colors.grey,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               'Perempuan',
                               style: TextStyle(
-                                color:
-                                    _jenisKelamin == 'Perempuan'
-                                        ? const Color(0xFF4F6C7A)
-                                        : Colors.grey,
-                                fontWeight:
-                                    _jenisKelamin == 'Perempuan'
-                                        ? FontWeight.w500
-                                        : FontWeight.normal,
+                                color: _jenisKelamin == 'Perempuan'
+                                    ? const Color(0xFF4F6C7A)
+                                    : Colors.grey,
+                                fontWeight: _jenisKelamin == 'Perempuan'
+                                    ? FontWeight.w500
+                                    : FontWeight.normal,
                               ),
                             ),
                           ],
@@ -454,6 +564,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
           controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
+          onChanged: (value) => _notifyDataChanged(),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
@@ -574,30 +685,25 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
             });
             onSelected(item);
           },
-
-          emptyBuilder:
-              (context) => const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Tidak ada data ditemukan',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-          loadingBuilder:
-              (context) => const Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-          errorBuilder:
-              (context, error) => Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Error: $error',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
+          emptyBuilder: (context) => const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Tidak ada data ditemukan',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          loadingBuilder: (context) => const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          errorBuilder: (context, error) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Error: $error',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
         ),
-
         const SizedBox(height: 16),
       ],
     );
