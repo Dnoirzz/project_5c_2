@@ -306,10 +306,9 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
               size: 24,
             ),
             style: IconButton.styleFrom(
-              backgroundColor:
-                  image != null
-                      ? Colors.orange.withOpacity(0.1)
-                      : const Color(0xFF4F6C7A).withOpacity(0.1),
+              backgroundColor: image != null
+                  ? Colors.orange.withOpacity(0.1)
+                  : const Color(0xFF4F6C7A).withOpacity(0.1),
               padding: const EdgeInsets.all(8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class DataOrtuPage extends StatefulWidget {
-  const DataOrtuPage({super.key});
+  final Map<String, dynamic>? savedData;
+  final Function(Map<String, dynamic>) onDataChanged;
+
+  const DataOrtuPage({
+    super.key,
+    this.savedData,
+    required this.onDataChanged,
+  });
 
   @override
   State<DataOrtuPage> createState() => _DataOrtuPageState();
@@ -22,6 +29,50 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
   final TextEditingController _pekerjaanIbuController = TextEditingController();
   final TextEditingController _noTlpIbuController = TextEditingController();
   final TextEditingController _alamatIbuController = TextEditingController();
+
+  void _notifyDataChanged() {
+    widget.onDataChanged({
+      'namaAyah': _namaAyahController.text,
+      'pekerjaanAyah': _pekerjaanAyahController.text,
+      'noTlpAyah': _noTlpAyahController.text,
+      'alamatAyah': _alamatAyahController.text,
+      'penghasilanAyah': _selectedPenghasilanAyah,
+      'namaIbu': _namaIbuController.text,
+      'pekerjaanIbu': _pekerjaanIbuController.text,
+      'noTlpIbu': _noTlpIbuController.text,
+      'alamatIbu': _alamatIbuController.text,
+      'penghasilanIbu': _selectedPenghasilanIbu,
+    });
+  }
+
+  void _setupTextFieldListeners() {
+    _namaAyahController.addListener(_notifyDataChanged);
+    _pekerjaanAyahController.addListener(_notifyDataChanged);
+    _noTlpAyahController.addListener(_notifyDataChanged);
+    _alamatAyahController.addListener(_notifyDataChanged);
+    _namaIbuController.addListener(_notifyDataChanged);
+    _pekerjaanIbuController.addListener(_notifyDataChanged);
+    _noTlpIbuController.addListener(_notifyDataChanged);
+    _alamatIbuController.addListener(_notifyDataChanged);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _setupTextFieldListeners();
+    if (widget.savedData != null) {
+      _namaAyahController.text = widget.savedData?['namaAyah'] ?? '';
+      _pekerjaanAyahController.text = widget.savedData?['pekerjaanAyah'] ?? '';
+      _noTlpAyahController.text = widget.savedData?['noTlpAyah'] ?? '';
+      _alamatAyahController.text = widget.savedData?['alamatAyah'] ?? '';
+      _selectedPenghasilanAyah = widget.savedData?['penghasilanAyah'];
+      _namaIbuController.text = widget.savedData?['namaIbu'] ?? '';
+      _pekerjaanIbuController.text = widget.savedData?['pekerjaanIbu'] ?? '';
+      _noTlpIbuController.text = widget.savedData?['noTlpIbu'] ?? '';
+      _alamatIbuController.text = widget.savedData?['alamatIbu'] ?? '';
+      _selectedPenghasilanIbu = widget.savedData?['penghasilanIbu'];
+    }
+  }
 
   @override
   void dispose() {
@@ -149,21 +200,21 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
                         borderSide: const BorderSide(color: Color(0xFF4F6C7A)),
                       ),
                     ),
-                    items:
-                        _getPenghasilanList().map((String penghasilan) {
-                          return DropdownMenuItem<String>(
-                            value: penghasilan,
-                            child: Text(
-                              penghasilan,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          );
-                        }).toList(),
+                    items: _getPenghasilanList().map((String penghasilan) {
+                      return DropdownMenuItem<String>(
+                        value: penghasilan,
+                        child: Text(
+                          penghasilan,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (String? newValue) {
                       setState(() {
                         _selectedPenghasilanAyah = newValue;
                       });
+                      _notifyDataChanged();
                     },
                   ),
                 ],
@@ -251,21 +302,21 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
                         borderSide: const BorderSide(color: Color(0xFF4F6C7A)),
                       ),
                     ),
-                    items:
-                        _getPenghasilanList().map((String penghasilan) {
-                          return DropdownMenuItem<String>(
-                            value: penghasilan,
-                            child: Text(
-                              penghasilan,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          );
-                        }).toList(),
+                    items: _getPenghasilanList().map((String penghasilan) {
+                      return DropdownMenuItem<String>(
+                        value: penghasilan,
+                        child: Text(
+                          penghasilan,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (String? newValue) {
                       setState(() {
                         _selectedPenghasilanIbu = newValue;
                       });
+                      _notifyDataChanged();
                     },
                   ),
                 ],
@@ -305,6 +356,7 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
           controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
+          onChanged: (value) => _notifyDataChanged(),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
