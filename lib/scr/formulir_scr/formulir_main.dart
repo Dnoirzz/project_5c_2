@@ -72,50 +72,98 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
     }
   }
 
+  // Check if any field is filled for the current page (for draft saving)
+  bool _checkAnyFieldFilled(Map<String, dynamic> data) {
+    switch (_currentPage) {
+      case 0: // Data Pribadi
+        return data['namaLengkap']?.isNotEmpty == true ||
+            data['nik']?.isNotEmpty == true ||
+            data['tempatLahir']?.isNotEmpty == true ||
+            data['tanggalLahir'] != null ||
+            data['jenisKelamin']?.isNotEmpty == true ||
+            data['alamat']?.isNotEmpty == true ||
+            data['province'] != null;
+
+      case 1: // Data Akademik
+        return data['asalSekolah']?.isNotEmpty == true ||
+            data['tahunLulus']?.isNotEmpty == true ||
+            data['jurusan']?.isNotEmpty == true ||
+            data['prodi']?.isNotEmpty == true;
+
+      case 2: // Data Orang Tua
+        return data['namaAyah']?.isNotEmpty == true ||
+            data['pekerjaanAyah']?.isNotEmpty == true ||
+            data['namaIbu']?.isNotEmpty == true ||
+            data['pekerjaanIbu']?.isNotEmpty == true ||
+            data['noTlpAyah']?.isNotEmpty == true ||
+            data['alamatAyah']?.isNotEmpty == true ||
+            data['penghasilanAyah']?.isNotEmpty == true ||
+            data['noTlpIbu']?.isNotEmpty == true ||
+            data['alamatIbu']?.isNotEmpty == true ||
+            data['penghasilanIbu']?.isNotEmpty == true;
+
+      case 3: // Upload Dokumen
+        return data['uploaded'] == true ||
+            data['ktp'] != null ||
+            data['ijazah'] != null ||
+            data['akta'] != null ||
+            data['kk'] != null ||
+            data['foto'] != null;
+
+      default:
+        return false;
+    }
+  }
+
   void _handlePageDataChanged(Map<String, dynamic> newData) {
     if (mounted) {
-      setState(() {
-        final existingData =
-            Map<String, dynamic>.from(_formData[_currentPage] ?? {});
-        bool hasSignificantChanges = false;
+      // Use addPostFrameCallback to avoid setState during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            final existingData =
+                Map<String, dynamic>.from(_formData[_currentPage] ?? {});
+            bool hasSignificantChanges = false;
 
-        // Deep comparison of old and new data
-        if (existingData.isEmpty && newData.isNotEmpty) {
-          hasSignificantChanges = true;
-        } else if (existingData.length != newData.length) {
-          hasSignificantChanges = true;
-        } else {
-          for (var key in newData.keys) {
-            if (existingData[key] != newData[key]) {
+            // Deep comparison of old and new data
+            if (existingData.isEmpty && newData.isNotEmpty) {
               hasSignificantChanges = true;
-              break;
+            } else if (existingData.length != newData.length) {
+              hasSignificantChanges = true;
+            } else {
+              for (var key in newData.keys) {
+                if (existingData[key] != newData[key]) {
+                  hasSignificantChanges = true;
+                  break;
+                }
+              }
             }
-          }
-        }
 
-        // Create a deep copy of the new data
-        Map<String, dynamic> dataCopy = {};
-        newData.forEach((key, value) {
-          dataCopy[key] = value;
-        });
-        _formData[_currentPage] = dataCopy;
+            // Create a deep copy of the new data
+            Map<String, dynamic> dataCopy = {};
+            newData.forEach((key, value) {
+              dataCopy[key] = value;
+            });
+            _formData[_currentPage] = dataCopy;
 
-        // Check if all required fields are filled
-        bool allFieldsFilled = _checkRequiredFields(dataCopy);
+            // Check if all required fields are filled
+            bool allFieldsFilled = _checkRequiredFields(dataCopy);
 
-        // Auto-save if all required fields are filled
-        if (allFieldsFilled) {
-          _pagesSaved[_currentPage] = true;
-        } else {
-          // Only mark as unsaved if there are actual changes
-          if (hasSignificantChanges) {
-            _pagesSaved[_currentPage] = false;
-          }
-        }
+            // Auto-save if all required fields are filled
+            if (allFieldsFilled) {
+              _pagesSaved[_currentPage] = true;
+            } else {
+              // Only mark as unsaved if there are actual changes
+              if (hasSignificantChanges) {
+                _pagesSaved[_currentPage] = false;
+              }
+            }
 
-        // Keep saved state if previously saved and no changes
-        if (_pagesSaved[_currentPage] == true && !hasSignificantChanges) {
-          _pagesSaved[_currentPage] = true;
+            // Keep saved state if previously saved and no changes
+            if (_pagesSaved[_currentPage] == true && !hasSignificantChanges) {
+              _pagesSaved[_currentPage] = true;
+            }
+          });
         }
       });
     }
@@ -406,31 +454,49 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                       // Tombol Simpan Draft
                       Container(
                         child: ElevatedButton.icon(
-                          // Allow saving draft at any time, even if already saved
-                          onPressed: _saveDraft,
+                          // Only allow saving draft if there's any data filled
+                          onPressed: _checkAnyFieldFilled(
+                                      _formData[_currentPage] ?? {}) ||
+                                  _pagesSaved[_currentPage] == true
+                              ? _saveDraft
+                              : null,
                           icon: Icon(
                             Icons.save_outlined,
-                            color: _pagesSaved[_currentPage] == true
-                                ? Colors.white
-                                : Colors.black54,
+                            color: (_checkAnyFieldFilled(
+                                        _formData[_currentPage] ?? {}) ||
+                                    _pagesSaved[_currentPage] == true)
+                                ? (_pagesSaved[_currentPage] == true
+                                    ? Colors.white
+                                    : const Color(0xFF233746))
+                                : Colors.grey.shade400,
                           ),
                           label: Text(
                             "Simpan Draft",
                             style: TextStyle(
-                              color: _pagesSaved[_currentPage] == true
-                                  ? Colors.white
-                                  : Colors.black54,
+                              color: (_checkAnyFieldFilled(
+                                          _formData[_currentPage] ?? {}) ||
+                                      _pagesSaved[_currentPage] == true)
+                                  ? (_pagesSaved[_currentPage] == true
+                                      ? Colors.white
+                                      : const Color(0xFF233746))
+                                  : Colors.grey.shade400,
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _pagesSaved[_currentPage] == true
                                 ? const Color(0xFF009137)
-                                : Colors.white,
+                                : (_checkAnyFieldFilled(
+                                        _formData[_currentPage] ?? {})
+                                    ? Colors.white
+                                    : Colors.grey.shade100),
                             elevation: 0,
                             side: BorderSide(
                               color: _pagesSaved[_currentPage] == true
                                   ? const Color(0xFF009137)
-                                  : Colors.grey.shade300,
+                                  : (_checkAnyFieldFilled(
+                                          _formData[_currentPage] ?? {})
+                                      ? const Color(0xFF233746)
+                                      : Colors.grey.shade300),
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -453,11 +519,84 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                 ? _nextPage
                                 : null)
                             : () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Formulir berhasil dikirim!"),
-                                    backgroundColor: Colors.green,
-                                  ),
+                                // Show confirmation dialog before submitting
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      title: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.check_circle,
+                                              color: Color(0xFF009137)),
+                                          SizedBox(width: 8),
+                                          Flexible(
+                                            child: Text(
+                                              'Konfirmasi Pendaftaran',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      content: Text(
+                                        'Apakah Anda yakin ingin mengirim formulir pendaftaran? Pastikan semua data sudah benar dan lengkap.',
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                      actions: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: const Text('Batal'),
+                                            ),
+                                            SizedBox(width: 8),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Icon(Icons.check_circle,
+                                                            color:
+                                                                Colors.white),
+                                                        SizedBox(width: 8),
+                                                        Text(
+                                                            "Formulir berhasil dikirim!"),
+                                                      ],
+                                                    ),
+                                                    backgroundColor:
+                                                        Color(0xFF009137),
+                                                    duration:
+                                                        Duration(seconds: 3),
+                                                  ),
+                                                );
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color(0xFF009137),
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                              child: const Text('Kirim'),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                               },
                         style: ElevatedButton.styleFrom(
@@ -465,14 +604,29 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                               ? (_checkRequiredFields(
                                           _formData[_currentPage] ?? {}) ||
                                       _pagesSaved[_currentPage] == true
-                                  ? Colors.black
+                                  ? const Color(0xFF233746)
                                   : Colors.grey.shade300)
                               : const Color(0xFF009137),
                           foregroundColor: Colors.white,
-                          elevation: 0,
+                          elevation: _currentPage < 4
+                              ? (_checkRequiredFields(
+                                          _formData[_currentPage] ?? {}) ||
+                                      _pagesSaved[_currentPage] == true
+                                  ? 2
+                                  : 0)
+                              : 3,
+                          shadowColor: _currentPage < 4
+                              ? (_checkRequiredFields(
+                                          _formData[_currentPage] ?? {}) ||
+                                      _pagesSaved[_currentPage] == true
+                                  ? const Color(0xFF233746).withOpacity(0.3)
+                                  : Colors.transparent)
+                              : const Color(0xFF009137).withOpacity(0.3),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 16),
                         ),
                         child: Text(_currentPage < 4
                             ? "Selanjutnya >"
@@ -493,10 +647,15 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   // Method untuk navigasi langsung ke halaman tertentu
   void _navigateToPage(int pageIndex) {
     if (pageIndex != _currentPage) {
-      setState(() {
-        _currentPage = pageIndex;
+      // Use addPostFrameCallback to avoid setState during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _currentPage = pageIndex;
+          });
+          _scrollToTop();
+        }
       });
-      _scrollToTop();
     }
   }
 
