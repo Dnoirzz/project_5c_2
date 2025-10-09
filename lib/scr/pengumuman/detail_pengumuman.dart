@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/appBar.dart';
 
 class DetailPengumumanPage extends StatelessWidget {
   final String kategori;
@@ -17,19 +18,11 @@ class DetailPengumumanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF23395D),
-        title: const Text(
-          'Pengumuman',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: CustomAppBar(
+        title: 'Pengumuman',
+        showBackButton: true,
+        showProfileMenu: true,
+        currentPage: 'pengumuman',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -39,7 +32,8 @@ class DetailPengumumanPage extends StatelessWidget {
             children: [
               // Label kategori
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade100,
                   borderRadius: BorderRadius.circular(8),
