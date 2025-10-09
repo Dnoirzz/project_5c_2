@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_5c_2/scr/pengumuman/detail_pengumuman.dart';
 import 'detail_pengumuman.dart';
+import '../../widgets/appBar.dart';
 
 class PengumumanPage extends StatelessWidget {
   const PengumumanPage({super.key});
@@ -32,21 +32,11 @@ class PengumumanPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF23395D),
-        title: const Text(
-          'Pengumuman',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
+      appBar: CustomAppBar(
+        title: 'Pengumuman',
+        showBackButton: true,
+        showProfileMenu: true,
+        currentPage: 'pengumuman',
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
