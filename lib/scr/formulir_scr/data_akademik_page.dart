@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class DataAkademikPage extends StatefulWidget {
-  const DataAkademikPage({super.key});
+  final Map<String, dynamic>? savedData;
+  final Function(Map<String, dynamic>) onDataChanged;
+
+  const DataAkademikPage({
+    super.key,
+    this.savedData,
+    required this.onDataChanged,
+  });
 
   @override
   State<DataAkademikPage> createState() => _DataAkademikPageState();
@@ -16,8 +23,46 @@ class _DataAkademikPageState extends State<DataAkademikPage> {
   final TextEditingController _asalSekolahController = TextEditingController();
   final TextEditingController _nilaiRataController = TextEditingController();
 
+  void _notifyDataChanged() {
+    Map<String, dynamic> data = {
+      'asalSekolah': _asalSekolahController.text,
+      'tahunLulus': _selectedTahunLulus,
+      'nilaiRata': _nilaiRataController.text,
+    };
+
+    // Only include non-null values for dropdowns
+    if (_selectedJurusan != null) {
+      data['jurusan'] = _selectedJurusan;
+    }
+    if (_selectedProdi != null) {
+      data['prodi'] = _selectedProdi;
+    }
+
+    widget.onDataChanged(data);
+  }
+
+  void _setupTextFieldListeners() {
+    _asalSekolahController.addListener(_notifyDataChanged);
+    _nilaiRataController.addListener(_notifyDataChanged);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.savedData != null) {
+      _asalSekolahController.text = widget.savedData?['asalSekolah'] ?? '';
+      _selectedTahunLulus = widget.savedData?['tahunLulus'];
+      _nilaiRataController.text = widget.savedData?['nilaiRata'] ?? '';
+      _selectedJurusan = widget.savedData?['jurusan'];
+      _selectedProdi = widget.savedData?['prodi'];
+    }
+    _setupTextFieldListeners();
+  }
+
   @override
   void dispose() {
+    _asalSekolahController.removeListener(_notifyDataChanged);
+    _nilaiRataController.removeListener(_notifyDataChanged);
     _asalSekolahController.dispose();
     _nilaiRataController.dispose();
     super.dispose();
@@ -135,19 +180,19 @@ class _DataAkademikPageState extends State<DataAkademikPage> {
                         borderSide: const BorderSide(color: Color(0xFF4F6C7A)),
                       ),
                     ),
-                    items:
-                        _getTahunLulusList().map((String tahun) {
-                          return DropdownMenuItem<String>(
-                            value: tahun,
-                            child: Text(
-                              tahun,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          );
-                        }).toList(),
+                    items: _getTahunLulusList().map((String tahun) {
+                      return DropdownMenuItem<String>(
+                        value: tahun,
+                        child: Text(
+                          tahun,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (String? newValue) {
                       setState(() {
                         _selectedTahunLulus = newValue;
+                        _notifyDataChanged();
                       });
                     },
                   ),
@@ -201,22 +246,22 @@ class _DataAkademikPageState extends State<DataAkademikPage> {
                         borderSide: const BorderSide(color: Color(0xFF4F6C7A)),
                       ),
                     ),
-                    items:
-                        _getJurusanList().map((String jurusan) {
-                          return DropdownMenuItem<String>(
-                            value: jurusan,
-                            child: Text(
-                              jurusan,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          );
-                        }).toList(),
+                    items: _getJurusanList().map((String jurusan) {
+                      return DropdownMenuItem<String>(
+                        value: jurusan,
+                        child: Text(
+                          jurusan,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (String? newValue) {
                       setState(() {
                         _selectedJurusan = newValue;
                         // Reset prodi ketika jurusan berubah
                         _selectedProdi = null;
+                        _notifyDataChanged();
                       });
                     },
                   ),
@@ -270,19 +315,20 @@ class _DataAkademikPageState extends State<DataAkademikPage> {
                       ),
                       items:
                           _getProdiList(_selectedJurusan).map((String prodi) {
-                            return DropdownMenuItem<String>(
-                              value: prodi,
-                              child: Text(
-                                prodi,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            );
-                          }).toList(),
+                        return DropdownMenuItem<String>(
+                          value: prodi,
+                          child: Text(
+                            prodi,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        );
+                      }).toList(),
                       onChanged: (String? newValue) {
                         setState(() {
                           _selectedProdi = newValue;
+                          _notifyDataChanged();
                         });
                       },
                     ),

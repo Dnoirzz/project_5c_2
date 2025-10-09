@@ -20,6 +20,135 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   int _currentPage = 0;
   final ScrollController _scrollController = ScrollController();
 
+  // Track which pages have been saved
+  Map<int, bool> _pagesSaved = {
+    0: false,
+    1: false,
+    2: false,
+    3: false, // Upload dokumen page
+    4: false, // Review page
+  };
+
+  // Store form data for each page
+  Map<int, Map<String, dynamic>> _formData = {};
+  @override
+  void initState() {
+    super.initState();
+    // Initialize form data for each page
+    for (int i = 0; i < 5; i++) {
+      _formData[i] = {};
+    }
+  }
+
+  // Check if all required fields are filled for the current page
+  bool _checkRequiredFields(Map<String, dynamic> data) {
+    switch (_currentPage) {
+      case 0: // Data Pribadi
+        return data['namaLengkap']?.isNotEmpty == true &&
+            data['nik']?.isNotEmpty == true &&
+            data['tempatLahir']?.isNotEmpty == true &&
+            data['tanggalLahir'] != null &&
+            data['jenisKelamin']?.isNotEmpty == true &&
+            data['alamat']?.isNotEmpty == true &&
+            data['province'] != null;
+
+      case 1: // Data Akademik
+        return data['asalSekolah']?.isNotEmpty == true &&
+            data['tahunLulus']?.isNotEmpty == true &&
+            data['jurusan']?.isNotEmpty == true &&
+            data['prodi']?.isNotEmpty == true;
+
+      case 2: // Data Orang Tua
+        return data['namaAyah']?.isNotEmpty == true &&
+            data['pekerjaanAyah']?.isNotEmpty == true &&
+            data['namaIbu']?.isNotEmpty == true &&
+            data['pekerjaanIbu']?.isNotEmpty == true;
+
+      case 3: // Upload Dokumen
+        return data['uploaded'] == true;
+
+      default:
+        return false;
+    }
+  }
+
+  void _handlePageDataChanged(Map<String, dynamic> newData) {
+    if (mounted) {
+      setState(() {
+        final existingData =
+            Map<String, dynamic>.from(_formData[_currentPage] ?? {});
+        bool hasSignificantChanges = false;
+
+        // Deep comparison of old and new data
+        if (existingData.isEmpty && newData.isNotEmpty) {
+          hasSignificantChanges = true;
+        } else if (existingData.length != newData.length) {
+          hasSignificantChanges = true;
+        } else {
+          for (var key in newData.keys) {
+            if (existingData[key] != newData[key]) {
+              hasSignificantChanges = true;
+              break;
+            }
+          }
+        }
+
+        // Create a deep copy of the new data
+        Map<String, dynamic> dataCopy = {};
+        newData.forEach((key, value) {
+          dataCopy[key] = value;
+        });
+        _formData[_currentPage] = dataCopy;
+
+        // Check if all required fields are filled
+        bool allFieldsFilled = _checkRequiredFields(dataCopy);
+
+        // Auto-save if all required fields are filled
+        if (allFieldsFilled) {
+          _pagesSaved[_currentPage] = true;
+        } else {
+          // Only mark as unsaved if there are actual changes
+          if (hasSignificantChanges) {
+            _pagesSaved[_currentPage] = false;
+          }
+        }
+
+        // Keep saved state if previously saved and no changes
+        if (_pagesSaved[_currentPage] == true && !hasSignificantChanges) {
+          _pagesSaved[_currentPage] = true;
+        }
+      });
+    }
+  }
+
+  void _saveDraft() {
+    setState(() {
+      // For document upload page
+      if (_currentPage == 3) {
+        _formData[_currentPage] = {'uploaded': true};
+        _pagesSaved[_currentPage] = true;
+      } else {
+        // For other pages, save only if there's data
+        if (_formData[_currentPage]?.isNotEmpty == true) {
+          // Create a deep copy of the current data to ensure it's preserved
+          Map<String, dynamic> dataCopy = {};
+          _formData[_currentPage]!.forEach((key, value) {
+            dataCopy[key] = value;
+          });
+          _formData[_currentPage] = dataCopy;
+          _pagesSaved[_currentPage] = true;
+        }
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Draft berhasil disimpan!"),
+        backgroundColor: Color(0xFF009137),
+      ),
+    );
+  }
+
   final List<String> _stepTitles = [
     'Data Pribadi',
     'Data Akademik',
@@ -35,20 +164,63 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   }
 
   void _nextPage() {
+    // Allow moving forward if:
+    // 1. Current page is saved, or
+    // 2. Current page has data and was previously saved
     if (_currentPage < 4) {
-      setState(() {
-        _currentPage++;
-      });
-      // Scroll ke atas setelah berpindah halaman
-      _scrollToTop();
+      bool canProceed = _pagesSaved[_currentPage] == true ||
+          (_formData[_currentPage]?.isNotEmpty == true &&
+              _formData[_currentPage] == _formData[_currentPage]);
+
+      if (canProceed) {
+        setState(() {
+          _currentPage++;
+
+          // When moving to a new page, if it has saved data, mark it as saved
+          if (_formData[_currentPage]?.isNotEmpty == true) {
+            _pagesSaved[_currentPage] = true;
+          }
+        });
+        // Scroll ke atas setelah berpindah halaman
+        _scrollToTop();
+      }
     }
   }
 
   void _previousPage() {
     if (_currentPage > 0) {
       setState(() {
+        // Store the current page's state before moving
+        if (_formData[_currentPage]?.isNotEmpty == true) {
+          Map<String, dynamic> currentPageData = {};
+          _formData[_currentPage]!.forEach((key, value) {
+            currentPageData[key] = value;
+          });
+          // Save the current page's data and state
+          _formData[_currentPage] = currentPageData;
+          // Only preserve saved state if it was explicitly saved
+          if (_pagesSaved[_currentPage] == true) {
+            _pagesSaved[_currentPage] = true;
+          }
+        }
+
+        // Move to previous page
         _currentPage--;
+
+        // Restore previous page's state
+        if (_formData[_currentPage]?.isNotEmpty == true) {
+          Map<String, dynamic> prevPageData = {};
+          _formData[_currentPage]!.forEach((key, value) {
+            prevPageData[key] = value;
+          });
+          _formData[_currentPage] = prevPageData;
+          // If this page was previously saved, restore that state
+          if (_pagesSaved[_currentPage] == true) {
+            _pagesSaved[_currentPage] = true;
+          }
+        }
       });
+
       // Scroll ke atas setelah berpindah halaman
       _scrollToTop();
     }
@@ -214,28 +386,56 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Tombol Sebelumnya
-                      if (_currentPage > 0)
-                        GestureDetector(
-                          onTap: _previousPage,
-                          child: _secondaryButton("<   Sebelumnya"),
-                        )
-                      else
-                        GestureDetector(
-                          onTap: () {},
-                          child: _secondaryButton("<   Sebelumnya"),
-                        ),
-                      // Tombol Simpan Draft
-                      GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Draft berhasil disimpan!"),
+                      Container(
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: _currentPage > 0 ? _previousPage : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            elevation: 0,
+                            side: BorderSide(color: Colors.grey.shade300),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          );
-                        },
-                        child: _secondaryButtonWithIcon(
-                          "Simpan Draft",
-                          Icons.save_outlined,
+                          ),
+                          child: const Text("< Sebelumnya"),
+                        ),
+                      ),
+
+                      // Tombol Simpan Draft
+                      Container(
+                        child: ElevatedButton.icon(
+                          // Allow saving draft at any time, even if already saved
+                          onPressed: _saveDraft,
+                          icon: Icon(
+                            Icons.save_outlined,
+                            color: _pagesSaved[_currentPage] == true
+                                ? Colors.white
+                                : Colors.black54,
+                          ),
+                          label: Text(
+                            "Simpan Draft",
+                            style: TextStyle(
+                              color: _pagesSaved[_currentPage] == true
+                                  ? Colors.white
+                                  : Colors.black54,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _pagesSaved[_currentPage] == true
+                                ? const Color(0xFF009137)
+                                : Colors.white,
+                            elevation: 0,
+                            side: BorderSide(
+                              color: _pagesSaved[_currentPage] == true
+                                  ? const Color(0xFF009137)
+                                  : Colors.grey.shade300,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -243,11 +443,16 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                   const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap:
-                          _currentPage < 4
-                              ? _nextPage
-                              : () {
+                    child: Container(
+                      width: 140,
+                      child: ElevatedButton(
+                        onPressed: _currentPage < 4
+                            ? (_checkRequiredFields(
+                                        _formData[_currentPage] ?? {}) ||
+                                    _pagesSaved[_currentPage] == true
+                                ? _nextPage
+                                : null)
+                            : () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text("Formulir berhasil dikirim!"),
@@ -255,24 +460,23 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                   ),
                                 );
                               },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 24,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color:
-                              _currentPage < 4
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _currentPage < 4
+                              ? (_checkRequiredFields(
+                                          _formData[_currentPage] ?? {}) ||
+                                      _pagesSaved[_currentPage] == true
                                   ? Colors.black
-                                  : const Color(0xFF009137),
+                                  : Colors.grey.shade300)
+                              : const Color(0xFF009137),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                        child: Text(
-                          _currentPage < 4
-                              ? "Selanjutnya   >"
-                              : "Daftar Sekarang",
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                        child: Text(_currentPage < 4
+                            ? "Selanjutnya >"
+                            : "Daftar Sekarang"),
                       ),
                     ),
                   ),
@@ -286,25 +490,51 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
     );
   }
 
+  // Method untuk navigasi langsung ke halaman tertentu
+  void _navigateToPage(int pageIndex) {
+    if (pageIndex != _currentPage) {
+      setState(() {
+        _currentPage = pageIndex;
+      });
+      _scrollToTop();
+    }
+  }
+
   // Method untuk menampilkan konten berdasarkan halaman saat ini
   Widget _buildCurrentPageContent() {
     switch (_currentPage) {
       case 0:
-        return const DataPribadiPage();
+        return DataPribadiPage(
+          savedData: _formData[0],
+          onDataChanged: _handlePageDataChanged,
+        );
       case 1:
-        return const DataAkademikPage();
+        return DataAkademikPage(
+          savedData: _formData[1],
+          onDataChanged: _handlePageDataChanged,
+        );
       case 2:
-        return const DataOrtuPage();
+        return DataOrtuPage(
+          savedData: _formData[2],
+          onDataChanged: _handlePageDataChanged,
+        );
       case 3:
         return const UploadDokumenPage();
       case 4:
-        return const ReviewSubmitPage();
+        return ReviewSubmitPage(
+          formData: _formData,
+          pagesSaved: _pagesSaved,
+          onPageEdit: _navigateToPage,
+        );
       default:
-        return const DataPribadiPage();
+        return DataPribadiPage(
+          savedData: _formData[0],
+          onDataChanged: _handlePageDataChanged,
+        );
     }
   }
 
-  // Tab Navigation Item
+  // Tab Navigation Item (simple progress indicator)
   Widget _tabItem(IconData icon, String title, bool active) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -315,14 +545,14 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: active ? Colors.blue : Colors.grey.shade400,
+              color: active ? const Color(0xFF4F6C7A) : Colors.grey.shade400,
               width: 2,
             ),
-            color: Colors.white,
+            color: active ? const Color(0xFFE8F0F3) : Colors.white,
           ),
           child: Icon(
             icon,
-            color: active ? Colors.blue : Colors.grey[600],
+            color: active ? const Color(0xFF4F6C7A) : Colors.grey[600],
             size: 20,
           ),
         ),
@@ -335,38 +565,11 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: active ? Colors.black : Colors.grey,
+              color: active ? const Color(0xFF4F6C7A) : Colors.grey,
             ),
           ),
         ),
       ],
-    );
-  }
-
-  // Button Helpers
-  Widget _secondaryButton(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-        color: Colors.grey.shade100,
-      ),
-      child: Text(text, style: const TextStyle(color: Colors.grey)),
-    );
-  }
-
-  Widget _secondaryButtonWithIcon(String text, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-        color: Colors.white,
-      ),
-      child: Row(
-        children: [Icon(icon, size: 18), const SizedBox(width: 6), Text(text)],
-      ),
     );
   }
 }
