@@ -13,7 +13,7 @@ class ResetPasswordPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(
-        0xFF0F3C4C,
+        0xFF4F6C7A,
       ), // warna biru gelap seperti desain
       appBar: const CustomAppBar(
         title: 'Reset Password',

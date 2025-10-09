@@ -171,10 +171,10 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
       case 3: // Upload Dokumen
         final dokumenList = [
           {"label": "KTP", "key": "ktp", "icon": Icons.credit_card},
-          {"label": "Kartu Keluarga", "key": "kk", "icon": Icons.people},
           {"label": "Ijazah", "key": "ijazah", "icon": Icons.school},
+          {"label": "Akta", "key": "akta", "icon": Icons.description},
+          {"label": "Kartu Keluarga", "key": "kk", "icon": Icons.people},
           {"label": "Pas Foto", "key": "foto", "icon": Icons.photo_camera},
-          {"label": "SKHUN", "key": "skhun", "icon": Icons.description},
         ];
 
         return Column(
@@ -244,7 +244,7 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
                             );
                           },
                         )
-                      : const Icon(Icons.visibility_off,
+                      : const Icon(Icons.visibility,
                           size: 20, color: Colors.grey),
                 ),
               ),
