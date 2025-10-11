@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 class ReviewSubmitPage extends StatefulWidget {
   final Map<int, Map<String, dynamic>> formData;
@@ -32,22 +33,17 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
     bool isSaved = widget.pagesSaved[pageIndex] == true;
     bool isComplete = _checkPageCompletion(pageIndex);
 
-    if (!hasData) {
-      return Colors.grey; // Belum diisi
-    } else if (isSaved && !isComplete) {
-      return Colors.amber; // Simpan draft, belum lengkap
-    } else if (isComplete) {
-      return const Color(0xFF009137); // Lengkap
-    } else {
-      return Colors.grey; // Default
-    }
+    if (!hasData) return Colors.grey;
+    if (isComplete) return const Color(0xFF009137);
+    if (isSaved && !isComplete) return Colors.amber;
+    return Colors.amber;
   }
 
   bool _checkPageCompletion(int pageIndex) {
     final data = widget.formData[pageIndex] ?? {};
 
     switch (pageIndex) {
-      case 0: // Data Pribadi
+      case 0:
         return data['namaLengkap']?.isNotEmpty == true &&
             data['nik']?.isNotEmpty == true &&
             data['tempatLahir']?.isNotEmpty == true &&
@@ -55,22 +51,21 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
             data['jenisKelamin']?.isNotEmpty == true &&
             data['alamat']?.isNotEmpty == true &&
             data['province'] != null;
-
-      case 1: // Data Akademik
+      case 1:
         return data['asalSekolah']?.isNotEmpty == true &&
             data['tahunLulus']?.isNotEmpty == true &&
             data['jurusan']?.isNotEmpty == true &&
             data['prodi']?.isNotEmpty == true;
-
-      case 2: // Data Orang Tua
+      case 2:
         return data['namaAyah']?.isNotEmpty == true &&
             data['pekerjaanAyah']?.isNotEmpty == true &&
             data['namaIbu']?.isNotEmpty == true &&
             data['pekerjaanIbu']?.isNotEmpty == true;
-
-      case 3: // Upload Dokumen
-        return data['uploaded'] == true;
-
+      case 3:
+        return data['ijazah']?.isNotEmpty == true &&
+            data['kk']?.isNotEmpty == true &&
+            data['akta']?.isNotEmpty == true &&
+            data['foto']?.isNotEmpty == true;
       default:
         return false;
     }
@@ -78,39 +73,78 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
 
   String _getStatusText(int pageIndex) {
     bool hasData = widget.formData[pageIndex]?.isNotEmpty == true;
-    bool isSaved = widget.pagesSaved[pageIndex] == true;
     bool isComplete = _checkPageCompletion(pageIndex);
+    if (!hasData) return "Belum diisi";
+    if (isComplete) return "Lengkap";
+    return "Belum lengkap";
+  }
 
-    if (!hasData) {
-      return "Belum diisi";
-    } else if (isSaved && !isComplete) {
-      return "Draft tersimpan";
-    } else if (isComplete) {
-      return "Lengkap";
-    } else {
-      return "Belum lengkap";
-    }
+  String _getDocumentUploadStatus() {
+    final data = widget.formData[3] ?? {};
+    int uploadedCount = 0;
+    int totalDocs = 4;
+
+    if (data['ijazah']?.isNotEmpty == true) uploadedCount++;
+    if (data['kk']?.isNotEmpty == true) uploadedCount++;
+    if (data['akta']?.isNotEmpty == true) uploadedCount++;
+    if (data['foto']?.isNotEmpty == true) uploadedCount++;
+
+    return "$uploadedCount dari $totalDocs dokumen diupload";
+  }
+
+  IconData _getIconForPage(int pageIndex) {
+    bool isComplete = _checkPageCompletion(pageIndex);
+    bool hasData = widget.formData[pageIndex]?.isNotEmpty == true;
+
+    Map<int, IconData> pageIcons = {
+      0: Icons.person,
+      1: Icons.school,
+      2: Icons.group,
+      3: Icons.upload_file,
+    };
+
+    if (isComplete) return Icons.check_circle;
+    if (!hasData) return Icons.radio_button_unchecked;
+    return pageIcons[pageIndex] ?? Icons.radio_button_unchecked;
   }
 
   Widget _buildDetailContent(int pageIndex) {
     final data = widget.formData[pageIndex] ?? {};
 
     switch (pageIndex) {
-      case 0: // Data Pribadi
+      // -------------------- DATA PRIBADI --------------------
+      case 0:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _detailItem("Nama Lengkap", data['namaLengkap'] ?? '-'),
             _detailItem("NIK", data['nik'] ?? '-'),
             _detailItem("Tempat Lahir", data['tempatLahir'] ?? '-'),
-            _detailItem(
-                "Tanggal Lahir", data['tanggalLahir']?.toString() ?? '-'),
+            _detailItem("Tanggal Lahir",
+                data['tanggalLahir']?.toString().split('T').first ?? '-'),
             _detailItem("Jenis Kelamin", data['jenisKelamin'] ?? '-'),
+            _detailItem("No. HP", data['noHp'] ?? '-'),
+            _detailItem("Email", data['email'] ?? '-'),
+            const SizedBox(height: 8),
+            const Text("Alamat Lengkap",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Color(0xFF4F6C7A))),
+            const SizedBox(height: 6),
             _detailItem("Alamat", data['alamat'] ?? '-'),
-            _detailItem("Provinsi", data['province']?.toString() ?? '-'),
+            _detailItem(
+                "Provinsi", data['province']?['name']?.toString() ?? '-'),
+            _detailItem(
+                "Kabupaten/Kota", data['regency']?['name']?.toString() ?? '-'),
+            _detailItem(
+                "Kecamatan", data['district']?['name']?.toString() ?? '-'),
+            _detailItem(
+                "Kelurahan/Desa", data['village']?['name']?.toString() ?? '-'),
+            _detailItem("Kode Pos", data['kodePos'] ?? '-'),
           ],
         );
-      case 1: // Data Akademik
+
+      // -------------------- DATA AKADEMIK --------------------
+      case 1:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -120,136 +154,83 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
             _detailItem("Program Studi", data['prodi'] ?? '-'),
           ],
         );
-      case 2: // Data Orang Tua
+
+      // -------------------- DATA ORANG TUA --------------------
+      case 2:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Data Ayah section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Data Ayah",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4F6C7A),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _detailItem("Nama Lengkap", data['namaAyah'] ?? '-'),
-                _detailItem("Pekerjaan", data['pekerjaanAyah'] ?? '-'),
-                _detailItem("No. Telepon", data['noTlpAyah'] ?? '-'),
-                _detailItem("Alamat", data['alamatAyah'] ?? '-'),
-                _detailItem("Penghasilan", data['penghasilanAyah'] ?? '-'),
-              ],
-            ),
+            const Text("Data Ayah",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Color(0xFF4F6C7A))),
+            const SizedBox(height: 8),
+            _detailItem("Nama Lengkap", data['namaAyah'] ?? '-'),
+            _detailItem("Pekerjaan", data['pekerjaanAyah'] ?? '-'),
+            _detailItem("No. Telepon", data['noTlpAyah'] ?? '-'),
+            _detailItem("Alamat", data['alamatAyah'] ?? '-'),
+            _detailItem("Penghasilan", data['penghasilanAyah'] ?? '-'),
             const SizedBox(height: 16),
-
-            // Data Ibu section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Data Ibu",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4F6C7A),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _detailItem("Nama Lengkap", data['namaIbu'] ?? '-'),
-                _detailItem("Pekerjaan", data['pekerjaanIbu'] ?? '-'),
-                _detailItem("No. Telepon", data['noTlpIbu'] ?? '-'),
-                _detailItem("Alamat", data['alamatIbu'] ?? '-'),
-                _detailItem("Penghasilan", data['penghasilanIbu'] ?? '-'),
-              ],
-            ),
+            const Text("Data Ibu",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Color(0xFF4F6C7A))),
+            const SizedBox(height: 8),
+            _detailItem("Nama Lengkap", data['namaIbu'] ?? '-'),
+            _detailItem("Pekerjaan", data['pekerjaanIbu'] ?? '-'),
+            _detailItem("No. Telepon", data['noTlpIbu'] ?? '-'),
+            _detailItem("Alamat", data['alamatIbu'] ?? '-'),
+            _detailItem("Penghasilan", data['penghasilanIbu'] ?? '-'),
           ],
         );
-      case 3: // Upload Dokumen
+
+      // -------------------- DOKUMEN --------------------
+      case 3:
         final dokumenList = [
-          {"label": "KTP", "key": "ktp", "icon": Icons.credit_card},
-          {"label": "Ijazah", "key": "ijazah", "icon": Icons.school},
-          {"label": "Akta", "key": "akta", "icon": Icons.description},
+          {"label": "Ijazah/SKL", "key": "ijazah", "icon": Icons.school},
           {"label": "Kartu Keluarga", "key": "kk", "icon": Icons.people},
-          {"label": "Pas Foto", "key": "foto", "icon": Icons.photo_camera},
+          {"label": "Akta Kelahiran", "key": "akta", "icon": Icons.description},
+          {"label": "Pas Foto 3x4", "key": "foto", "icon": Icons.photo_camera},
         ];
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _detailItem(
-                "Status",
-                data['uploaded'] == true
-                    ? 'Dokumen telah diupload'
-                    : 'Belum upload dokumen'),
-            const SizedBox(height: 8),
-            for (var dok in dokumenList)
-              Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: Icon(dok["icon"] as IconData,
-                      color: data[dok["key"]] != null
-                          ? const Color(0xFF009137)
-                          : Colors.grey),
-                  title: Text(
-                    dok["label"] as String,
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                  trailing: data[dok["key"]] != null
-                      ? IconButton(
-                          icon: const Icon(Icons.visibility, size: 20),
-                          onPressed: () {
-                            // Show document preview dialog
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text("Preview ${dok["label"]}"),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      height: 200,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey.shade300),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: data[dok["key"]] != null
-                                          ? Image.network(
-                                              data[dok["key"]] as String,
-                                              fit: BoxFit.contain,
-                                              errorBuilder: (context, error,
-                                                      stackTrace) =>
-                                                  const Center(
-                                                      child: Text(
-                                                          "Gagal memuat dokumen")),
-                                            )
-                                          : const Center(
-                                              child: Text(
-                                                  "Dokumen tidak tersedia")),
-                                    ),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text("Tutup"),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        )
-                      : const Icon(Icons.visibility,
-                          size: 20, color: Colors.grey),
+          children: dokumenList.map((dok) {
+            bool uploaded = data[dok['key']]?.isNotEmpty == true;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: uploaded ? Colors.green.shade50 : Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color:
+                      uploaded ? Colors.green.shade300 : Colors.grey.shade300,
                 ),
               ),
-          ],
+              child: Row(
+                children: [
+                  Icon(dok['icon'] as IconData,
+                      color: uploaded ? const Color(0xFF009137) : Colors.grey,
+                      size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      dok['label'] as String,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  Icon(
+                    uploaded ? Icons.check_circle : Icons.cancel,
+                    color: uploaded
+                        ? const Color(0xFF009137)
+                        : Colors.grey.shade400,
+                    size: 20,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
         );
+
       default:
         return const SizedBox.shrink();
     }
@@ -257,30 +238,19 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
 
   Widget _detailItem(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 6.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-          ),
+              width: 130,
+              child: Text(label,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey))),
           const Text(" : "),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+              child: Text(value,
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w500))),
         ],
       ),
     );
@@ -290,13 +260,42 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          _reviewCard(0, "Data Pribadi", "Nama, NIK, dan informasi lainnya"),
-          _reviewCard(1, "Data Akademik", "Asal sekolah dan pilihan prodi"),
-          _reviewCard(2, "Data Orang Tua", "Informasi orang tua dan wali"),
-          _reviewCard(3, "Dokumen", "Dokumen telah diupload"),
-        ],
+      child: SingleChildScrollView(
+        child: Card(
+          elevation: 2,
+          color: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.reviews, color: Color(0xFF009137), size: 24),
+                    SizedBox(width: 8),
+                    Text("Review & Submit",
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF333333))),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text("Periksa kembali data Anda sebelum mengirim",
+                    style: TextStyle(fontSize: 12, color: Colors.grey)),
+                const SizedBox(height: 16),
+                _reviewCard(0, "Data Pribadi", "Nama, NIK, dan alamat lengkap"),
+                _reviewCard(
+                    1, "Data Akademik", "Asal sekolah dan pilihan prodi"),
+                _reviewCard(
+                    2, "Data Orang Tua", "Informasi orang tua dan wali"),
+                _reviewCard(3, "Dokumen", _getDocumentUploadStatus()),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -314,91 +313,67 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
         border: Border.all(color: statusColor.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, 2),
-            blurRadius: 4,
-          ),
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, 2),
+              blurRadius: 4),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            setState(() {
-              expandedStates[pageIndex] = !isExpanded;
-            });
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Icon(
-                      _checkPageCompletion(pageIndex)
-                          ? Icons.check_circle
-                          : widget.pagesSaved[pageIndex] == true
-                              ? Icons.save
-                              : Icons.radio_button_unchecked,
-                      color: statusColor,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            expandedStates[pageIndex] = !isExpanded;
+          });
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(_getIconForPage(pageIndex),
+                      color: statusColor, size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title,
                             style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            desc,
+                                fontSize: 14, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text(desc,
                             style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            statusText,
+                                fontSize: 12, color: Colors.grey)),
+                        const SizedBox(height: 4),
+                        Text(statusText,
                             style: TextStyle(
-                              fontSize: 12,
-                              color: statusColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      isExpanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      color: Colors.black54,
-                      size: 24,
-                    ),
-                  ],
-                ),
-              ),
-              if (isExpanded)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(56, 0, 16, 16),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.grey.withOpacity(0.2),
-                      ),
+                                fontSize: 12,
+                                color: statusColor,
+                                fontWeight: FontWeight.w500)),
+                      ],
                     ),
                   ),
-                  child: _buildDetailContent(pageIndex),
-                ),
-            ],
-          ),
+                  Icon(
+                    isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: Colors.black54,
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+            if (isExpanded)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(56, 0, 16, 16),
+                decoration: BoxDecoration(
+                    border: Border(
+                        top: BorderSide(color: Colors.grey.withOpacity(0.2)))),
+                child: _buildDetailContent(pageIndex),
+              ),
+          ],
         ),
       ),
     );
