@@ -36,7 +36,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
   @override
   void initState() {
     super.initState();
-    // Load saved data if available
     if (widget.savedData != null) {
       _loadSavedData();
     }
@@ -45,7 +44,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
   @override
   void didUpdateWidget(UploadDokumenPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Reload data if savedData changes
     if (widget.savedData != oldWidget.savedData) {
       _loadSavedData();
     }
@@ -53,27 +51,21 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
 
   void _loadSavedData() {
     if (widget.savedData == null) return;
-
     final data = widget.savedData!;
 
-    // Load images from saved paths
     setState(() {
       if (data['ijazah']?.isNotEmpty == true) {
         _images['Ijazah/SKL'] = File(data['ijazah']);
-        _uploadDates['Ijazah/SKL'] =
-            DateTime.now(); // Or save actual date if needed
+        _uploadDates['Ijazah/SKL'] = DateTime.now();
       }
-
       if (data['kk']?.isNotEmpty == true) {
         _images['Kartu Keluarga'] = File(data['kk']);
         _uploadDates['Kartu Keluarga'] = DateTime.now();
       }
-
       if (data['akta']?.isNotEmpty == true) {
         _images['Akta Kelahiran'] = File(data['akta']);
         _uploadDates['Akta Kelahiran'] = DateTime.now();
       }
-
       if (data['foto']?.isNotEmpty == true) {
         _images['Pas Foto 3x4'] = File(data['foto']);
         _uploadDates['Pas Foto 3x4'] = DateTime.now();
@@ -81,7 +73,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
     });
   }
 
-  // Method untuk mengambil gambar dari kamera
   Future<void> _pickImageFromCamera(String docType) async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -97,10 +88,8 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
           _uploadDates[docType] = DateTime.now();
         });
 
-        // Notify parent about the change
         _notifyDataChanged();
 
-        // Tampilkan pesan sukses
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -126,7 +115,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
 
   void _notifyDataChanged() {
     if (widget.onDataChanged != null) {
-      // Check if at least one document is uploaded
       bool hasUpload = _images.values.any((file) => file != null);
 
       widget.onDataChanged!({
@@ -155,7 +143,8 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
       'Nov',
       'Des'
     ];
-    return 'Upload ${date.day} ${months[date.month - 1]}, ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    return 'Upload ${date.day} ${months[date.month - 1]}, '
+        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -171,7 +160,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               const Row(
                 children: [
                   Icon(Icons.upload_file, color: Colors.blue, size: 20),
@@ -187,9 +175,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
                 "Upload berkas pendaftaran",
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
-              const SizedBox(height: 16),
-
-              // Info card
               const SizedBox(height: 16),
 
               // Upload cards
@@ -215,7 +200,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
       ),
       child: Column(
         children: [
-          // Camera icon and title
           Container(
             width: 64,
             height: 64,
@@ -231,8 +215,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
             ),
           ),
           const SizedBox(height: 12),
-
-          // Document title
           Text(
             docType,
             style: const TextStyle(
@@ -241,8 +223,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
               color: Colors.black87,
             ),
           ),
-
-          // Upload date (if exists)
           if (uploadDate != null) ...[
             const SizedBox(height: 4),
             Text(
@@ -253,10 +233,7 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
               ),
             ),
           ],
-
           const SizedBox(height: 16),
-
-          // Ambil foto button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -297,8 +274,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
               ),
             ),
           ),
-
-          // Preview gambar (jika ada)
           if (image != null) ...[
             const SizedBox(height: 12),
             ClipRRect(

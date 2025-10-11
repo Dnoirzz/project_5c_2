@@ -108,6 +108,60 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
     return pageIcons[pageIndex] ?? Icons.radio_button_unchecked;
   }
 
+  /// 🟢 FUNGSI UNTUK MENAMPILKAN GAMBAR DALAM POPUP
+  void _showImagePopup(String imagePath, String title) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.all(16),
+        backgroundColor: Colors.transparent,
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InteractiveViewer(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 16),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Image.file(
+                        File(imagePath),
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        height: 400,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Ketuk di mana saja untuk menutup",
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.7), fontSize: 12),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDetailContent(int pageIndex) {
     final data = widget.formData[pageIndex] ?? {};
 
@@ -150,6 +204,7 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
           children: [
             _detailItem("Asal Sekolah", data['asalSekolah'] ?? '-'),
             _detailItem("Tahun Lulus", data['tahunLulus'] ?? '-'),
+            _detailItem("Nilai Rata-Rata", data['nilaiRata'] ?? '-'),
             _detailItem("Jurusan", data['jurusan'] ?? '-'),
             _detailItem("Program Studi", data['prodi'] ?? '-'),
           ],
@@ -194,7 +249,9 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: dokumenList.map((dok) {
-            bool uploaded = data[dok['key']]?.isNotEmpty == true;
+            String? path = data[dok['key']];
+            bool uploaded = path?.isNotEmpty == true;
+
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
@@ -218,6 +275,16 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ),
+
+                  // 👁️ ICON PREVIEW GAMBAR
+                  if (uploaded)
+                    IconButton(
+                      icon: const Icon(Icons.visibility, color: Colors.blue),
+                      onPressed: () {
+                        _showImagePopup(path!, dok['label'] as String);
+                      },
+                    ),
+
                   Icon(
                     uploaded ? Icons.check_circle : Icons.cancel,
                     color: uploaded
