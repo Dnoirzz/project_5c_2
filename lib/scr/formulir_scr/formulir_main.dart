@@ -171,21 +171,15 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
 
   void _saveDraft() {
     setState(() {
-      // For document upload page
-      if (_currentPage == 3) {
-        _formData[_currentPage] = {'uploaded': true};
+      // For all pages including document upload
+      if (_formData[_currentPage]?.isNotEmpty == true) {
+        // Create a deep copy of the current data to ensure it's preserved
+        Map<String, dynamic> dataCopy = {};
+        _formData[_currentPage]!.forEach((key, value) {
+          dataCopy[key] = value;
+        });
+        _formData[_currentPage] = dataCopy;
         _pagesSaved[_currentPage] = true;
-      } else {
-        // For other pages, save only if there's data
-        if (_formData[_currentPage]?.isNotEmpty == true) {
-          // Create a deep copy of the current data to ensure it's preserved
-          Map<String, dynamic> dataCopy = {};
-          _formData[_currentPage]!.forEach((key, value) {
-            dataCopy[key] = value;
-          });
-          _formData[_currentPage] = dataCopy;
-          _pagesSaved[_currentPage] = true;
-        }
       }
     });
 
@@ -678,7 +672,10 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
           onDataChanged: _handlePageDataChanged,
         );
       case 3:
-        return const UploadDokumenPage();
+        return UploadDokumenPage(
+          savedData: _formData[3],
+          onDataChanged: _handlePageDataChanged,
+        );
       case 4:
         return ReviewSubmitPage(
           formData: _formData,
