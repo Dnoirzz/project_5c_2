@@ -9,25 +9,23 @@ class PengumumanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Map<String, String>> pengumumanList = [
       {
-        'kategori': 'Pendaftaran',
         'judul': 'Batas Waktu Pendaftaran Diperpanjang',
         'tanggal': '25 Januari 2025 | 20:30',
         'deskripsi':
-            'Batas waktu pendaftaran mahasiswa telah diperpanjang hingga 25 Januari 2025. Pastikan Anda melengkapi semua berkas yang diperlukan.'
+            'Batas waktu pendaftaran mahasiswa telah diperpanjang hingga 25 Januari 2025. Pastikan Anda melengkapi semua berkas yang diperlukan.',
+        'gambar': 'assets/images/pengumuman.jpg',
       },
       {
-        'kategori': 'Akademik',
         'judul': 'Jadwal Kuliah Semester Genap',
         'tanggal': '10 Februari 2025 | 08:00',
         'deskripsi':
-            'Jadwal kuliah semester genap tahun ajaran 2024/2025 telah dirilis. Silakan cek portal akademik masing-masing.'
+            'Jadwal kuliah semester genap tahun ajaran 2024/2025 telah dirilis. Silakan cek portal akademik masing-masing.',
       },
       {
-        'kategori': 'Umum',
         'judul': 'Pemeliharaan Sistem Akademik',
         'tanggal': '30 Januari 2025 | 22:00',
         'deskripsi':
-            'Sistem akademik akan mengalami pemeliharaan rutin mulai pukul 22.00 WIB. Mohon maaf atas ketidaknyamanannya.'
+            'Sistem akademik akan mengalami pemeliharaan rutin mulai pukul 22.00 WIB. Mohon maaf atas ketidaknyamanannya.',
       },
     ];
 
@@ -42,7 +40,7 @@ class PengumumanPage extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            // 🔍 Hanya Search Field (kategori dihapus)
+            // 🔍 Search Field
             TextField(
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
@@ -61,16 +59,17 @@ class PengumumanPage extends StatelessWidget {
                 itemCount: pengumumanList.length,
                 itemBuilder: (context, index) {
                   final item = pengumumanList[index];
+
                   return InkWell(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailPengumumanPage(
-                            kategori: item['kategori']!,
                             judul: item['judul']!,
                             tanggal: item['tanggal']!,
                             deskripsi: item['deskripsi']!,
+                            gambar: item['gambar'], // dikirim ke halaman detail
                           ),
                         ),
                       );
@@ -86,23 +85,6 @@ class PengumumanPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Label kategori
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                item['kategori']!,
-                                style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
                             // Judul
                             Text(
                               item['judul']!,
@@ -112,6 +94,7 @@ class PengumumanPage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
+
                             // Tanggal
                             Row(
                               children: [
@@ -125,10 +108,14 @@ class PengumumanPage extends StatelessWidget {
                                 ),
                               ],
                             ),
+
                             const SizedBox(height: 8),
-                            // Deskripsi
+
+                            // Deskripsi ringkas
                             Text(
                               item['deskripsi']!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontSize: 13),
                             ),
                           ],

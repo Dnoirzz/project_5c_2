@@ -507,9 +507,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                       width: 140,
                       child: ElevatedButton(
                         onPressed: _currentPage < 4
-                            ? (_checkRequiredFields(
-                                        _formData[_currentPage] ?? {}) ||
-                                    _pagesSaved[_currentPage] == true
+                            ? (_pagesSaved[_currentPage] == true
                                 ? _nextPage
                                 : null)
                             : () {
