@@ -3,7 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../widgets/appBar.dart';
 import 'formulir_scr/formulir_main.dart';
-import 'pengumuman/pengumuman.dart';
+import 'pengumuman/pengumuman.dart'; // <-- tambahkan import ini
+import 'pengumuman/detail_pengumuman.dart'; // <-- tambahkan import ini
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -35,10 +36,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: CustomAppBar(
@@ -48,13 +45,12 @@ class _DashboardPageState extends State<DashboardPage> {
         currentPage: 'dashboard',
       ),
       drawer: const AppDrawer(currentPage: 'dashboard'),
-
-      // ===================== BODY DASHBOARD =======================
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profil Card
+            // Profile Card
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFF233746),
@@ -81,11 +77,11 @@ class _DashboardPageState extends State<DashboardPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'NIK: 1234567890123456',
-                          style: TextStyle(color: Colors.white70),
-                        ),
+                        // const SizedBox(height: 4),
+                        // const Text(
+                        //   'NIM: 2024001645',
+                        //   style: TextStyle(color: Colors.white70),
+                        // ),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -97,7 +93,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
-                            'Status: menunggu Verifikasi',
+                            'Status: Lengkapi Verifikasi',
                             style: TextStyle(
                               color: Colors.black87,
                               fontSize: 12,
@@ -106,11 +102,23 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          formattedDate,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.calendar_today,
+                                  size: 16, color: Colors.white70),
+                              const SizedBox(width: 6),
+                              Text(
+                                formattedDate,
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -121,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             const SizedBox(height: 24),
 
-            // Progress Pendaftaran
+            // Progress Pendaftaran Card
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -219,159 +227,116 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
             ),
+
             const SizedBox(height: 24),
 
-            // Pengumuman Terbaru
-            _buildPengumumanSection(),
+            // Pengumuman section
+            _buildFloatingPengumuman(context),
+
+            // Tambahkan padding bottom agar scroll tidak terpotong
+            const SizedBox(height: 32),
           ],
         ),
       ),
     );
   }
 
-  // Widget untuk menampilkan pengumuman terbaru
-  Widget _buildPengumumanSection() {
-    // Data pengumuman (sama seperti di pengumuman.dart)
-    final List<Map<String, String>> pengumumanList = [
-      {
-        'kategori': 'Pendaftaran',
-        'judul': 'Batas Waktu Pendaftaran Diperpanjang',
-        'tanggal': '25 Januari 2025 | 20:30',
-        'deskripsi':
-            'Batas waktu pendaftaran mahasiswa telah diperpanjang hingga 25 Januari 2025. Pastikan Anda melengkapi semua berkas yang diperlukan.'
-      },
-      {
-        'kategori': 'Akademik',
-        'judul': 'Jadwal Kuliah Semester Genap',
-        'tanggal': '10 Februari 2025 | 08:00',
-        'deskripsi':
-            'Jadwal kuliah semester genap tahun ajaran 2024/2025 telah dirilis. Silakan cek portal akademik masing-masing.'
-      },
-      {
-        'kategori': 'Umum',
-        'judul': 'Pemeliharaan Sistem Akademik',
-        'tanggal': '30 Januari 2025 | 22:00',
-        'deskripsi':
-            'Sistem akademik akan mengalami pemeliharaan rutin mulai pukul 22.00 WIB. Mohon maaf atas ketidaknyamanannya.'
-      },
-    ];
+  Widget _buildFloatingPengumuman(BuildContext context) {
+    final first = pengumumanList.isNotEmpty ? pengumumanList.first : null;
+    final itemsToShow = pengumumanList.length >= 2
+        ? pengumumanList.take(2).toList()
+        : (first != null ? [first] : []);
 
-    // Ambil pengumuman terbaru (index 0)
-    final latestPengumuman = pengumumanList[0];
+    Widget buildItem(Map item) {
+      final String judul = item['judul'] ?? '';
+      final String deskripsi = item['deskripsi'] ?? '';
+      final String tanggal = item['tanggal'] ?? ''; // jika data ada di list
+      return InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => PengumumanDetailPage(item: item)),
+          );
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300),
+            color: Colors.white,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(judul, style: const TextStyle(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today,
+                      size: 14, color: Colors.black54),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      tanggal.isNotEmpty ? tanggal : (item['waktu'] ?? ''),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                deskripsi,
+                style: const TextStyle(color: Colors.black54, fontSize: 13),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Material(
+      elevation: 8,
+      borderRadius: BorderRadius.circular(12),
+      color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header dengan View All button
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.notifications_outlined,
-                        color: Color(0xFF233746)),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Pengumuman Terbaru',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                const Icon(Icons.announcement_outlined, color: Colors.black87),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Pengumuman',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const PengumumanPage(),
-                      ),
+                          builder: (context) => const PengumumanPage()),
                     );
                   },
-                  child: const Text(
-                    'View All',
-                    style: TextStyle(
-                      color: Color(0xFF233746),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: const Text('View All', style: TextStyle(fontSize: 13)),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-
-            // Pengumuman card
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Label kategori
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      latestPengumuman['kategori']!,
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Judul
-                  Text(
-                    latestPengumuman['judul']!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  // Tanggal
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today,
-                          size: 12, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        latestPengumuman['tanggal']!,
-                        style:
-                            const TextStyle(fontSize: 11, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Deskripsi
-                  Text(
-                    latestPengumuman['deskripsi']!,
-                    style: const TextStyle(fontSize: 12, color: Colors.black87),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
+            const Divider(height: 12),
+            if (itemsToShow.isNotEmpty)
+              ...itemsToShow.map((it) => buildItem(it)).toList()
+            else
+              const Text('Belum ada pengumuman',
+                  style: TextStyle(color: Colors.black54)),
           ],
         ),
       ),
