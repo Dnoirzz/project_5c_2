@@ -77,11 +77,11 @@ class _DashboardPageState extends State<DashboardPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'NIK: 1234567890123456',
-                          style: TextStyle(color: Colors.white70),
-                        ),
+                        // const SizedBox(height: 4),
+                        // const Text(
+                        //   'NIM: 2024001645',
+                        //   style: TextStyle(color: Colors.white70),
+                        // ),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
