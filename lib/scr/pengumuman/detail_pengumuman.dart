@@ -74,3 +74,42 @@ class DetailPengumumanPage extends StatelessWidget {
     );
   }
 }
+
+class PengumumanDetailPage extends StatelessWidget {
+  final Map item;
+  const PengumumanDetailPage({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final String judul = item['judul'] ?? 'Pengumuman';
+    final String deskripsi = item['deskripsi'] ?? '';
+    final String tanggal = item['tanggal'] ?? (item['waktu'] ?? '');
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Detail Pengumuman'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(judul, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today, size: 16, color: Colors.black54),
+                  const SizedBox(width: 8),
+                  Text(tanggal, style: const TextStyle(color: Colors.black54)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(deskripsi, style: const TextStyle(fontSize: 15, height: 1.4)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
