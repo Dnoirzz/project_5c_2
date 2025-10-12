@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../management_form.dart';
 
 class Sidebar extends StatelessWidget {
   final String userName;
@@ -39,8 +40,12 @@ class Sidebar extends StatelessWidget {
                     isSelected: currentPage == 'Data Mahasiswa',
                     onTap: () {
                       Navigator.pop(context);
-                      // Navigate to Data Mahasiswa page
-                      // Navigator.pushNamed(context, '/data-mahasiswa');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FormManagementPage(),
+                        ),
+                      );
                     },
                   ),
                   _buildDrawerItemWithAsset(
