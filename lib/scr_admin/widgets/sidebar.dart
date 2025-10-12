@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../management_form.dart';
 
-class Sidebar extends StatelessWidget {
+
+class Sidebar extends StatefulWidget {
   final String userName;
   final String currentPage;
 
@@ -10,6 +11,13 @@ class Sidebar extends StatelessWidget {
     this.userName = 'Sarah Elexandare',
     this.currentPage = 'Dashboard',
   });
+
+  @override
+  State<Sidebar> createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<Sidebar> {
+  bool isDataMahasiswaExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +35,20 @@ class Sidebar extends StatelessWidget {
                     context,
                     iconPath: 'assets/icons/dashboard_icon.png',
                     title: 'Dashboard',
-                    isSelected: currentPage == 'Dashboard',
+                    isSelected: widget.currentPage == 'Dashboard',
                     onTap: () {
                       Navigator.pop(context);
                       // Sudah di halaman Dashboard
                     },
                   ),
-                  _buildDrawerItemWithAsset(
+                  _buildDrawerItemWithSubmenu(
                     context,
                     iconPath: 'assets/icons/data_mahasiswa_icon.png',
                     title: 'Data Mahasiswa',
-                    isSelected: currentPage == 'Data Mahasiswa',
+                    isSelected: widget.currentPage == 'Data Mahasiswa',
+                    isExpanded: isDataMahasiswaExpanded,
                     onTap: () {
+
                       Navigator.pop(context);
                       Navigator.push(
                         context,
@@ -47,12 +57,46 @@ class Sidebar extends StatelessWidget {
                         ),
                       );
                     },
+                    submenuItems: [
+                      _buildSubmenuItem(
+                        context,
+                        title: 'Teknik Elektro',
+                        onTap: () {
+                          Navigator.pop(context);
+                          // Navigate to Teknik Elektro page
+                        },
+                      ),
+                      _buildSubmenuItem(
+                        context,
+                        title: 'Teknik Mesin',
+                        onTap: () {
+                          Navigator.pop(context);
+                          // Navigate to Teknik Mesin page
+                        },
+                      ),
+                      _buildSubmenuItem(
+                        context,
+                        title: 'Akuntansi',
+                        onTap: () {
+                          Navigator.pop(context);
+                          // Navigate to Akuntansi page
+                        },
+                      ),
+                      _buildSubmenuItem(
+                        context,
+                        title: 'Teknologi Pertanian',
+                        onTap: () {
+                          Navigator.pop(context);
+                          // Navigate to Teknologi Pertanian page
+                        },
+                      ),
+                    ],
                   ),
                   _buildDrawerItemWithAsset(
                     context,
                     iconPath: 'assets/icons/pengumuman_icon.png',
                     title: 'Pengumuman',
-                    isSelected: currentPage == 'Pengumuman',
+                    isSelected: widget.currentPage == 'Pengumuman',
                     onTap: () {
                       Navigator.pop(context);
                       // Navigate to Pengumuman page
@@ -98,7 +142,7 @@ class Sidebar extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            userName,
+            widget.userName,
             style: const TextStyle(
               color: Colors.yellowAccent,
               fontSize: 18,
@@ -130,7 +174,6 @@ class Sidebar extends StatelessWidget {
           height: 24,
           color: isSelected ? Colors.white : const Color(0xFF364A63),
           errorBuilder: (context, error, stackTrace) {
-            // Fallback ke icon default jika gambar tidak ditemukan
             return Icon(
               _getDefaultIcon(title),
               color: isSelected ? Colors.white : const Color(0xFF364A63),
@@ -147,6 +190,109 @@ class Sidebar extends StatelessWidget {
           ),
         ),
         onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildDrawerItemWithSubmenu(
+    BuildContext context, {
+    required String iconPath,
+    required String title,
+    bool isSelected = false,
+    bool isExpanded = false,
+    required VoidCallback onTap,
+    required List<Widget> submenuItems,
+  }) {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white24 : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ListTile(
+            leading: Image.asset(
+              iconPath,
+              width: 24,
+              height: 24,
+              color: isSelected ? Colors.white : const Color(0xFF364A63),
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  _getDefaultIcon(title),
+                  color: isSelected ? Colors.white : const Color(0xFF364A63),
+                  size: 24,
+                );
+              },
+            ),
+            title: Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF364A63),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 16,
+              ),
+            ),
+            trailing: Icon(
+              isExpanded ? Icons.expand_less : Icons.expand_more,
+              color: isSelected ? Colors.white : const Color(0xFF364A63),
+            ),
+            onTap: onTap,
+          ),
+        ),
+        AnimatedCrossFade(
+          firstChild: Container(),
+          secondChild: Container(
+            margin: const EdgeInsets.only(left: 16),
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: submenuItems,
+            ),
+          ),
+          crossFadeState: isExpanded
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+          duration: const Duration(milliseconds: 300),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmenuItem(
+    BuildContext context, {
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      hoverColor: Colors.yellowAccent.withOpacity(0.3),
+      splashColor: Colors.yellowAccent.withOpacity(0.5),
+      highlightColor: Colors.yellowAccent.withOpacity(0.2),
+      child: Container(
+        padding: const EdgeInsets.only(left: 56, right: 16, top: 12, bottom: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: Colors.yellowAccent,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Color(0xFF364A63),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
