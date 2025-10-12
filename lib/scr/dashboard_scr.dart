@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../widgets/appBar.dart';
 import 'formulir_scr/formulir_main.dart';
+import 'pengumuman/pengumuman.dart'; // <-- tambahkan import ini
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -49,176 +50,268 @@ class _DashboardPageState extends State<DashboardPage> {
       drawer: const AppDrawer(currentPage: 'dashboard'),
 
       // ===================== BODY DASHBOARD =======================
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Profil Card
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF233746),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
+      body: Stack(
+         children: [
+           SingleChildScrollView(
+             padding: const EdgeInsets.all(16.0).copyWith(bottom: 160),
+             child: Column(
+               children: [
+                 // Profil Card
+                 Container(
+                   decoration: BoxDecoration(
+                     color: const Color(0xFF233746),
+                     borderRadius: BorderRadius.circular(12),
+                   ),
+                   padding: const EdgeInsets.all(16),
+                   child: Row(
+                     children: [
+                       const CircleAvatar(
+                         radius: 35,
+                         backgroundColor: Colors.white24,
+                         child: Icon(Icons.person, size: 40, color: Colors.white),
+                       ),
+                       const SizedBox(width: 16),
+                       Expanded(
+                         child: Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             const Text(
+                               'Aldi Mahendra',
+                               style: TextStyle(
+                                 color: Colors.white,
+                                 fontSize: 18,
+                                 fontWeight: FontWeight.bold,
+                               ),
+                             ),
+                             // const SizedBox(height: 4),
+                             // const Text(
+                             //   'NIM: 2024001645',
+                             //   style: TextStyle(color: Colors.white70),
+                             // ),
+                             const SizedBox(height: 8),
+                             Container(
+                               padding: const EdgeInsets.symmetric(
+                                 horizontal: 8,
+                                 vertical: 4,
+                               ),
+                               decoration: BoxDecoration(
+                                 color: Colors.yellow.shade700,
+                                 borderRadius: BorderRadius.circular(8),
+                               ),
+                               child: const Text(
+                                 'Status: Lengkapi Verifikasi',
+                                 style: TextStyle(
+                                   color: Colors.black87,
+                                   fontSize: 12,
+                                   fontWeight: FontWeight.w500,
+                                 ),
+                               ),
+                             ),
+                             const SizedBox(height: 8),
+                             Text(
+                               formattedDate,
+                               style: const TextStyle(
+                                 color: Colors.white70,
+                                 fontSize: 13,
+                               ),
+                             ),
+                           ],
+                         ),
+                       ),
+                     ],
+                   ),
+                 ),
+                 const SizedBox(height: 24),
+
+                 // Progress Pendaftaran
+                 Card(
+                   elevation: 2,
+                   shape: RoundedRectangleBorder(
+                     borderRadius: BorderRadius.circular(12),
+                   ),
+                   child: InkWell(
+                     onTap: () {
+                       Navigator.push(
+                         context,
+                         MaterialPageRoute(
+                           builder: (context) => const FormulirPendaftaranMain(),
+                         ),
+                       );
+                     },
+                     borderRadius: BorderRadius.circular(12),
+                     child: Padding(
+                       padding: const EdgeInsets.all(16.0),
+                       child: Column(
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           const Row(
+                             children: [
+                               Icon(Icons.assignment_outlined),
+                               SizedBox(width: 8),
+                               Text(
+                                 'Progress Pendaftaran',
+                                 style: TextStyle(
+                                   fontSize: 16,
+                                   fontWeight: FontWeight.bold,
+                                 ),
+                               ),
+                               Spacer(),
+                               Icon(
+                                 Icons.arrow_forward_ios,
+                                 size: 16,
+                                 color: Colors.grey,
+                               ),
+                             ],
+                           ),
+                           const SizedBox(height: 4),
+                           const Text(
+                             'Progres kelengkapan formulir pendaftaran Anda',
+                             style: TextStyle(fontSize: 13, color: Colors.black54),
+                           ),
+                           const SizedBox(height: 12),
+
+                           // Progress Bar
+                           Stack(
+                             children: [
+                               Container(
+                                 height: 10,
+                                 decoration: BoxDecoration(
+                                   color: Colors.grey.shade300,
+                                   borderRadius: BorderRadius.circular(5),
+                                 ),
+                               ),
+                               FractionallySizedBox(
+                                 widthFactor: 0.75,
+                                 child: Container(
+                                   height: 10,
+                                   decoration: BoxDecoration(
+                                     color: Colors.black,
+                                     borderRadius: BorderRadius.circular(5),
+                                   ),
+                                 ),
+                               ),
+                             ],
+                           ),
+                           const SizedBox(height: 4),
+                           const Align(
+                             alignment: Alignment.centerRight,
+                             child: Text('75%', style: TextStyle(fontSize: 13)),
+                           ),
+                           const SizedBox(height: 16),
+
+                           const ChecklistItem(
+                             title: 'Data Pribadi',
+                             completed: true,
+                           ),
+                           const ChecklistItem(
+                             title: 'Data Akademik',
+                             completed: true,
+                           ),
+                           const ChecklistItem(
+                             title: 'Data Orang tua',
+                             completed: true,
+                           ),
+                           const ChecklistItem(
+                             title: 'Upload Dokumen',
+                             completed: false,
+                             number: 4,
+                           ),
+                         ],
+                       ),
+                     ),
+                   ),
+                 ),
+               ],
+             ),
+           ),
+
+           // Floating Pengumuman (posisi bawah)
+           Positioned(
+             left: 16,
+             right: 16,
+             bottom: 16,
+             child: _buildFloatingPengumuman(context),
+           ),
+         ],
+      ),
+    );
+  }
+  
+  Widget _buildFloatingPengumuman(BuildContext context) {
+    final first = pengumumanList.isNotEmpty ? pengumumanList.first : null;
+
+    return Material(
+      elevation: 8,
+      borderRadius: BorderRadius.circular(12),
+      color: Colors.white,
+      child: InkWell(
+        onTap: () {
+          // buka halaman Pengumuman lengkap
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PengumumanPage()),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  const CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.white24,
-                    child: Icon(Icons.person, size: 40, color: Colors.white),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Aldi Mahendra',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'NIK: 1234567890123456',
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.yellow.shade700,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'Status: menunggu Verifikasi',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          formattedDate,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
+                  const Icon(Icons.announcement_outlined, color: Colors.black87),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Pengumuman',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PengumumanPage()),
+                      );
+                    },
+                    child: const Text('View All', style: TextStyle(fontSize: 13)),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-
-            // Progress Pendaftaran
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const FormulirPendaftaranMain(),
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
+              const Divider(height: 12),
+              // Tampilkan item pertama dari pengumumanList (jika ada)
+              if (first != null) 
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.calendar_today, size: 16, color: Colors.black54),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.assignment_outlined),
-                          SizedBox(width: 8),
                           Text(
-                            'Progress Pendaftaran',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            first['judul'] ?? '',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
-                          Spacer(),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: Colors.grey,
+                          const SizedBox(height: 4),
+                          Text(
+                            first['deskripsi'] ?? '',
+                            style: const TextStyle(color: Colors.black54, fontSize: 13),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Progres kelengkapan formulir pendaftaran Anda',
-                        style: TextStyle(fontSize: 13, color: Colors.black54),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Progress Bar
-                      Stack(
-                        children: [
-                          Container(
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: 0.75,
-                            child: Container(
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      const Align(
-                        alignment: Alignment.centerRight,
-                        child: Text('75%', style: TextStyle(fontSize: 13)),
-                      ),
-                      const SizedBox(height: 16),
-
-                      const ChecklistItem(
-                        title: 'Data Pribadi',
-                        completed: true,
-                      ),
-                      const ChecklistItem(
-                        title: 'Data Akademik',
-                        completed: true,
-                      ),
-                      const ChecklistItem(
-                        title: 'Data Orang tua',
-                        completed: true,
-                      ),
-                      const ChecklistItem(
-                        title: 'Upload Dokumen',
-                        completed: false,
-                        number: 4,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+                    ),
+                  ],
+                )
+              else
+                const Text('Belum ada pengumuman', style: TextStyle(color: Colors.black54)),
+            ],
+          ),
         ),
       ),
     );
