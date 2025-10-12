@@ -10,6 +10,7 @@ const List<Map<String, String>> pengumumanList = [
     'tanggal': '25 Januari 2025 | 20:30',
     'deskripsi':
         'Batas waktu pendaftaran maksimal 25 Januari 2025. Pastikan Anda melengkapi semua berkas.',
+    'gambar': 'assets/images/pengumuman.jpg',
   },
   {
     'kategori': 'Akademik',

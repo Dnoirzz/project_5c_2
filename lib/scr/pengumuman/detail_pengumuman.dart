@@ -84,6 +84,7 @@ class PengumumanDetailPage extends StatelessWidget {
     final String judul = item['judul'] ?? 'Pengumuman';
     final String deskripsi = item['deskripsi'] ?? '';
     final String tanggal = item['tanggal'] ?? (item['waktu'] ?? '');
+    final String? gambar = item['gambar'];
 
     return Scaffold(
       appBar: AppBar(
@@ -95,17 +96,35 @@ class PengumumanDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(judul, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(judul,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 16, color: Colors.black54),
+                  const Icon(Icons.calendar_today,
+                      size: 16, color: Colors.black54),
                   const SizedBox(width: 8),
                   Text(tanggal, style: const TextStyle(color: Colors.black54)),
                 ],
               ),
-              const SizedBox(height: 12),
-              Text(deskripsi, style: const TextStyle(fontSize: 15, height: 1.4)),
+              const SizedBox(height: 16),
+
+              // 🖼️ Gambar hanya muncul kalau pengumuman punya gambar
+              if (gambar != null && gambar.isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    gambar,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              Text(deskripsi,
+                  style: const TextStyle(fontSize: 15, height: 1.4)),
             ],
           ),
         ),
