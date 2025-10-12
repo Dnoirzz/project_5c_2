@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'forgot_scr.dart';
 import 'register_scr.dart';
 import 'dashboard_scr.dart';
+import '../scr_admin/admin_dashboard.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // controller untuk ambil input dari TextField
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+
     return Scaffold(
       backgroundColor: const Color(0xFF36566F), // warna biru background
       body: SafeArea(
@@ -63,6 +68,7 @@ class LoginScreen extends StatelessWidget {
 
                       // TextField Email
                       TextField(
+                        controller: emailController,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
                             Icons.email,
@@ -77,6 +83,7 @@ class LoginScreen extends StatelessWidget {
 
                       // TextField Password
                       TextField(
+                        controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
@@ -132,12 +139,36 @@ class LoginScreen extends StatelessWidget {
                             ),
                           ),
                           onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const DashboardPage(),
-                              ),
-                            );
+                            String email = emailController.text.trim();
+                            String password = passwordController.text.trim();
+
+                            if (email == 'admin' &&
+                                password == 'admin') {
+                              // Login sebagai Admin
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AdminDashboard(),
+                                ),
+                              );
+                            } else if (email == 'user' &&
+                                password == 'user') {
+                              // Login sebagai User
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const DashboardPage(),
+                                ),
+                              );
+                            } else {
+                              // Jika login salah
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Email atau password salah! Coba lagi.'),
+                                ),
+                              );
+                            }
                           },
                           child: const Text(
                             "Login",
