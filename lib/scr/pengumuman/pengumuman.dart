@@ -2,33 +2,29 @@ import 'package:flutter/material.dart';
 import 'detail_pengumuman.dart';
 import '../../widgets/appBar.dart';
 
+// Tambahkan/eksport variabel pengumumanList sehingga bisa digunakan dari file lain
+const List<Map<String, String>> pengumumanList = [
+  {
+    'kategori': 'Pendaftaran',
+    'judul': 'Batas Waktu Pendaftaran Diperpanjang',
+    'tanggal': '25 Januari 2025 | 20:30',
+    'deskripsi':
+        'Batas waktu pendaftaran maksimal 25 Januari 2025. Pastikan Anda melengkapi semua berkas.',
+  },
+  {
+    'kategori': 'Akademik',
+    'judul': 'Jadwal Kuliah Semester Genap',
+    'tanggal': '10 Februari 2025 | 08:00',
+    'deskripsi':
+        'Jadwal kuliah semester genap tahun ajaran 2024/2025 telah dirilis. Silakan cek portal akademik masing-masing.',
+  },
+];
+
 class PengumumanPage extends StatelessWidget {
   const PengumumanPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> pengumumanList = [
-      {
-        'judul': 'Batas Waktu Pendaftaran Diperpanjang',
-        'tanggal': '25 Januari 2025 | 20:30',
-        'deskripsi':
-            'Batas waktu pendaftaran mahasiswa telah diperpanjang hingga 25 Januari 2025. Pastikan Anda melengkapi semua berkas yang diperlukan.',
-        'gambar': 'assets/images/pengumuman.jpg',
-      },
-      {
-        'judul': 'Jadwal Kuliah Semester Genap',
-        'tanggal': '10 Februari 2025 | 08:00',
-        'deskripsi':
-            'Jadwal kuliah semester genap tahun ajaran 2024/2025 telah dirilis. Silakan cek portal akademik masing-masing.',
-      },
-      {
-        'judul': 'Pemeliharaan Sistem Akademik',
-        'tanggal': '30 Januari 2025 | 22:00',
-        'deskripsi':
-            'Sistem akademik akan mengalami pemeliharaan rutin mulai pukul 22.00 WIB. Mohon maaf atas ketidaknyamanannya.',
-      },
-    ];
-
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Pengumuman',
