@@ -82,7 +82,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'NIM: 2024001645',
+                          'NIK: 1234567890123456',
                           style: TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 8),
