@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../widgets/appBar.dart';
 import 'formulir_scr/formulir_main.dart';
-import 'pengumuman/pengumuman.dart';
+import 'pengumuman/detail_pengumuman.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -238,7 +238,8 @@ class _DashboardPageState extends State<DashboardPage> {
         'judul': 'Batas Waktu Pendaftaran Diperpanjang',
         'tanggal': '25 Januari 2025 | 20:30',
         'deskripsi':
-            'Batas waktu pendaftaran mahasiswa telah diperpanjang hingga 25 Januari 2025. Pastikan Anda melengkapi semua berkas yang diperlukan.'
+            'Batas waktu pendaftaran mahasiswa telah diperpanjang hingga 25 Januari 2025. Pastikan Anda melengkapi semua berkas yang diperlukan.',
+        'gambar': 'assets/images/pengumuman.jpg'
       },
       {
         'kategori': 'Akademik',
@@ -292,7 +293,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const PengumumanPage(),
+                        builder: (context) => DetailPengumumanPage(
+                          judul: latestPengumuman['judul']!,
+                          tanggal: latestPengumuman['tanggal']!,
+                          deskripsi: latestPengumuman['deskripsi']!,
+                          gambar: latestPengumuman['gambar'],
+                        ),
                       ),
                     );
                   },
