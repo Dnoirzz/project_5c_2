@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class TambahPengumumanPage extends StatefulWidget {
   const TambahPengumumanPage({super.key});
@@ -9,61 +10,292 @@ class TambahPengumumanPage extends StatefulWidget {
 }
 
 class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
-  final _judulController = TextEditingController();
-  final _isiController = TextEditingController();
-  final uuid = const Uuid();
+  final TextEditingController _judulController = TextEditingController();
+  final TextEditingController _deskripsiController = TextEditingController();
+  final ImagePicker _imagePicker = ImagePicker();
 
-  void _publish() {
-    if (_judulController.text.isEmpty || _isiController.text.isEmpty) return;
+  File? _selectedImage;
 
-    final newItem = {
-      'id': uuid.v4(),
-      'judul': _judulController.text,
-      'tanggal': '12 Oktober 2025 | 13:30',
-      'isi': _isiController.text,
-      'gambar': 'assets/beasiswa.jpg',
-    };
+  @override
+  void dispose() {
+    _judulController.dispose();
+    _deskripsiController.dispose();
+    super.dispose();
+  }
 
-    Navigator.pop(context, newItem);
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+  void _publishPengumuman() {
+    // Validasi input
+    if (_judulController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Judul tidak boleh kosong!"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (_deskripsiController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Deskripsi tidak boleh kosong!"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Simulasi publish
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Pengumuman berhasil dipublikasikan!"),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    // Kembali ke halaman sebelumnya
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Warna yang digunakan dalam gambar (estimasi):
+    const Color darkBlueBackground = Color(0xFF365368); // Background Scaffold & App Bar
+    const Color formContainerColor = Color(0xFF1C3C53); // Warna yang terlihat di sekitar input fields
+    // const Color inputFieldColor = Color(0xFF7F8C8D); // Warna di dalam Judul & Isi Pengumuman
+    const Color fileUploadButtonColor = Color(0xFF34495E); // Warna tombol Choose File
+    // const Color fileUploadPlaceholderColor = Color(0xFF7F8C8D); // Warna placeholder Upload File/Gambar
+    const Color publishButtonColor = Colors.green; // Warna tombol Publish
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1E3A5F),
+      backgroundColor: darkBlueBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E3A5F),
-        title: const Text('Tambah Pengumuman', style: TextStyle(color: Colors.white)),
+        backgroundColor: darkBlueBackground,
+        title: const Text(
+          "Tambah Pengumuman",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Color(0xffE8E995), // Warna judul AppBar (putih)
+          ),
+        ),
+        centerTitle: false,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.yellowAccent),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _judulController,
-              decoration: const InputDecoration(
-                labelText: 'Judul Pengumuman',
-                filled: true,
-                fillColor: Colors.white,
+      body: SingleChildScrollView(
+        // Padding luar untuk jarak dari tepi layar (jika diperlukan)
+        padding: const EdgeInsets.all(20),
+        child: Container(
+          // Container tunggal untuk menampung semua elemen form
+          // Ini adalah 'card' atau area utama yang menonjol dari background
+          decoration: BoxDecoration(
+            color: formContainerColor, // Warna abu-abu kebiruan yang lebih terang
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.all(20), // Padding di dalam container form
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Label Judul
+              const Text(
+                "Judul",
+                style: TextStyle(
+                  color: Colors.white, // Warna teks label
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _isiController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Isi Pengumuman',
-                filled: true,
-                fillColor: Colors.white,
+              const SizedBox(height: 8),
+              // Input Judul
+              TextField(
+                controller: _judulController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Masukkan Judul Pengumuman",
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: Colors.white12, // Warna input field
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _publish,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text('Publish'),
-            )
-          ],
+              const SizedBox(height: 20),
+
+              // Label Isi Pengumuman
+              const Text(
+                "Isi Pengumuman",
+                style: TextStyle(
+                  color: Colors.white, // Warna teks label
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Input Deskripsi
+              TextField(
+                controller: _deskripsiController,
+                maxLines: 6,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Masukkan Isi Pengumuman",
+                  hintStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: Colors.white12, // Warna input field
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Upload File/Gambar
+              Row(
+                children: [
+                  const Text(
+                    "Upload File/Gambar",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    "(jika Ada)",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Tombol Upload dan Text Field Simulasi
+              Row(
+                children: [
+                  // Tombol Choose File
+                  ElevatedButton(
+                    onPressed: _pickImageFromGallery,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: fileUploadButtonColor,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      "Choose File",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Text/Placeholder untuk nama file yang dipilih
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white12, // Warna abu-abu yang lebih terang
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _selectedImage != null
+                            ? _selectedImage!.path.split('/').last
+                            : "Upload File/Gambar",
+                        style: TextStyle(
+                          color: Colors.white,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Preview Gambar (opsional, disembunyikan jika tidak ada)
+              if (_selectedImage != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(
+                    _selectedImage!,
+                    fit: BoxFit.cover,
+                    height: 180,
+                    width: double.infinity,
+                  ),
+                )
+              else 
+                const SizedBox.shrink(), // Hapus placeholder jika tidak ada gambar
+
+              if (_selectedImage != null) const SizedBox(height: 30),
+              if (_selectedImage == null) const SizedBox(height: 20),
+
+
+              // Tombol Publish
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _publishPengumuman,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: publishButtonColor,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Publish",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
