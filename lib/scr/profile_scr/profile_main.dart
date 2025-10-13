@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import 'data_pribadi_scr.dart';
 import 'informasi_akademik_scr.dart';
 import 'data_ortu_scr.dart';
@@ -93,7 +93,7 @@ class _ProfileMainState extends State<ProfileMain>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             offset: const Offset(0, 4),
             blurRadius: 8,
           ),
@@ -217,7 +217,7 @@ class _ProfileMainState extends State<ProfileMain>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),
