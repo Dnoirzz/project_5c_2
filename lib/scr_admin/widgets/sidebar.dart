@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_5c_2/scr_admin/pengumuman/admin_pengumuman_page.dart'; // 🔥 Tambahkan ini
 
 class Sidebar extends StatelessWidget {
   final String userName;
@@ -29,7 +30,6 @@ class Sidebar extends StatelessWidget {
                     isSelected: currentPage == 'Dashboard',
                     onTap: () {
                       Navigator.pop(context);
-                      // Sudah di halaman Dashboard
                     },
                   ),
                   _buildDrawerItemWithAsset(
@@ -39,8 +39,7 @@ class Sidebar extends StatelessWidget {
                     isSelected: currentPage == 'Data Mahasiswa',
                     onTap: () {
                       Navigator.pop(context);
-                      // Navigate to Data Mahasiswa page
-                      // Navigator.pushNamed(context, '/data-mahasiswa');
+                      // TODO: Hubungkan ke halaman data mahasiswa jika sudah ada
                     },
                   ),
                   _buildDrawerItemWithAsset(
@@ -50,8 +49,13 @@ class Sidebar extends StatelessWidget {
                     isSelected: currentPage == 'Pengumuman',
                     onTap: () {
                       Navigator.pop(context);
-                      // Navigate to Pengumuman page
-                      // Navigator.pushNamed(context, '/pengumuman');
+                      // 🔥 Pindah ke halaman pengumuman admin
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdminPengumumanPage(),
+                        ),
+                      );
                     },
                   ),
                   _buildDrawerItemWithAsset(
@@ -125,7 +129,6 @@ class Sidebar extends StatelessWidget {
           height: 24,
           color: isSelected ? Colors.white : const Color(0xFF364A63),
           errorBuilder: (context, error, stackTrace) {
-            // Fallback ke icon default jika gambar tidak ditemukan
             return Icon(
               _getDefaultIcon(title),
               color: isSelected ? Colors.white : const Color(0xFF364A63),
@@ -232,7 +235,7 @@ class Sidebar extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pop(context); // Return to login/previous page
+              Navigator.pop(context);
             },
             child: const Text('Keluar', style: TextStyle(color: Colors.red)),
           ),
