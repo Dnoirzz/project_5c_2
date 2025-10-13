@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../management_form.dart';
+import '../pengumuman/admin_pengumuman_page.dart';
+
 
 class Sidebar extends StatefulWidget {
   final String userName;
@@ -37,7 +39,6 @@ class _CustomDrawerState extends State<Sidebar> {
                     isSelected: widget.currentPage == 'Dashboard',
                     onTap: () {
                       Navigator.pop(context);
-                      // Sudah di halaman Dashboard
                     },
                   ),
                   _buildDrawerItemWithSubmenu(
@@ -97,8 +98,13 @@ class _CustomDrawerState extends State<Sidebar> {
                     isSelected: widget.currentPage == 'Pengumuman',
                     onTap: () {
                       Navigator.pop(context);
-                      // Navigate to Pengumuman page
-                      // Navigator.pushNamed(context, '/pengumuman');
+                      // 🔥 Pindah ke halaman pengumuman admin
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdminPengumumanPage(),
+                        ),
+                      );
                     },
                   ),
                   _buildDrawerItemWithAsset(
@@ -381,7 +387,7 @@ class _CustomDrawerState extends State<Sidebar> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pop(context); // Return to login/previous page
+              Navigator.pop(context);
             },
             child: const Text('Keluar', style: TextStyle(color: Colors.red)),
           ),
