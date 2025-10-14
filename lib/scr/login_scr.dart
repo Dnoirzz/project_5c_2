@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'forgot_scr.dart';
 import 'register_scr.dart';
 import 'dashboard_scr.dart';
+import 'package:http/http.dart';
+import 'dart:async';
+import 'dart:convert';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
+  // String _msg = "";
+  // TextEditingController _usernameController = TextEditingController();
+  // TextEditingController _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,6 +68,7 @@ class LoginScreen extends StatelessWidget {
 
                       // TextField Email
                       TextField(
+                        // controller: _usernameController,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
                             Icons.email,
@@ -77,6 +83,7 @@ class LoginScreen extends StatelessWidget {
 
                       // TextField Password
                       TextField(
+                        // controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
@@ -172,6 +179,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                      // Text(_msg, style: const TextStyle(fontSize: 20.0)),
                     ],
                   ),
                 ),
@@ -182,4 +190,10 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
+  // void login() async {
+  //   String url = "http://localhost/flutter/api/login.php";
+  // final Map<String, dynamic> queryParams = {
+
+  // }}
 }

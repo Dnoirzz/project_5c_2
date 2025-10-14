@@ -3,6 +3,7 @@ import '../scr/formulir_scr/formulir_main.dart';
 import '../scr/profile_scr/profile_main.dart';
 import '../scr/dashboard_scr.dart';
 import '../scr/landing.dart';
+// import 'package:';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -45,12 +46,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       );
     } else if (showMenuButton) {
       return Builder(
-        builder:
-            (context) => IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed:
-                  onMenuPressed ?? () => Scaffold.of(context).openDrawer(),
-            ),
+        builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: onMenuPressed ?? () => Scaffold.of(context).openDrawer(),
+        ),
       );
     }
     return null;
@@ -90,78 +89,72 @@ class ProfileMenu extends StatelessWidget {
       offset: const Offset(0, 55),
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      itemBuilder:
-          (context) => [
-            const PopupMenuItem(
-              value: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Aldi Mahendra',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  Text(
-                    'Mahasiswa@example.com',
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
-                  ),
-                ],
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 1,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Aldi Mahendra',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
-            ),
-            const PopupMenuDivider(),
-            PopupMenuItem(
-              value: 2,
-              enabled:
-                  currentPage !=
-                  'profile', // Disabled jika sedang di halaman profil
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.person_outline,
-                    size: 18,
-                    color:
-                        currentPage == 'profile'
-                            ? Colors.grey.shade400
-                            : Colors.black,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Profil',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color:
-                          currentPage == 'profile'
-                              ? Colors.grey.shade400
-                              : Colors.black,
-                    ),
-                  ),
-                ],
+              Text(
+                'Mahasiswa@example.com',
+                style: TextStyle(fontSize: 12, color: Colors.black54),
               ),
-            ),
-            const PopupMenuItem(
-              value: 3,
-              child: Row(
-                children: [
-                  Icon(Icons.settings_outlined, size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Settings',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        PopupMenuItem(
+          value: 2,
+          enabled:
+              currentPage !=
+              'profile', // Disabled jika sedang di halaman profil
+          child: Row(
+            children: [
+              Icon(
+                Icons.person_outline,
+                size: 18,
+                color: currentPage == 'profile'
+                    ? Colors.grey.shade400
+                    : Colors.black,
               ),
-            ),
-            const PopupMenuItem(
-              value: 4,
-              child: Row(
-                children: [
-                  Icon(Icons.logout, color: Colors.red, size: 18),
-                  SizedBox(width: 8),
-                  Text('Keluar', style: TextStyle(color: Colors.red)),
-                ],
+              const SizedBox(width: 8),
+              Text(
+                'Profil',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: currentPage == 'profile'
+                      ? Colors.grey.shade400
+                      : Colors.black,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+        const PopupMenuItem(
+          value: 3,
+          child: Row(
+            children: [
+              Icon(Icons.settings_outlined, size: 18),
+              SizedBox(width: 8),
+              Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+        const PopupMenuItem(
+          value: 4,
+          child: Row(
+            children: [
+              Icon(Icons.logout, color: Colors.red, size: 18),
+              SizedBox(width: 8),
+              Text('Keluar', style: TextStyle(color: Colors.red)),
+            ],
+          ),
+        ),
+      ],
       onSelected: (value) {
         if (onSelected != null) {
           onSelected!(value);
