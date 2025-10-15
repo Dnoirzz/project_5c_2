@@ -64,7 +64,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      "Masukan nim, email, password dan konfirmasi password untuk registrasi",
+                      "Masukan nama lengkap, email, password dan konfirmasi password untuk registrasi",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
@@ -84,7 +84,7 @@ class RegisterScreen extends StatelessWidget {
                     TextField(
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.perm_identity),
-                        hintText: "NIM",
+                        hintText: "Nama Lengkap",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),

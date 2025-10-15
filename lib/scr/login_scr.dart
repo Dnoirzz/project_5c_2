@@ -192,12 +192,24 @@ class LoginScreen extends StatelessWidget {
                                     ),
                                   );
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        "Username atau password salah",
-                                      ),
-                                    ),
+                                  emailController.clear();
+                                  passwordController.clear();
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          title: Text("Gagal"),
+                                          content: Text(
+                                            "Username atau password salah",
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(context),
+                                              child: Text("OK"),
+                                            ),
+                                          ],
+                                        ),
                                   );
                                 }
                               } else {
