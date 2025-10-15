@@ -1,0 +1,1 @@
+ssh -i "mysql.pem" ubuntu@ec2-44-220-144-82.compute-1.amazonaws.com

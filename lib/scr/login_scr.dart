@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'forgot_scr.dart';
 import 'register_scr.dart';
 import 'dashboard_scr.dart';
-import 'package:http/http.dart';
-import 'dart:async';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
-  // String _msg = "";
-  // TextEditingController _usernameController = TextEditingController();
-  // TextEditingController _passwordController = TextEditingController();
+  // const LoginScreen({super.key});
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +66,7 @@ class LoginScreen extends StatelessWidget {
 
                       // TextField Email
                       TextField(
-                        // controller: _usernameController,
+                        controller: emailController,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
                             Icons.email,
@@ -83,7 +81,7 @@ class LoginScreen extends StatelessWidget {
 
                       // TextField Password
                       TextField(
-                        // controller: _passwordController,
+                        controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
@@ -138,13 +136,84 @@ class LoginScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const DashboardPage(),
-                              ),
+                          // onPressed: () async {
+                          //   var url = Uri.parse(
+                          //     "http://44.220.144.82/api/login.php",
+                          //   );
+                          //   var response = await http.post(
+                          //     url,
+                          //     headers: {"Content-Type": "application/json"},
+                          //     body: jsonEncode({
+                          //       "email": emailController.text,
+                          //       "password": passwordController.text,
+                          //     }),
+                          //   );
+
+                          //   var data = jsonDecode(response.body);
+                          //   if (data['status'] == 'success') {
+                          //     Navigator.pushReplacement(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //         builder: (context) => const DashboardPage(),
+                          //       ),
+                          //     );
+                          //   } else {
+                          //     ScaffoldMessenger.of(context).showSnackBar(
+                          //       const SnackBar(
+                          //         content: Text("Email atau password salah"),
+                          //       ),
+                          //     );
+                          //   }
+                          // },
+                          onPressed: () async {
+                            var url = Uri.parse(
+                              "http://44.220.144.82/api/login.php",
                             );
+
+                            try {
+                              var response = await http.post(
+                                url,
+                                headers: {"Content-Type": "application/json"},
+                                body: jsonEncode({
+                                  "username": emailController.text.trim(),
+                                  "password": passwordController.text.trim(),
+                                }),
+                              );
+
+                              if (response.statusCode == 200) {
+                                var data = jsonDecode(response.body);
+
+                                if (data['status'] == 'success') {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => const DashboardPage(),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Username atau password salah",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Gagal terhubung ke server"),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Terjadi kesalahan: $e"),
+                                ),
+                              );
+                            }
                           },
                           child: const Text(
                             "Login",
@@ -190,10 +259,4 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
-
-  // void login() async {
-  //   String url = "http://localhost/flutter/api/login.php";
-  // final Map<String, dynamic> queryParams = {
-
-  // }}
 }
