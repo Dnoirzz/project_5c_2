@@ -64,8 +64,8 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
             data['namaIbu']?.isNotEmpty == true &&
             data['pekerjaanIbu']?.isNotEmpty == true;
 
-      case 3: // Upload Dokumen
-        return data['uploaded'] == true;
+      case 3: // Upload Dokumen - tidak ada auto-save, harus manual save
+        return false;
 
       default:
         return false;
@@ -104,7 +104,6 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
 
       case 3: // Upload Dokumen
         return data['uploaded'] == true ||
-            data['ktp'] != null ||
             data['ijazah'] != null ||
             data['akta'] != null ||
             data['kk'] != null ||
@@ -445,27 +444,17 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                         ),
                       ),
 
-                      // Tombol Simpan Draft
-                      ElevatedButton.icon(
-                        // Only allow saving draft if there's any data filled
-                        onPressed: _checkAnyFieldFilled(
-                                    _formData[_currentPage] ?? {}) ||
-                                _pagesSaved[_currentPage] == true
-                            ? _saveDraft
-                            : null,
-                        icon: Icon(
-                          Icons.save_outlined,
-                          color: (_checkAnyFieldFilled(
+                      // Tombol Simpan Draft (tidak ditampilkan di halaman review & submit)
+                      if (_currentPage != 4)
+                        ElevatedButton.icon(
+                          // Only allow saving draft if there's any data filled
+                          onPressed: _checkAnyFieldFilled(
                                       _formData[_currentPage] ?? {}) ||
-                                  _pagesSaved[_currentPage] == true)
-                              ? (_pagesSaved[_currentPage] == true
-                                  ? Colors.white
-                                  : const Color(0xFF233746))
-                              : Colors.grey.shade400,
-                        ),
-                        label: Text(
-                          "Simpan Draft",
-                          style: TextStyle(
+                                  _pagesSaved[_currentPage] == true
+                              ? _saveDraft
+                              : null,
+                          icon: Icon(
+                            Icons.save_outlined,
                             color: (_checkAnyFieldFilled(
                                         _formData[_currentPage] ?? {}) ||
                                     _pagesSaved[_currentPage] == true)
@@ -474,28 +463,39 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                     : const Color(0xFF233746))
                                 : Colors.grey.shade400,
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _pagesSaved[_currentPage] == true
-                              ? const Color(0xFF009137)
-                              : (_checkAnyFieldFilled(
-                                      _formData[_currentPage] ?? {})
-                                  ? Colors.white
-                                  : Colors.grey.shade100),
-                          elevation: 0,
-                          side: BorderSide(
-                            color: _pagesSaved[_currentPage] == true
+                          label: Text(
+                            "Simpan Draft",
+                            style: TextStyle(
+                              color: (_checkAnyFieldFilled(
+                                          _formData[_currentPage] ?? {}) ||
+                                      _pagesSaved[_currentPage] == true)
+                                  ? (_pagesSaved[_currentPage] == true
+                                      ? Colors.white
+                                      : const Color(0xFF233746))
+                                  : Colors.grey.shade400,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _pagesSaved[_currentPage] == true
                                 ? const Color(0xFF009137)
                                 : (_checkAnyFieldFilled(
                                         _formData[_currentPage] ?? {})
-                                    ? const Color(0xFF233746)
-                                    : Colors.grey.shade300),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                                    ? Colors.white
+                                    : Colors.grey.shade100),
+                            elevation: 0,
+                            side: BorderSide(
+                              color: _pagesSaved[_currentPage] == true
+                                  ? const Color(0xFF009137)
+                                  : (_checkAnyFieldFilled(
+                                          _formData[_currentPage] ?? {})
+                                      ? const Color(0xFF233746)
+                                      : Colors.grey.shade300),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
