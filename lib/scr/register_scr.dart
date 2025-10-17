@@ -190,11 +190,27 @@ class RegisterScreen extends StatelessWidget {
                                         builder: (context) => AdminDashboard()),
                                   );
                                 } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text("Berhasil"),
+                                      content: Text(
+                                        "Registrasi Berhasil",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const DashboardPage()),
+                                            const LoginScreen()),
                                   );
                                 }
                               } else {
