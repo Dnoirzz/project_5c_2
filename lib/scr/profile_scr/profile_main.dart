@@ -169,7 +169,7 @@ class _ProfileMainState extends State<ProfileMain>
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      'NIM:2024001645',
+                      'NIK:1234567890123456',
                       style: TextStyle(
                         color: Color(0xFFA9A9A9),
                         fontSize: 14,
