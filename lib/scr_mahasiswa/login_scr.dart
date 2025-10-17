@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'forgot_scr.dart';
-import 'register_scr.dart';
-import 'dashboard_scr.dart';
+import 'package:project_5c_2/scr/dashboard_scr.dart';
+import 'package:project_5c_2/scr/forgot_scr.dart';
+import 'package:project_5c_2/scr/register_scr.dart';
 import '../scr_admin/admin_dashboard.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -12,8 +12,8 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // controller untuk ambil input dari TextField
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+    TextEditingController emailController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
       backgroundColor: const Color(0xFF36566F), // warna biru background
@@ -140,44 +140,6 @@ class LoginScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          //     onPressed: () {
-                          //       String email = emailController.text.trim();
-                          //       String password = passwordController.text.trim();
-
-                          //       if (email == 'admin' &&
-                          //           password == 'admin') {
-                          //         // Login sebagai Admin
-                          //         Navigator.pushReplacement(
-                          //           context,
-                          //           MaterialPageRoute(
-                          //             builder: (context) => const AdminDashboard(),
-                          //           ),
-                          //         );
-                          //       } else if (email == 'user' &&
-                          //           password == 'user') {
-                          //         // Login sebagai User
-                          //         Navigator.pushReplacement(
-                          //           context,
-                          //           MaterialPageRoute(
-                          //             builder: (context) => const DashboardPage(),
-                          //           ),
-                          //         );
-                          //       } else {
-                          //         // Jika login salah
-                          //         ScaffoldMessenger.of(context).showSnackBar(
-                          //           const SnackBar(
-                          //             content: Text(
-                          //                 'Email atau password salah! Coba lagi.'),
-                          //           ),
-                          //         );
-                          //       }
-                          //     },
-                          //     child: const Text(
-                          //       "Login",
-                          //       style: TextStyle(fontSize: 18, color: Colors.white),
-                          //     ),
-                          //   ),
-                          // ),
                           onPressed: () async {
                             var url = Uri.parse(
                               "http://44.220.144.82/api/login.php",
@@ -259,6 +221,43 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                      // onPressed: () {
+                      //       String email = emailController.text.trim();
+                      //       String password = passwordController.text.trim();
+
+                      //       if (email == 'admin' && password == 'admin') {
+                      //         // Login sebagai Admin
+                      //         Navigator.pushReplacement(
+                      //           context,
+                      //           MaterialPageRoute(
+                      //             builder: (context) => const AdminDashboard(),
+                      //           ),
+                      //         );
+                      //       } else if (email == 'user' && password == 'user') {
+                      //         // Login sebagai User
+                      //         Navigator.pushReplacement(
+                      //           context,
+                      //           MaterialPageRoute(
+                      //             builder: (context) => const DashboardPage(),
+                      //           ),
+                      //         );
+                      //       } else {
+                      //         // Jika login salah
+                      //         ScaffoldMessenger.of(context).showSnackBar(
+                      //           const SnackBar(
+                      //             content: Text(
+                      //                 'Email atau password salah! Coba lagi.'),
+                      //           ),
+                      //         );
+                      //       }
+                      //     },
+                      //     child: const Text(
+                      //       "Login",
+                      //       style: TextStyle(fontSize: 18, color: Colors.white),
+                      //     ),
+                      //   ),
+                      // ),
+
                       const SizedBox(height: 15),
 
                       // Link daftar
