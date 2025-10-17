@@ -221,6 +221,22 @@ class LoginScreen extends StatelessWidget {
                                   String role = user['role'] ?? 'mahasiswa';
 
                                   if (role == 'admin') {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text("Berhasil"),
+                                        content: Text(
+                                          "Login Berhasil sebagai Admin",
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text("OK"),
+                                          ),
+                                        ],
+                                      ),
+                                    );
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
