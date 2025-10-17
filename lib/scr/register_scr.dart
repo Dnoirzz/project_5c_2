@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_5c_2/scr/dashboard_scr.dart';
-import 'package:project_5c_2/scr_admin/admin_dashboard.dart';
+import '../scr/dashboard_scr.dart';
+import '../scr_admin/admin_dashboard.dart';
 import 'login_scr.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
