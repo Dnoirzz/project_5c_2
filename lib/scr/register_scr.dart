@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'login_scr.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
-
+  // const RegisterScreen({super.key});
+  TextEditingController namalengkapController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController konfirmasiPasswordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,6 +87,7 @@ class RegisterScreen extends StatelessWidget {
 
                     // Form Input
                     TextField(
+                      controller: namalengkapController,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.perm_identity),
                         hintText: "Nama Lengkap",
@@ -92,6 +98,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     TextField(
+                      controller: usernameController,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.email),
                         hintText: "Email",
@@ -102,6 +109,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     TextField(
+                      controller: passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.lock),
@@ -113,6 +121,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     TextField(
+                      controller: konfirmasiPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.lock_outline),
@@ -136,9 +145,116 @@ class RegisterScreen extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        onPressed: () {
-                          // TODO: aksi registrasi
+                        onPressed: () async {
+                          // validasi dulu sebelum kirim ke server
+                          if (passwordController.text.trim() !=
+                              konfirmasiPasswordController.text.trim()) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Password dan konfirmasi tidak sama",
+                                ),
+                              ),
+                            );
+                            return; // hentikan proses
+                          }
+                          var url = Uri.parse(
+                            "http://44.220.144.82/api/registrasi.php",
+                          );
+
+                          try {
+                            var response = await http.post(
+                              url,
+                              headers: {"Content-Type": "application/json"},
+                              body: jsonEncode({
+                                "username": usernameController.text.trim(),
+                                "password": passwordController.text.trim(),
+                                "nama_lengkap":
+                                    namalengkapController.text.trim(),
+                              }),
+                            );
+
+                            if (response.statusCode == 200) {
+                              var data = jsonDecode(response.body);
+                              if (data['status'] == 'success') {
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: Text("Berhasil"),
+                                        content: Text("Registrasi berhasil"),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(context),
+                                            child: Text("OK"),
+                                          ),
+                                        ],
+                                      ),
+                                );
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LoginScreen(),
+                                  ),
+                                );
+                              } else {
+                                usernameController.clear();
+                                passwordController.clear();
+                                namalengkapController.clear();
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: Text("Gagal"),
+                                        content: Text(
+                                          "Username atau password salah",
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(context),
+                                            child: Text("OK"),
+                                          ),
+                                        ],
+                                      ),
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Gagal terhubung ke server"),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Terjadi kesalahan: $e")),
+                            );
+                          }
                         },
+                        //       ScaffoldMessenger.of(context).showSnackBar(
+                        //         SnackBar(
+                        //           content: Text(
+                        //             "Registrasi berhasil: ${data['message']}",
+                        //           ),
+                        //         ),
+                        //       );
+                        //     } else {
+                        //       ScaffoldMessenger.of(context).showSnackBar(
+                        //         SnackBar(
+                        //           content: Text(
+                        //             "Gagal registrasi (${response.statusCode})",
+                        //           ),
+                        //         ),
+                        //       );
+                        //     }
+                        //   } catch (e) {
+                        //     ScaffoldMessenger.of(context).showSnackBar(
+                        //       SnackBar(content: Text("Terjadi error: $e")),
+                        //     );
+                        //   }
+                        // },
                         child: const Text(
                           "Register",
                           style: TextStyle(fontSize: 16, color: Colors.white),

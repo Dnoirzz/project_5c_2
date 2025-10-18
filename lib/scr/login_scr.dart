@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class LoginScreen extends StatelessWidget {
-  // const LoginScreen({super.key});
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   @override
@@ -181,9 +180,24 @@ class LoginScreen extends StatelessWidget {
                               );
 
                               if (response.statusCode == 200) {
-                                var data = jsonDecode(response.body);
+                                var data = json.decode(response.body);
 
                                 if (data['status'] == 'success') {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          title: Text("Berhasil"),
+                                          content: Text("Login Berhasil"),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(context),
+                                              child: Text("OK"),
+                                            ),
+                                          ],
+                                        ),
+                                  );
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
@@ -246,7 +260,7 @@ class LoginScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const RegisterScreen(),
+                                  builder: (context) => RegisterScreen(),
                                 ),
                               );
                             },
