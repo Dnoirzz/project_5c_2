@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import '../widgets/appBar.dart';
+import '../widgets/app_bar.dart';
 import 'formulir_scr/formulir_main.dart';
 import 'pengumuman/pengumuman.dart'; // <-- tambahkan import ini
 import 'pengumuman/detail_pengumuman.dart'; // <-- tambahkan import ini
@@ -333,7 +333,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             const Divider(height: 12),
             if (itemsToShow.isNotEmpty)
-              ...itemsToShow.map((it) => buildItem(it)).toList()
+              ...itemsToShow.map((it) => buildItem(it))
             else
               const Text('Belum ada pengumuman',
                   style: TextStyle(color: Colors.black54)),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'detail_pengumuman.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 
 // Tambahkan/eksport variabel pengumumanList sehingga bisa digunakan dari file lain
 const List<Map<String, String>> pengumumanList = [

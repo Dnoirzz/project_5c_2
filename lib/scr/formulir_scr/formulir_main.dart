@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import 'data_pribadi_page.dart';
 import 'data_akademik_page.dart';
 import 'data_ortu_page.dart';
@@ -21,7 +21,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   final ScrollController _scrollController = ScrollController();
 
   // Track which pages have been saved
-  Map<int, bool> _pagesSaved = {
+  final Map<int, bool> _pagesSaved = {
     0: false,
     1: false,
     2: false,
@@ -30,7 +30,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   };
 
   // Store form data for each page
-  Map<int, Map<String, dynamic>> _formData = {};
+  final Map<int, Map<String, dynamic>> _formData = {};
   @override
   void initState() {
     super.initState();
@@ -64,8 +64,8 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
             data['namaIbu']?.isNotEmpty == true &&
             data['pekerjaanIbu']?.isNotEmpty == true;
 
-      case 3: // Upload Dokumen
-        return data['uploaded'] == true;
+      case 3: // Upload Dokumen - tidak ada auto-save, harus manual save
+        return false;
 
       default:
         return false;
@@ -104,7 +104,6 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
 
       case 3: // Upload Dokumen
         return data['uploaded'] == true ||
-            data['ktp'] != null ||
             data['ijazah'] != null ||
             data['akta'] != null ||
             data['kk'] != null ||
@@ -308,7 +307,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       offset: const Offset(0, 4),
                       blurRadius: 8,
                     ),
@@ -373,7 +372,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       offset: const Offset(0, 2),
                       blurRadius: 4,
                     ),
@@ -414,7 +413,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     offset: const Offset(0, 4),
                     blurRadius: 12,
                   ),
@@ -445,9 +444,9 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                         ),
                       ),
 
-                      // Tombol Simpan Draft
-                      Container(
-                        child: ElevatedButton.icon(
+                      // Tombol Simpan Draft (tidak ditampilkan di halaman review & submit)
+                      if (_currentPage != 4)
+                        ElevatedButton.icon(
                           // Only allow saving draft if there's any data filled
                           onPressed: _checkAnyFieldFilled(
                                       _formData[_currentPage] ?? {}) ||
@@ -497,7 +496,6 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                             ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -611,9 +609,10 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                               ? (_checkRequiredFields(
                                           _formData[_currentPage] ?? {}) ||
                                       _pagesSaved[_currentPage] == true
-                                  ? const Color(0xFF233746).withOpacity(0.3)
+                                  ? const Color(0xFF233746)
+                                      .withValues(alpha: 0.3)
                                   : Colors.transparent)
-                              : const Color(0xFF009137).withOpacity(0.3),
+                              : const Color(0xFF009137).withValues(alpha: 0.3),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

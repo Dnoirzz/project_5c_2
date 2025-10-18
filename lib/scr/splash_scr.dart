@@ -17,23 +17,23 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    print('SplashScreen initState called');
+    // Debug: SplashScreen initState called
 
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 8),
     )..repeat();
 
-    print('Starting 3-second timer');
+    // Debug: Starting 3-second timer
     Timer(const Duration(seconds: 3), () {
-      print('Timer completed, navigating to LandingPage');
+      // Debug: Timer completed, navigating to LandingPage
       if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const LandingPage()),
         );
       } else {
-        print('Widget not mounted, cannot navigate');
+        // Debug: Widget not mounted, cannot navigate
       }
     });
   }
@@ -69,11 +69,10 @@ class _SplashScreenState extends State<SplashScreen>
                   final angle = (2 * pi / icons.length) * index;
 
                   return Transform(
-                    transform:
-                        Matrix4.identity()
-                          ..translate(radius * cos(angle), radius * sin(angle))
-                          // rotasi tambahan agar sisi besar menghadap pusat
-                          ..rotateZ(angle + pi),
+                    transform: Matrix4.identity()
+                      ..translate(radius * cos(angle), radius * sin(angle))
+                      // rotasi tambahan agar sisi besar menghadap pusat
+                      ..rotateZ(angle + pi),
                     alignment: Alignment.center,
                     child: Icon(icons[index], size: 40, color: Colors.white70),
                   );
@@ -84,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen>
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.school, size: 60, color: Colors.white),

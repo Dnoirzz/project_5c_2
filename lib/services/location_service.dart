@@ -46,7 +46,7 @@ class LocationService {
 
       _isInitialized = true;
     } catch (e) {
-      print('Error loading location data: $e');
+      // Debug: Error loading location data: $e
     }
   }
 
@@ -68,10 +68,9 @@ class LocationService {
     List<Regency> filteredRegencies = _regencies;
 
     if (provinceId != null) {
-      filteredRegencies =
-          _regencies
-              .where((regency) => regency.provinceId == provinceId)
-              .toList();
+      filteredRegencies = _regencies
+          .where((regency) => regency.provinceId == provinceId)
+          .toList();
     }
 
     if (query.isEmpty) return filteredRegencies;
@@ -87,10 +86,9 @@ class LocationService {
     List<District> filteredDistricts = _districts;
 
     if (regencyId != null) {
-      filteredDistricts =
-          _districts
-              .where((district) => district.regencyId == regencyId)
-              .toList();
+      filteredDistricts = _districts
+          .where((district) => district.regencyId == regencyId)
+          .toList();
     }
 
     if (query.isEmpty) return filteredDistricts;
@@ -107,10 +105,9 @@ class LocationService {
     List<Village> filteredVillages = _villages;
 
     if (districtId != null) {
-      filteredVillages =
-          _villages
-              .where((village) => village.districtId == districtId)
-              .toList();
+      filteredVillages = _villages
+          .where((village) => village.districtId == districtId)
+          .toList();
     }
 
     if (query.isEmpty) return filteredVillages;

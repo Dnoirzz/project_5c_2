@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 
 class DetailPengumumanPage extends StatelessWidget {
   final String judul;

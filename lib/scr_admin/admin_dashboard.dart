@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../scr_admin/widgets/sidebar.dart'; // Import file sidebar
+import '../scr_admin/widgets/sidebar.dart'; 
+import '../scr_admin/pengumuman/admin_pengumuman_page.dart';
+
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -211,6 +213,34 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         "View All",
                         style: TextStyle(
                           color: Colors.lightBlueAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // 🔥 Tombol menuju halaman pengumuman
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminPengumumanPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.campaign, color: Colors.white),
+                      label: const Text('Kelola Pengumuman'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -122,7 +122,7 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.9),
+                  color: Colors.black.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: InteractiveViewer(
@@ -148,7 +148,8 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
                       Text(
                         "Ketuk di mana saja untuk menutup",
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.7), fontSize: 12),
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 12),
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -377,10 +378,10 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: statusColor.withOpacity(0.3)),
+        border: Border.all(color: statusColor.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               offset: const Offset(0, 2),
               blurRadius: 4),
         ],
@@ -437,7 +438,8 @@ class _ReviewSubmitPageState extends State<ReviewSubmitPage> {
                 padding: const EdgeInsets.fromLTRB(56, 0, 16, 16),
                 decoration: BoxDecoration(
                     border: Border(
-                        top: BorderSide(color: Colors.grey.withOpacity(0.2)))),
+                        top: BorderSide(
+                            color: Colors.grey.withValues(alpha: 0.2)))),
                 child: _buildDetailContent(pageIndex),
               ),
           ],

@@ -1,6 +1,7 @@
+import 'package:SPMB/services/auth_servise.dart';
 import 'package:flutter/material.dart';
-import 'package:project_5c_2/scr/dashboard_scr.dart';
-import 'package:project_5c_2/scr_admin/admin_dashboard.dart';
+// import '../scr/dashboard_scr.dart';
+import '../scr_admin/admin_dashboard.dart';
 import 'login_scr.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,7 +12,7 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController namalengkapController = TextEditingController();
-    TextEditingController usernameController = TextEditingController();
+    TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
     TextEditingController konfirmasiPasswordController =
         TextEditingController();
@@ -101,7 +102,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                     TextField(
-                      controller: usernameController,
+                      controller: emailController,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.email),
                         hintText: "Email",
@@ -161,24 +162,33 @@ class RegisterScreen extends StatelessWidget {
                             );
                             return; // hentikan proses
                           }
-                          var url = Uri.parse(
-                            "http://44.220.144.82/api/registrasi.php",
-                          );
+                          // var url = Uri.parse(
+                          //   "http://44.220.144.82/api/registrasi.php",
+                          // );
 
+                          // try {
+                          //   var response = await http.post(
+                          //     url,
+                          //     headers: {"Content-Type": "application/json"},
+                          //     body: jsonEncode({
+                          //   "username": usernameController.text.trim(),
+                          //   "password": passwordController.text.trim(),
+                          //   "nama_lengkap":
+                          //       namalengkapController.text.trim(),
+                          // }),
+                          //   );
+
+                          //   if (response.statusCode == 200) {
+                          //     var data = jsonDecode(response.body);
                           try {
-                            var response = await http.post(
-                              url,
-                              headers: {"Content-Type": "application/json"},
-                              body: jsonEncode({
-                                "username": usernameController.text.trim(),
-                                "password": passwordController.text.trim(),
-                                "nama_lengkap":
-                                    namalengkapController.text.trim(),
-                              }),
-                            );
+                            var data = await ApiService.register(
+                                emailController.text.trim(),
+                                passwordController.text.trim(),
+                                namalengkapController.text.trim());
 
-                            if (response.statusCode == 200) {
-                              var data = jsonDecode(response.body);
+                            if (data['status'] == 'success') {
+                              // var user = data['data'];
+                              // String role = user['role'] ?? 'mahasiswa';
 
                               if (data['status'] == 'success') {
                                 String role = data['role'] ?? 'mahasiswa';
@@ -190,11 +200,27 @@ class RegisterScreen extends StatelessWidget {
                                         builder: (context) => AdminDashboard()),
                                   );
                                 } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text("Berhasil"),
+                                      content: Text(
+                                        "Registrasi Berhasil",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const DashboardPage()),
+                                            const LoginScreen()),
                                   );
                                 }
                               } else {
