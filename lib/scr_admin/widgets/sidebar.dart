@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../management_form.dart';
+import '../pengumuman/admin_pengumuman_page.dart';
 
 
 class Sidebar extends StatefulWidget {
@@ -38,7 +39,6 @@ class _CustomDrawerState extends State<Sidebar> {
                     isSelected: widget.currentPage == 'Dashboard',
                     onTap: () {
                       Navigator.pop(context);
-                      // Sudah di halaman Dashboard
                     },
                   ),
                   _buildDrawerItemWithSubmenu(
@@ -48,7 +48,6 @@ class _CustomDrawerState extends State<Sidebar> {
                     isSelected: widget.currentPage == 'Data Mahasiswa',
                     isExpanded: isDataMahasiswaExpanded,
                     onTap: () {
-
                       Navigator.pop(context);
                       Navigator.push(
                         context,
@@ -99,8 +98,13 @@ class _CustomDrawerState extends State<Sidebar> {
                     isSelected: widget.currentPage == 'Pengumuman',
                     onTap: () {
                       Navigator.pop(context);
-                      // Navigate to Pengumuman page
-                      // Navigator.pushNamed(context, '/pengumuman');
+                      // 🔥 Pindah ke halaman pengumuman admin
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdminPengumumanPage(),
+                        ),
+                      );
                     },
                   ),
                   _buildDrawerItemWithAsset(
@@ -252,9 +256,8 @@ class _CustomDrawerState extends State<Sidebar> {
               children: submenuItems,
             ),
           ),
-          crossFadeState: isExpanded
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
+          crossFadeState:
+              isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           duration: const Duration(milliseconds: 300),
         ),
       ],
@@ -268,11 +271,12 @@ class _CustomDrawerState extends State<Sidebar> {
   }) {
     return InkWell(
       onTap: onTap,
-      hoverColor: Colors.yellowAccent.withOpacity(0.3),
-      splashColor: Colors.yellowAccent.withOpacity(0.5),
-      highlightColor: Colors.yellowAccent.withOpacity(0.2),
+      hoverColor: Colors.yellowAccent.withValues(alpha: 0.3),
+      splashColor: Colors.yellowAccent.withValues(alpha: 0.5),
+      highlightColor: Colors.yellowAccent.withValues(alpha: 0.2),
       child: Container(
-        padding: const EdgeInsets.only(left: 56, right: 16, top: 12, bottom: 12),
+        padding:
+            const EdgeInsets.only(left: 56, right: 16, top: 12, bottom: 12),
         child: Row(
           children: [
             Container(
@@ -383,7 +387,7 @@ class _CustomDrawerState extends State<Sidebar> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pop(context); // Return to login/previous page
+              Navigator.pop(context);
             },
             child: const Text('Keluar', style: TextStyle(color: Colors.red)),
           ),
