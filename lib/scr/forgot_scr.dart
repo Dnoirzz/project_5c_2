@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController emailController = TextEditingController();
+    TextEditingController newPasswordController = TextEditingController();
+    TextEditingController konfirmasiPasswordController =
+        TextEditingController();
     return Scaffold(
       backgroundColor: const Color(0xFF36566F),
       body: SafeArea(
@@ -78,9 +83,11 @@ class ForgotPasswordScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // Input Email
-                      const TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.email, color: Color(0xFF36566F)),
+                      TextField(
+                        controller: emailController,
+                        decoration: const InputDecoration(
+                          prefixIcon:
+                              Icon(Icons.email, color: Color(0xFF36566F)),
                           labelText: "Gmail.com",
                           border: OutlineInputBorder(),
                         ),
@@ -88,20 +95,24 @@ class ForgotPasswordScreen extends StatelessWidget {
                       const SizedBox(height: 15),
 
                       // Input Code Verifikasi
-                      const TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.verified, color: Color(0xFF36566F)),
-                          labelText: "code verifikasi",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
+                      // const TextField(
+                      //   controller: codeController,
+                      //   decoration: InputDecoration(
+                      //     prefixIcon:
+                      //         Icon(Icons.verified, color: Color(0xFF36566F)),
+                      //     labelText: "code verifikasi",
+                      //     border: OutlineInputBorder(),
+                      //   ),
+                      // ),
                       const SizedBox(height: 15),
 
                       // Input New Password
-                      const TextField(
+                      TextField(
+                        controller: newPasswordController,
                         obscureText: true,
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.lock, color: Color(0xFF36566F)),
+                        decoration: const InputDecoration(
+                          prefixIcon:
+                              Icon(Icons.lock, color: Color(0xFF36566F)),
                           labelText: "new password",
                           border: OutlineInputBorder(),
                         ),
@@ -109,9 +120,10 @@ class ForgotPasswordScreen extends StatelessWidget {
                       const SizedBox(height: 15),
 
                       // Input Confirm Password
-                      const TextField(
+                      TextField(
+                        controller: konfirmasiPasswordController,
                         obscureText: true,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.lock_outline,
                               color: Color(0xFF36566F)),
                           labelText: "confirm password",
@@ -176,7 +188,42 @@ class ForgotPasswordScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () async {
+                            var url = Uri.parse(
+                                "http://44.220.144.82/api/reset_password.php");
+
+                            try {
+                              var response = await http.post(
+                                url,
+                                headers: {"Content-Type": "application/json"},
+                                body: jsonEncode({
+                                  "email": emailController.text.trim(),
+                                  "new_password":
+                                      newPasswordController.text.trim(),
+                                }),
+                              );
+
+                              var data = jsonDecode(response.body);
+
+                              if (data['status'] == 'success') {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(data['message'])),
+                                );
+                                Navigator.pop(context);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(data['message'] ??
+                                          'Gagal reset password')),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text("Terjadi kesalahan: $e")),
+                              );
+                            }
+                          },
                           child: const Text(
                             "Submit",
                             style: TextStyle(fontSize: 18, color: Colors.white),
