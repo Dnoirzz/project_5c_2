@@ -958,8 +958,8 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildPengumumanSection(BuildContext context) {
-    final itemsToShow = pengumumanList.length >= 2
-        ? pengumumanList.take(2).toList()
+    final itemsToShow = pengumumanList.length >= 4
+        ? pengumumanList.take(4).toList()
         : pengumumanList;
 
     return Material(
