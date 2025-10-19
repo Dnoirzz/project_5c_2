@@ -21,9 +21,16 @@ dev_dependencies:
     sdk: flutter
   http: ^1.5.0
 
-flutter:
-  uses-material-design: true
+# flutter:
+#   uses-material-design: true
 
+#   assets:
+#     - assets/data/
+#     - assets/images/
+flutter:
   assets:
-    - assets/data/
     - assets/images/
+  fonts:
+    - family: Cambria
+      fonts:
+        - asset: assets/fonts/Cambria.ttf

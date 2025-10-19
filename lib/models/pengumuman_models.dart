@@ -15,11 +15,11 @@ class Pengumuman {
 
   factory Pengumuman.fromJson(Map<String, dynamic> json) {
     return Pengumuman(
-      id: json['id_pengumuman'].toString(),
-      judul: json['judul'],
-      isi: json['isi'],
+      id: json['id_pengumuman'] ?? '',
+      judul: json['judul'] ?? '',
+      isi: json['isi'] ?? '',
       gambar: json['upload_gambar'] ?? '',
-      tanggal: json['tanggal'],
+      tanggal: json['tanggal'] ?? '',
     );
   }
 }

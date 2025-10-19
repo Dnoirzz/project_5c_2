@@ -426,7 +426,8 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                 children: [
                   Row(
                     mainAxisAlignment: _currentPage == 4
-                        ? MainAxisAlignment.start // Only show back button on review page
+                        ? MainAxisAlignment
+                            .start // Only show back button on review page
                         : MainAxisAlignment.spaceBetween,
                     children: [
                       // Tombol Sebelumnya
@@ -447,26 +448,26 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                         ),
                       ),
 
-<<<<<<< HEAD
-                      // Tombol Simpan Draft (tidak ditampilkan di halaman review & submit)
-                      if (_currentPage != 4)
-                        ElevatedButton.icon(
-                          // Only allow saving draft if there's any data filled
-                          onPressed: _checkAnyFieldFilled(
-                                      _formData[_currentPage] ?? {}) ||
-                                  _pagesSaved[_currentPage] == true
-                              ? _saveDraft
-                              : null,
-                          icon: Icon(
-                            Icons.save_outlined,
-                            color: (_checkAnyFieldFilled(
-=======
+// <<<<<<< HEAD
+//                       // Tombol Simpan Draft (tidak ditampilkan di halaman review & submit)
+//                       if (_currentPage != 4)
+//                         ElevatedButton.icon(
+//                           // Only allow saving draft if there's any data filled
+//                           onPressed: _checkAnyFieldFilled(
+//                                       _formData[_currentPage] ?? {}) ||
+//                                   _pagesSaved[_currentPage] == true
+//                               ? _saveDraft
+//                               : null,
+//                           icon: Icon(
+//                             Icons.save_outlined,
+//                             color: (_checkAnyFieldFilled(
+// =======
                       // Tombol Simpan Draft (hanya tampil jika bukan di halaman review)
                       if (_currentPage != 4)
                         Container(
                           child: ElevatedButton.icon(
                             onPressed: _checkAnyFieldFilled(
->>>>>>> origin/jeki
+// >>>>>>> origin/jeki
                                         _formData[_currentPage] ?? {}) ||
                                     _pagesSaved[_currentPage] == true
                                 ? _saveDraft
@@ -494,13 +495,12 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  _pagesSaved[_currentPage] == true
-                                      ? const Color(0xFF009137)
-                                      : (_checkAnyFieldFilled(
-                                              _formData[_currentPage] ?? {})
-                                          ? Colors.white
-                                          : Colors.grey.shade100),
+                              backgroundColor: _pagesSaved[_currentPage] == true
+                                  ? const Color(0xFF009137)
+                                  : (_checkAnyFieldFilled(
+                                          _formData[_currentPage] ?? {})
+                                      ? Colors.white
+                                      : Colors.grey.shade100),
                               elevation: 0,
                               side: BorderSide(
                                 color: _pagesSaved[_currentPage] == true
@@ -591,9 +591,11 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                                   ),
                                                 );
                                                 // Add navigation to dashboard after success message
-                                                Navigator.of(context).pushAndRemoveUntil(
+                                                Navigator.of(context)
+                                                    .pushAndRemoveUntil(
                                                   MaterialPageRoute(
-                                                    builder: (context) => const DashboardPage(),
+                                                    builder: (context) =>
+                                                        const DashboardPage(),
                                                   ),
                                                   (route) => false,
                                                 );
