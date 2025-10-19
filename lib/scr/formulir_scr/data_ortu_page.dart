@@ -62,10 +62,17 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
     _alamatIbuController.addListener(_notifyDataChanged);
   }
 
+<<<<<<< HEAD
  
   @override
   void initState() {
     super.initState();
+=======
+  @override
+  void initState() {
+    super.initState();
+    _setupTextFieldListeners();
+>>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
     if (widget.savedData != null) {
       _namaAyahController.text = widget.savedData?['namaAyah'] ?? '';
       _nikAyahController.text = widget.savedData?['nikAyah'] ?? '';
@@ -79,6 +86,7 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
       _noTlpIbuController.text = widget.savedData?['noTlpIbu'] ?? '';
       _alamatIbuController.text = widget.savedData?['alamatIbu'] ?? '';
       _selectedPenghasilanIbu = widget.savedData?['penghasilanIbu'];
+<<<<<<< HEAD
 
       setState(() {
         _selectedPenghasilanAyah = widget.savedData?['penghasilanAyah'];
@@ -105,6 +113,13 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
     _noTlpIbuController.removeListener(_notifyDataChanged);
     _alamatIbuController.removeListener(_notifyDataChanged);
 
+=======
+    }
+  }
+
+  @override
+  void dispose() {
+>>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
     _namaAyahController.dispose();
     _nikAyahController.dispose();
     _pekerjaanAyahController.dispose();
@@ -119,7 +134,10 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
     super.dispose();
   }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
   List<String> _getPenghasilanList() {
     return [
       '<RP500.000',
