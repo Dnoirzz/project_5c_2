@@ -242,10 +242,10 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildFloatingPengumuman(BuildContext context) {
-    final first = pengumumanList.isNotEmpty ? pengumumanList.first : null;
-    final itemsToShow = pengumumanList.length >= 2
-        ? pengumumanList.take(2).toList()
-        : (first != null ? [first] : []);
+    // final first = pengumumanList.isNotEmpty ? pengumumanList.first : null;
+    // final itemsToShow = pengumumanList.length >= 2
+    //     ? pengumumanList.take(2).toList()
+    //     : (first != null ? [first] : []);
 
     Widget buildItem(Map item) {
       final String judul = item['judul'] ?? '';
@@ -331,12 +331,12 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ],
             ),
-            const Divider(height: 12),
-            if (itemsToShow.isNotEmpty)
-              ...itemsToShow.map((it) => buildItem(it))
-            else
-              const Text('Belum ada pengumuman',
-                  style: TextStyle(color: Colors.black54)),
+            // const Divider(height: 12),
+            // if (itemsToShow.isNotEmpty)
+            //   ...itemsToShow.map((it) => buildItem(it))
+            // else
+            //   const Text('Belum ada pengumuman',
+            //       style: TextStyle(color: Colors.black54)),
           ],
         ),
       ),

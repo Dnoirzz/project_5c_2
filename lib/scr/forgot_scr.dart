@@ -1,7 +1,5 @@
 import 'package:SPMB/services/auth_servise.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});
@@ -94,17 +92,6 @@ class ForgotPasswordScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 15),
-
-                      // Input Code Verifikasi
-                      // const TextField(
-                      //   controller: codeController,
-                      //   decoration: InputDecoration(
-                      //     prefixIcon:
-                      //         Icon(Icons.verified, color: Color(0xFF36566F)),
-                      //     labelText: "code verifikasi",
-                      //     border: OutlineInputBorder(),
-                      //   ),
-                      // ),
 
                       // Input New Password
                       TextField(
