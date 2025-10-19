@@ -1,9 +1,7 @@
+import 'package:SPMB/services/auth_servise.dart';
 import 'package:flutter/material.dart';
-import '../scr/dashboard_scr.dart';
 import '../scr_admin/admin_dashboard.dart';
 import 'login_scr.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -11,10 +9,11 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController namalengkapController = TextEditingController();
-    TextEditingController usernameController = TextEditingController();
+    TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
     TextEditingController konfirmasiPasswordController =
         TextEditingController();
+
     return Scaffold(
       backgroundColor: const Color(0xFF3D5A6C), // warna biru background
       body: SafeArea(
@@ -100,8 +99,9 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 12),
                     TextField(
-                      controller: usernameController,
+                      controller: emailController,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.email),
                         hintText: "Email",
@@ -149,81 +149,135 @@ class RegisterScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         onPressed: () async {
-                          // validasi dulu sebelum kirim ke server
-                          if (passwordController.text.trim() !=
-                              konfirmasiPasswordController.text.trim()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Password dan Konfirmasi Password Tidak Sama",
-                                ),
+                          // validasi data kosong
+                          if (emailController.text.isEmpty ||
+                              passwordController.text.isEmpty ||
+                              namalengkapController.text.isEmpty ||
+                              konfirmasiPasswordController.text.isEmpty) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Warning"),
+                                content: const Text("Data tidak lengkap"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("OK"),
+                                  ),
+                                ],
                               ),
                             );
-                            return; // hentikan proses
+                            return;
                           }
-                          var url = Uri.parse(
-                            "http://44.220.144.82/api/registrasi.php",
-                          );
+
+                          // validasi format email
+                          final email = emailController.text.trim();
+                          final emailRegex =
+                              RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                          if (!emailRegex.hasMatch(email)) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Email tidak valid"),
+                                content: const Text(
+                                    "Silakan masukkan alamat email yang benar."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("OK"),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return;
+                          }
+
+                          // validasi password sama
+                          if (passwordController.text.trim() !=
+                              konfirmasiPasswordController.text.trim()) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Gagal"),
+                                content: const Text(
+                                    "Password dan konfirmasi tidak sama"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("OK"),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return;
+                          }
 
                           try {
-                            var response = await http.post(
-                              url,
-                              headers: {"Content-Type": "application/json"},
-                              body: jsonEncode({
-                                "username": usernameController.text.trim(),
-                                "password": passwordController.text.trim(),
-                                "nama_lengkap":
-                                    namalengkapController.text.trim(),
-                              }),
+                            var data = await ApiService.register(
+                              emailController.text.trim(),
+                              passwordController.text.trim(),
+                              namalengkapController.text.trim(),
                             );
 
-                            if (response.statusCode == 200) {
-                              var data = jsonDecode(response.body);
+                            if (data['status'] == 'success') {
+                              String role = data['role'] ?? 'mahasiswa';
 
-                              if (data['status'] == 'success') {
-                                String role = data['role'] ?? 'mahasiswa';
-
-                                if (role == 'admin') {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AdminDashboard()),
-                                  );
-                                } else {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text("Berhasil"),
-                                      content: Text(
-                                        "Registrasi Berhasil",
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: Text("OK"),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const LoginScreen()),
-                                  );
-                                }
+                              if (role == 'admin') {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AdminDashboard()),
+                                );
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(data['message'] ??
-                                          'Gagal registrasi')),
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Berhasil"),
+                                    content: const Text("Registrasi berhasil!"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                              context); // tutup dialog
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const LoginScreen()),
+                                          );
+                                        },
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
+                                  ),
+                                  // namalengkapController.clear(),
                                 );
                               }
+                            } else if (data['message'] ==
+                                'Email atau nama sudah terdaftar. Silakan gunakan yang lain.') {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text("Peringatan"),
+                                  content: const Text(
+                                      "Email atau nama sudah terdaftar. Silakan gunakan yang lain."),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text("OK"),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              namalengkapController.clear();
+                              emailController.clear();
+                              passwordController.clear();
+                              konfirmasiPasswordController.clear();
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("Gagal terhubung ke server")),
+                                SnackBar(
+                                    content: Text(
+                                        data['message'] ?? 'Gagal registrasi')),
                               );
                             }
                           } catch (e) {
@@ -232,62 +286,6 @@ class RegisterScreen extends StatelessWidget {
                             );
                           }
                         },
-
-                        //     if (response.statusCode == 200) {
-                        //       var data = jsonDecode(response.body);
-                        //       if (data['status'] == 'success') {
-                        //         showDialog(
-                        //           context: context,
-                        //           builder: (context) => AlertDialog(
-                        //             title: Text("Berhasil"),
-                        //             content: Text("Registrasi berhasil"),
-                        //             actions: [
-                        //               TextButton(
-                        //                 onPressed: () => Navigator.pop(context),
-                        //                 child: Text("OK"),
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         );
-                        //         Navigator.pushReplacement(
-                        //           context,
-                        //           MaterialPageRoute(
-                        //             builder: (context) => LoginScreen(),
-                        //           ),
-                        //         );
-                        //       } else {
-                        //         usernameController.clear();
-                        //         passwordController.clear();
-                        //         namalengkapController.clear();
-                        //         showDialog(
-                        //           context: context,
-                        //           builder: (context) => AlertDialog(
-                        //             title: Text("Gagal"),
-                        //             content: Text(
-                        //               "Username atau password salah",
-                        //             ),
-                        //             actions: [
-                        //               TextButton(
-                        //                 onPressed: () => Navigator.pop(context),
-                        //                 child: Text("OK"),
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         );
-                        //       }
-                        //     } else {
-                        //       ScaffoldMessenger.of(context).showSnackBar(
-                        //         const SnackBar(
-                        //           content: Text("Gagal terhubung ke server"),
-                        //         ),
-                        //       );
-                        //     }
-                        //   } catch (e) {
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       SnackBar(content: Text("Terjadi kesalahan: $e")),
-                        //     );
-                        //   }
-                        // },
                         child: const Text(
                           "Register",
                           style: TextStyle(fontSize: 16, color: Colors.white),
