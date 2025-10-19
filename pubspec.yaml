@@ -29,8 +29,9 @@ dev_dependencies:
 #     - assets/images/
 flutter:
   assets:
+    - assets/data/
     - assets/images/
   fonts:
     - family: Cambria
       fonts:
-        - asset: assets/fonts/Cambria.ttf
+        - asset: assets/fonts/cambria.ttc
