@@ -112,7 +112,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                       const TextField(
                         obscureText: true,
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.lock_outline,
+                          prefixIcon: Icon(Icons.security,
                               color: Color(0xFF36566F)),
                           labelText: "confirm password",
                           border: OutlineInputBorder(),
