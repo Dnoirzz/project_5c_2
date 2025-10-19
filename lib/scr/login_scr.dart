@@ -4,8 +4,6 @@ import 'forgot_scr.dart';
 import 'register_scr.dart';
 import 'dashboard_scr.dart';
 import '../scr_admin/admin_dashboard.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -141,95 +139,6 @@ class LoginScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          //     onPressed: () async {
-                          //       var url = Uri.parse(
-                          //         "http://44.220.144.82/api/login.php",
-                          //       );
-
-                          //       try {
-                          //         var response = await http.post(
-                          //           url,
-                          //           headers: {"Content-Type": "application/json"},
-                          //           body: jsonEncode({
-                          //             "username": emailController.text.trim(),
-                          //             "password": passwordController.text.trim(),
-                          //           }),
-                          //         );
-
-                          //         if (response.statusCode == 200) {
-                          //           var data = json.decode(response.body);
-
-                          //           if (data['status'] == 'success') {
-                          //             var user = data['data'];
-                          //             String role = user['role'] ?? 'mahasiswa';
-
-                          //             if (role == 'admin') {
-                          //               showDialog(
-                          //                 context: context,
-                          //                 builder: (context) => AlertDialog(
-                          //                   title: Text("Berhasil"),
-                          //                   content: Text(
-                          //                     "Login Berhasil sebagai Admin",
-                          //                   ),
-                          //                   actions: [
-                          //                     TextButton(
-                          //                       onPressed: () =>
-                          //                           Navigator.pop(context),
-                          //                       child: Text("OK"),
-                          //                     ),
-                          //                   ],
-                          //                 ),
-                          //               );
-                          //               Navigator.pushReplacement(
-                          //                 context,
-                          //                 MaterialPageRoute(
-                          //                     builder: (context) =>
-                          //                         AdminDashboard()),
-                          //               );
-                          //             } else {
-                          //               Navigator.pushReplacement(
-                          //                 context,
-                          //                 MaterialPageRoute(
-                          //                     builder: (context) =>
-                          //                         const DashboardPage()),
-                          //               );
-                          //             }
-                          //           } else {
-                          //             emailController.clear();
-                          //             passwordController.clear();
-                          //             showDialog(
-                          //               context: context,
-                          //               builder: (context) => AlertDialog(
-                          //                 title: Text("Gagal"),
-                          //                 content: Text(
-                          //                   "Username atau password salah",
-                          //                 ),
-                          //                 actions: [
-                          //                   TextButton(
-                          //                     onPressed: () =>
-                          //                         Navigator.pop(context),
-                          //                     child: Text("OK"),
-                          //                   ),
-                          //                 ],
-                          //               ),
-                          //             );
-                          //           }
-                          //         } else {
-                          //           ScaffoldMessenger.of(context).showSnackBar(
-                          //             const SnackBar(
-                          //               content: Text("Gagal terhubung ke server"),
-                          //             ),
-                          //           );
-                          //         }
-                          //       } catch (e) {
-                          //         ScaffoldMessenger.of(context).showSnackBar(
-                          //           SnackBar(
-                          //             content: Text("Terjadi kesalahan: $e"),
-                          //           ),
-                          //         );
-                          //       }
-                          //     },
-
                           onPressed: () async {
                             try {
                               var data = await ApiService.login(
@@ -242,17 +151,52 @@ class LoginScreen extends StatelessWidget {
                                 String role = user['role'] ?? 'mahasiswa';
 
                                 if (role == 'admin') {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AdminDashboard()),
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text("Berhasil"),
+                                      content:
+                                          const Text("Registrasi berhasil!"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(
+                                                context); // tutup dialog
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const AdminDashboard()),
+                                            );
+                                          },
+                                          child: const Text("OK"),
+                                        ),
+                                      ],
+                                    ),
                                   );
                                 } else {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const DashboardPage()),
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text("Berhasil"),
+                                      content:
+                                          const Text("Registrasi berhasil!"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(
+                                                context); // tutup dialog
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const DashboardPage()),
+                                            );
+                                          },
+                                          child: const Text("OK"),
+                                        ),
+                                      ],
+                                    ),
                                   );
                                 }
                               } else {
