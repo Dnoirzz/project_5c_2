@@ -24,7 +24,6 @@ class _DataAkademikPageState extends State<DataAkademikPage> {
   final TextEditingController _nilaiRataController = TextEditingController();
 
   void _notifyDataChanged() {
-<<<<<<< HEAD
     final Map<String, dynamic> data = {
       'asalSekolah': _asalSekolahController.text,
       'tahunLulus': _selectedTahunLulus,
@@ -36,25 +35,6 @@ class _DataAkademikPageState extends State<DataAkademikPage> {
     widget.onDataChanged(data);
   }
   
-=======
-    Map<String, dynamic> data = {
-      'asalSekolah': _asalSekolahController.text,
-      'tahunLulus': _selectedTahunLulus,
-      'nilaiRata': _nilaiRataController.text,
-    };
-
-    // Only include non-null values for dropdowns
-    if (_selectedJurusan != null) {
-      data['jurusan'] = _selectedJurusan;
-    }
-    if (_selectedProdi != null) {
-      data['prodi'] = _selectedProdi;
-    }
-
-    widget.onDataChanged(data);
-  }
-
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
   void _setupTextFieldListeners() {
     _asalSekolahController.addListener(_notifyDataChanged);
     _nilaiRataController.addListener(_notifyDataChanged);

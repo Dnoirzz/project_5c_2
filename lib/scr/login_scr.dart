@@ -70,12 +70,11 @@ class LoginScreen extends StatelessWidget {
                       
                       TextField(
                         controller: emailController,
-<<<<<<< HEAD
+
                         keyboardType:
                             TextInputType.emailAddress, // <-- ini kuncinya
                         textInputAction: TextInputAction.next,
-=======
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
+
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
                             Icons.email,

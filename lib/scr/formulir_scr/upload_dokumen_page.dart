@@ -37,14 +37,10 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
   void initState() {
     super.initState();
     if (widget.savedData != null) {
-<<<<<<< HEAD
       // Tambahkan ini agar data langsung sinkron ke _formData
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _loadSavedData();
       });
-=======
-      _loadSavedData();
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
     }
   }
 
@@ -52,14 +48,10 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
   void didUpdateWidget(UploadDokumenPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.savedData != oldWidget.savedData) {
-<<<<<<< HEAD
       // Tambahkan ini supaya data tetap sinkron meskipun widget diperbarui
 
       _loadSavedData();
       _notifyDataChanged();
-=======
-      _loadSavedData();
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
     }
   }
 
@@ -68,19 +60,12 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
     final data = widget.savedData!;
 
     setState(() {
-<<<<<<< HEAD
       if (data['ijazah']?.isNotEmpty == true &&
           File(data['ijazah']).existsSync()) {
         _images['Ijazah/SKL'] = File(data['ijazah']);
         _uploadDates['Ijazah/SKL'] = DateTime.now();
       }
 
-=======
-      if (data['ijazah']?.isNotEmpty == true) {
-        _images['Ijazah/SKL'] = File(data['ijazah']);
-        _uploadDates['Ijazah/SKL'] = DateTime.now();
-      }
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
       if (data['kk']?.isNotEmpty == true) {
         _images['Kartu Keluarga'] = File(data['kk']);
         _uploadDates['Kartu Keluarga'] = DateTime.now();
@@ -96,7 +81,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
     });
   }
 
-<<<<<<< HEAD
   Future<void> _pickImageFromGallery(String docType) async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -137,8 +121,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
     }
   }
 
-=======
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
   Future<void> _pickImageFromCamera(String docType) async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -244,14 +226,10 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
               const SizedBox(height: 16),
 
               // Upload cards
-<<<<<<< HEAD
               ..._images.keys
                   .map((docType) => _buildDocumentCard(docType))
                   .where((widget) => widget != null)
                   .toList(),
-=======
-              ..._images.keys.map((docType) => _buildDocumentCard(docType)),
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
             ],
           ),
         ),
@@ -310,7 +288,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-<<<<<<< HEAD
               onPressed: () {
                 if (docType == 'Pas Foto 3x4') {
                   _pickImageFromCamera(docType); // hanya ini pakai kamera
@@ -318,9 +295,6 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
                   _pickImageFromGallery(docType); //  yang lain pakai galeri
                 }
               },
-=======
-              onPressed: () => _pickImageFromCamera(docType),
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
               style: ElevatedButton.styleFrom(
                 backgroundColor:
                     image != null ? Colors.green.shade50 : Colors.white,
@@ -347,15 +321,11 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-<<<<<<< HEAD
                     image != null
                         ? 'File sudah diunggah'
                         : docType == 'Pas Foto 3x4'
                             ? 'Ambil foto'
                             : 'Unggah file',
-=======
-                    image != null ? 'Foto sudah diambil' : 'Ambil foto',
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

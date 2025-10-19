@@ -45,7 +45,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   final TextEditingController _villageController = TextEditingController();
 
   void _notifyDataChanged() {
-<<<<<<< HEAD
     Map<String, dynamic> data = {
       'namaLengkap': _namaLengkapController.text,
       'nik': _nikController.text,
@@ -63,56 +62,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     };
 
     widget.onDataChanged.call(data);
-=======
-    Map<String, dynamic> data = {};
-
-    // Text fields
-    if (_namaLengkapController.text.isNotEmpty) {
-      data['namaLengkap'] = _namaLengkapController.text;
-    }
-    if (_nikController.text.isNotEmpty) {
-      data['nik'] = _nikController.text;
-    }
-    if (_tempatLahirController.text.isNotEmpty) {
-      data['tempatLahir'] = _tempatLahirController.text;
-    }
-    if (_alamatController.text.isNotEmpty) {
-      data['alamat'] = _alamatController.text;
-    }
-    if (_noHpController.text.isNotEmpty) {
-      data['noHp'] = _noHpController.text;
-    }
-    if (_emailController.text.isNotEmpty) {
-      data['email'] = _emailController.text;
-    }
-    if (_kodePosController.text.isNotEmpty) {
-      data['kodePos'] = _kodePosController.text;
-    }
-
-    // Selected values
-    if (_tanggalLahir != null) {
-      data['tanggalLahir'] = _tanggalLahir!.toIso8601String();
-    }
-    if (_jenisKelamin != null) {
-      data['jenisKelamin'] = _jenisKelamin;
-    }
-
-    // Location data
-    if (_selectedProvince != null) {
-      data['province'] = _selectedProvince!.toJson();
-    }
-    if (_selectedRegency != null) {
-      data['regency'] = _selectedRegency!.toJson();
-    }
-    if (_selectedDistrict != null) {
-      data['district'] = _selectedDistrict!.toJson();
-    }
-    if (_selectedVillage != null) {
-      data['village'] = _selectedVillage!.toJson();
-    }
-
-    widget.onDataChanged(data);
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
   }
 
   void _setupTextFieldListeners() {
@@ -128,7 +77,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
     _loadInitialData();
   }
 
@@ -170,62 +118,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     }
 
     setState(() {}); // ✅ panggil di akhir setelah semua siap
-=======
-    _initializeLocationData();
-    _setupTextFieldListeners();
-
-    // Restore saved data if available
-    if (widget.savedData != null) {
-      // Restore text fields
-      if (widget.savedData?['namaLengkap'] != null) {
-        _namaLengkapController.text = widget.savedData!['namaLengkap'];
-      }
-      if (widget.savedData?['nik'] != null) {
-        _nikController.text = widget.savedData!['nik'];
-      }
-      if (widget.savedData?['tempatLahir'] != null) {
-        _tempatLahirController.text = widget.savedData!['tempatLahir'];
-      }
-      if (widget.savedData?['alamat'] != null) {
-        _alamatController.text = widget.savedData!['alamat'];
-      }
-      if (widget.savedData?['kodePos'] != null) {
-        _kodePosController.text = widget.savedData!['kodePos'];
-      }
-      if (widget.savedData?['noHp'] != null) {
-        _noHpController.text = widget.savedData!['noHp'];
-      }
-      if (widget.savedData?['email'] != null) {
-        _emailController.text = widget.savedData!['email'];
-      }
-
-      // Restore selected values
-      if (widget.savedData?['tanggalLahir'] != null) {
-        _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
-      }
-      if (widget.savedData?['jenisKelamin'] != null) {
-        _jenisKelamin = widget.savedData!['jenisKelamin'];
-      }
-
-      // Restore location data
-      if (widget.savedData?['province'] != null) {
-        _selectedProvince = Province.fromJson(widget.savedData!['province']);
-        _provinceController.text = _selectedProvince?.name ?? '';
-      }
-      if (widget.savedData?['regency'] != null) {
-        _selectedRegency = Regency.fromJson(widget.savedData?['regency']);
-        _regencyController.text = _selectedRegency?.name ?? '';
-      }
-      if (widget.savedData?['district'] != null) {
-        _selectedDistrict = District.fromJson(widget.savedData?['district']);
-        _districtController.text = _selectedDistrict?.name ?? '';
-      }
-      if (widget.savedData?['village'] != null) {
-        _selectedVillage = Village.fromJson(widget.savedData?['village']);
-        _villageController.text = _selectedVillage?.name ?? '';
-      }
-    }
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
   }
 
   Future<void> _initializeLocationData() async {
@@ -545,10 +437,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                     _provinceController.text = province.name;
                   });
                   _clearRegencyAndBelow();
-<<<<<<< HEAD
                   _notifyDataChanged();
-=======
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
                 },
                 enabled: true,
               ),
@@ -571,10 +460,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                     _regencyController.text = regency.name;
                   });
                   _clearDistrictAndBelow();
-<<<<<<< HEAD
                   _notifyDataChanged();
-=======
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
                 },
                 enabled: _selectedProvince != null,
               ),
@@ -597,10 +483,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                     _districtController.text = district.name;
                   });
                   _clearVillage();
-<<<<<<< HEAD
                   _notifyDataChanged();
-=======
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
                 },
                 enabled: _selectedRegency != null,
               ),
@@ -622,10 +505,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                     _selectedVillage = village;
                     _villageController.text = village.name;
                   });
-<<<<<<< HEAD
                   _notifyDataChanged(); // <-- WAJIB, supaya tersimpan ke _formData
-=======
->>>>>>> d7b2cdc2a207af96ee846ce25a9d92179d4624c7
                 },
                 enabled: _selectedDistrict != null,
               ),
