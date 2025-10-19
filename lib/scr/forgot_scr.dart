@@ -1,3 +1,4 @@
+import 'package:SPMB/services/auth_servise.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -104,7 +105,6 @@ class ForgotPasswordScreen extends StatelessWidget {
                       //     border: OutlineInputBorder(),
                       //   ),
                       // ),
-                      const SizedBox(height: 15),
 
                       // Input New Password
                       TextField(
@@ -177,7 +177,6 @@ class ForgotPasswordScreen extends StatelessWidget {
 
                       const SizedBox(height: 25),
 
-                      // Tombol Submit
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -189,21 +188,11 @@ class ForgotPasswordScreen extends StatelessWidget {
                             ),
                           ),
                           onPressed: () async {
-                            var url = Uri.parse(
-                                "http://44.220.144.82/api/reset_password.php");
-
                             try {
-                              var response = await http.post(
-                                url,
-                                headers: {"Content-Type": "application/json"},
-                                body: jsonEncode({
-                                  "email": emailController.text.trim(),
-                                  "new_password":
-                                      newPasswordController.text.trim(),
-                                }),
+                              var data = await ApiService.reset_password(
+                                emailController.text.trim(),
+                                newPasswordController.text.trim(),
                               );
-
-                              var data = jsonDecode(response.body);
 
                               if (data['status'] == 'success') {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -213,14 +202,16 @@ class ForgotPasswordScreen extends StatelessWidget {
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content: Text(data['message'] ??
-                                          'Gagal reset password')),
+                                    content: Text(data['message'] ??
+                                        'Gagal reset password'),
+                                  ),
                                 );
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                    content: Text("Terjadi kesalahan: $e")),
+                                  content: Text("Terjadi kesalahan: $e"),
+                                ),
                               );
                             }
                           },
