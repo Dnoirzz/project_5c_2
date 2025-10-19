@@ -13,6 +13,33 @@ class _FormManagementPageState extends State<FormManagementPage> {
   Set<int> expandedRows = {};
   Map<String, bool> expandedDetails = {};
 
+  // Dropdown states
+  String selectedJurusan = 'Jurusan Akutansi';
+  String? selectedProdi;
+
+  // Pagination states
+  int currentPage = 1;
+  int itemsPerPage = 20;
+
+  // List of jurusan options
+  final List<String> jurusanList = [
+    'Jurusan Akutansi',
+    'Jurusan Elektro',
+    'Jurusan Teknik Listrik',
+    'Jurusan Teknik Informatika',
+  ];
+
+  // List of prodi options for each jurusan
+  final Map<String, List<String>> prodiByJurusan = {
+    'Jurusan Akutansi': ['D4-ASP', 'D3-Akuntansi'],
+    'Jurusan Elektro': [
+      'D3-Teknik Listrik',
+      'D4-Teknologi Rekayasa Sistem Elektronika'
+    ],
+    'Jurusan Teknik Listrik': ['D3-Teknik Listrik', 'D4-Teknik Listrik'],
+    'Jurusan Teknik Informatika': ['D3-TIF', 'D4-TIF'],
+  };
+
   final List<Map<String, dynamic>> formData = [
     {
       'id': 1,
@@ -50,11 +77,13 @@ class _FormManagementPageState extends State<FormManagementPage> {
         },
         'dataOrangTua': {
           'namaAyah': 'Budi Pratama',
+          'nikAyah': '3201234567890001',
           'pekerjaanAyah': 'Karyawan Swasta',
           'noTlpAyah': '081234567891',
           'alamatAyah': 'Jl. Sudirman No. 123',
           'penghasilanAyah': 'Rp 5.000.000',
           'namaIbu': 'Siti Aminah',
+          'nikIbu': '3201234567890002',
           'pekerjaanIbu': 'Ibu Rumah Tangga',
           'noTlpIbu': '081234567892',
           'alamatIbu': 'Jl. Sudirman No. 123',
@@ -105,11 +134,13 @@ class _FormManagementPageState extends State<FormManagementPage> {
         },
         'dataOrangTua': {
           'namaAyah': 'Ahmad Pahmi',
+          'nikAyah': '3273123456789003',
           'pekerjaanAyah': 'PNS',
           'noTlpAyah': '081234567894',
           'alamatAyah': 'Jl. Gatot Subroto No. 456',
           'penghasilanAyah': 'Rp 7.000.000',
           'namaIbu': 'Rina Sari',
+          'nikIbu': '3273123456789004',
           'pekerjaanIbu': 'Guru',
           'noTlpIbu': '081234567895',
           'alamatIbu': 'Jl. Gatot Subroto No. 456',
@@ -163,8 +194,40 @@ class _FormManagementPageState extends State<FormManagementPage> {
       final matchesTab = activeTab == 'semua' ||
           (activeTab == 'terverifikasi' && item['status'] == 'Terverifikasi') ||
           (activeTab == 'belum' && item['status'] == 'Belum Terverifikasi');
-      return matchesSearch && matchesTab;
+      final matchesProdi =
+          selectedProdi == null || item['prodi'] == selectedProdi;
+      return matchesSearch && matchesTab && matchesProdi;
     }).toList();
+  }
+
+  // Get paginated data
+  List<Map<String, dynamic>> get paginatedData {
+    final startIndex = (currentPage - 1) * itemsPerPage;
+    final endIndex = startIndex + itemsPerPage;
+    final data = filteredData;
+
+    if (startIndex >= data.length) {
+      return [];
+    }
+
+    return data.sublist(
+      startIndex,
+      endIndex > data.length ? data.length : endIndex,
+    );
+  }
+
+  // Get total pages
+  int get totalPages {
+    return (filteredData.length / itemsPerPage).ceil();
+  }
+
+  // Change page
+  void changePage(int page) {
+    setState(() {
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+      }
+    });
   }
 
   void toggleRow(int id) {
@@ -180,6 +243,13 @@ class _FormManagementPageState extends State<FormManagementPage> {
   void toggleDetail(String key) {
     setState(() {
       expandedDetails[key] = !(expandedDetails[key] ?? false);
+    });
+  }
+
+  // Reset to page 1 when filter changes
+  void resetPagination() {
+    setState(() {
+      currentPage = 1;
     });
   }
 
@@ -235,11 +305,13 @@ class _FormManagementPageState extends State<FormManagementPage> {
       case 'Data Orang Tua':
         fieldMappings = {
           'namaAyah': 'Nama Ayah',
+          'nikAyah': 'NIK Ayah',
           'pekerjaanAyah': 'Pekerjaan Ayah',
           'noTlpAyah': 'No Telepon Ayah',
           'alamatAyah': 'Alamat Ayah',
           'penghasilanAyah': 'Penghasilan Ayah',
           'namaIbu': 'Nama Ibu',
+          'nikIbu': 'NIK Ibu',
           'pekerjaanIbu': 'Pekerjaan Ibu',
           'noTlpIbu': 'No Telepon Ibu',
           'alamatIbu': 'Alamat Ibu',
@@ -319,7 +391,7 @@ class _FormManagementPageState extends State<FormManagementPage> {
                         size: 20,
                       ),
                       onPressed: () =>
-                          _showDocumentViewer(fieldLabel, fieldKey),
+                          _showDocumentViewer(fieldLabel, fieldKey, item),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
@@ -332,7 +404,12 @@ class _FormManagementPageState extends State<FormManagementPage> {
     );
   }
 
-  void _showDocumentViewer(String documentName, String documentType) {
+  void _showDocumentViewer(String documentName, String documentType,
+      Map<String, dynamic> studentData) {
+    final formData = studentData['formData'] ?? {};
+    final dataPribadi = formData['dataPribadi'] ?? {};
+    final dataOrangTua = formData['dataOrangTua'] ?? {};
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -393,118 +470,123 @@ class _FormManagementPageState extends State<FormManagementPage> {
                 ),
                 const SizedBox(height: 20),
                 Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8F9FA),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
-                    ),
+                  child: SingleChildScrollView(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          _getDocumentIcon(documentType),
-                          size: 80,
-                          color: const Color(0xFF9CA3AF),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Preview $documentName',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Dokumen siap untuk dilihat',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF6B7280),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
+                        // Document Image Preview
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                          width: double.infinity,
+                          height: 300,
                           decoration: BoxDecoration(
-                            color:
-                                const Color(0xFF10B981).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
+                            color: const Color(0xFFF8F9FA),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
-                                Icons.check_circle,
-                                color: Color(0xFF10B981),
-                                size: 16,
+                              Icon(
+                                _getDocumentIcon(documentType),
+                                size: 80,
+                                color: const Color(0xFF9CA3AF),
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Dokumen Tersedia',
-                                style: TextStyle(
-                                  color: Color(0xFF10B981),
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
+                              const SizedBox(height: 16),
+                              Text(
+                                'Preview $documentName',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF374151),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Foto dokumen ${documentName.toLowerCase()}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF6B7280),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF10B981)
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: Color(0xFF10B981),
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'Dokumen Tersedia',
+                                      style: TextStyle(
+                                        color: Color(0xFF10B981),
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
+                        const SizedBox(height: 20),
+
+                        // Additional Information based on document type
+                        if (documentType.toLowerCase() == 'ktp')
+                          _buildKTPInfo(dataPribadi)
+                        else if (documentType.toLowerCase() == 'kk')
+                          _buildKKInfo(dataPribadi, dataOrangTua),
+                        // Ijazah, Akta, dan Foto tidak menampilkan informasi tambahan
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Informasi Dokumen',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF163042),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoRow('Nama Dokumen', documentName),
-                      _buildInfoRow('Tipe File', documentType.toUpperCase()),
-                      _buildInfoRow('Status', 'Sudah Upload'),
-                      _buildInfoRow('Ukuran', '2.5 MB'),
-                      _buildInfoRow('Tanggal Upload', '15 Jan 2024'),
-                    ],
                   ),
                 ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Dokumen $documentName ditolak'),
+                              backgroundColor: const Color(0xFFEF4444),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEF4444),
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: const BorderSide(color: Color(0xFFD1D5DB)),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
-                          'Tutup',
-                          style: TextStyle(
-                            color: Color(0xFF6B7280),
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.close, size: 18),
+                            SizedBox(width: 8),
+                            Text(
+                              'Tolak',
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -515,7 +597,7 @@ class _FormManagementPageState extends State<FormManagementPage> {
                           Navigator.of(context).pop();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Mengunduh $documentName...'),
+                              content: Text('Dokumen $documentName diterima'),
                               backgroundColor: const Color(0xFF10B981),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
@@ -525,7 +607,7 @@ class _FormManagementPageState extends State<FormManagementPage> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF3B82F6),
+                          backgroundColor: const Color(0xFF10B981),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
@@ -535,10 +617,10 @@ class _FormManagementPageState extends State<FormManagementPage> {
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.download, size: 18),
+                            Icon(Icons.check, size: 18),
                             SizedBox(width: 8),
                             Text(
-                              'Download',
+                              'Terima',
                               style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                           ],
@@ -562,7 +644,7 @@ class _FormManagementPageState extends State<FormManagementPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 100,
+            width: 120,
             child: Text(
               label,
               style: const TextStyle(
@@ -589,6 +671,122 @@ class _FormManagementPageState extends State<FormManagementPage> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // Build KTP Information
+  Widget _buildKTPInfo(Map<String, dynamic> dataPribadi) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.badge,
+                  color: Color(0xFF3B82F6),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Informasi KTP',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF163042),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow('Nama Lengkap', dataPribadi['namaLengkap'] ?? '-'),
+          _buildInfoRow('NIK', dataPribadi['nik'] ?? '-'),
+          _buildInfoRow(
+            'Tempat, Tgl Lahir',
+            '${dataPribadi['tempatLahir'] ?? '-'}, ${dataPribadi['tanggalLahir'] ?? '-'}',
+          ),
+          _buildInfoRow('Jenis Kelamin', dataPribadi['jenisKelamin'] ?? '-'),
+          _buildInfoRow('Alamat', dataPribadi['alamat'] ?? '-'),
+          _buildInfoRow('Agama', dataPribadi['agama'] ?? '-'),
+        ],
+      ),
+    );
+  }
+
+  // Build KK (Kartu Keluarga) Information
+  Widget _buildKKInfo(
+      Map<String, dynamic> dataPribadi, Map<String, dynamic> dataOrangTua) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.family_restroom,
+                  color: Color(0xFF10B981),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Informasi Kartu Keluarga',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF163042),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildInfoRow('Nama Siswa', dataPribadi['namaLengkap'] ?? '-'),
+          const SizedBox(height: 12),
+          const Text(
+            'Data Orang Tua:',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF163042),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildInfoRow('Nama Ayah', dataOrangTua['namaAyah'] ?? '-'),
+          _buildInfoRow('NIK Ayah', dataOrangTua['nikAyah'] ?? '-'),
+          _buildInfoRow('Pekerjaan Ayah', dataOrangTua['pekerjaanAyah'] ?? '-'),
+          const SizedBox(height: 8),
+          _buildInfoRow('Nama Ibu', dataOrangTua['namaIbu'] ?? '-'),
+          _buildInfoRow('NIK Ibu', dataOrangTua['nikIbu'] ?? '-'),
+          _buildInfoRow('Pekerjaan Ibu', dataOrangTua['pekerjaanIbu'] ?? '-'),
         ],
       ),
     );
@@ -649,18 +847,51 @@ class _FormManagementPageState extends State<FormManagementPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
-                const Text(
-                  'Jurusan Akutansi',
-                  style: TextStyle(
-                    color: Color(0xFFFDE047),
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                  ),
+                // Title with Dropdown
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(0, 100, 116, 139),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedJurusan,
+                            isExpanded: true,
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                color: Color(0xFFFDE047)),
+                            dropdownColor: const Color(0xFF475569),
+                            style: const TextStyle(
+                              color: Color(0xFFFDE047),
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            items: jurusanList.map((String jurusan) {
+                              return DropdownMenuItem<String>(
+                                value: jurusan,
+                                child: Text(jurusan),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                selectedJurusan = newValue!;
+                                selectedProdi =
+                                    null; // Reset prodi when jurusan changes
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
 
-                // Search Bar
+                // Search Bar (full width)
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFFCBD5E1),
@@ -684,45 +915,104 @@ class _FormManagementPageState extends State<FormManagementPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Tabs
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildTab('semua', 'Semua'),
-                      const SizedBox(width: 12),
-                      _buildTab('terverifikasi', 'Terverifikasi'),
-                      const SizedBox(width: 12),
-                      _buildTab('belum', 'Belum Terverifikasi'),
-                    ],
-                  ),
+                // Tabs with animated indicator
+                Stack(
+                  children: [
+                    // Tab buttons
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildTab('semua', 'Semua'),
+                          const SizedBox(width: 12),
+                          _buildTab('terverifikasi', 'Terverifikasi'),
+                          const SizedBox(width: 12),
+                          _buildTab('belum', 'Belum Terverifikasi'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Prodi Filter Dropdown below navigation
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(0, 100, 116, 139),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedProdi,
+                            isExpanded: true,
+                            hint: const Text(
+                              'Pilih Prodi',
+                              style: TextStyle(
+                                  color: Color(0xFFCBD5E1), fontSize: 13),
+                            ),
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                color: Colors.white),
+                            dropdownColor: const Color(0xFF475569),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            items: [
+                              const DropdownMenuItem<String>(
+                                value: null,
+                                child: Text('Semua Prodi',
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                              ...?prodiByJurusan[selectedJurusan]
+                                  ?.map((String prodi) {
+                                return DropdownMenuItem<String>(
+                                  value: prodi,
+                                  child: Text(prodi),
+                                );
+                              }).toList(),
+                            ],
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                selectedProdi = newValue;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
 
                 // Show entries
                 Align(
                   alignment: Alignment.centerRight,
-                  child: RichText(
-                    text: const TextSpan(
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                      children: [
-                        TextSpan(text: 'Show '),
-                        WidgetSpan(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4),
-                            child: Text(
-                              '10',
-                              style: TextStyle(
-                                backgroundColor: Colors.white,
-                                color: Color(0xFF475569),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // child: RichText(
+                  //   text: const TextSpan(
+                  //     style: TextStyle(color: Colors.white, fontSize: 12),
+                  //     children: [
+                  //       TextSpan(text: 'Show '),
+                  //       WidgetSpan(
+                  //         child: Padding(
+                  //           padding: EdgeInsets.symmetric(horizontal: 4),
+                  //           child: Text(
+                  //             '10',
+                  //             style: TextStyle(
+                  //               backgroundColor: Colors.white,
+                  //               color: Color(0xFF475569),
+                  //               fontWeight: FontWeight.bold,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ),
                 const SizedBox(height: 8),
 
@@ -1069,19 +1359,32 @@ class _FormManagementPageState extends State<FormManagementPage> {
           activeTab = value;
         });
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF475569) : Colors.transparent,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.white : const Color(0xFFCBD5E1),
-            fontSize: 12,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isActive ? Colors.white : const Color(0xFFCBD5E1),
+                fontSize: 12,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 4),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            height: 3,
+            width: isActive ? 60 : 0,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFDE047),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
       ),
     );
   }

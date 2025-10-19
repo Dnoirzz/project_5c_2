@@ -20,12 +20,14 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
 
   // TextEditingController untuk setiap field
   final TextEditingController _namaAyahController = TextEditingController();
+  final TextEditingController _nikAyahController = TextEditingController();
   final TextEditingController _pekerjaanAyahController =
       TextEditingController();
   final TextEditingController _noTlpAyahController = TextEditingController();
   final TextEditingController _alamatAyahController = TextEditingController();
 
   final TextEditingController _namaIbuController = TextEditingController();
+  final TextEditingController _nikIbuController = TextEditingController();
   final TextEditingController _pekerjaanIbuController = TextEditingController();
   final TextEditingController _noTlpIbuController = TextEditingController();
   final TextEditingController _alamatIbuController = TextEditingController();
@@ -33,11 +35,13 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
   void _notifyDataChanged() {
     widget.onDataChanged({
       'namaAyah': _namaAyahController.text,
+      'nikAyah': _nikAyahController.text,
       'pekerjaanAyah': _pekerjaanAyahController.text,
       'noTlpAyah': _noTlpAyahController.text,
       'alamatAyah': _alamatAyahController.text,
       'penghasilanAyah': _selectedPenghasilanAyah,
       'namaIbu': _namaIbuController.text,
+      'nikIbu': _nikIbuController.text,
       'pekerjaanIbu': _pekerjaanIbuController.text,
       'noTlpIbu': _noTlpIbuController.text,
       'alamatIbu': _alamatIbuController.text,
@@ -47,10 +51,12 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
 
   void _setupTextFieldListeners() {
     _namaAyahController.addListener(_notifyDataChanged);
+    _nikAyahController.addListener(_notifyDataChanged);
     _pekerjaanAyahController.addListener(_notifyDataChanged);
     _noTlpAyahController.addListener(_notifyDataChanged);
     _alamatAyahController.addListener(_notifyDataChanged);
     _namaIbuController.addListener(_notifyDataChanged);
+    _nikIbuController.addListener(_notifyDataChanged);
     _pekerjaanIbuController.addListener(_notifyDataChanged);
     _noTlpIbuController.addListener(_notifyDataChanged);
     _alamatIbuController.addListener(_notifyDataChanged);
@@ -62,11 +68,13 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
     super.initState();
     if (widget.savedData != null) {
       _namaAyahController.text = widget.savedData?['namaAyah'] ?? '';
+      _nikAyahController.text = widget.savedData?['nikAyah'] ?? '';
       _pekerjaanAyahController.text = widget.savedData?['pekerjaanAyah'] ?? '';
       _noTlpAyahController.text = widget.savedData?['noTlpAyah'] ?? '';
       _alamatAyahController.text = widget.savedData?['alamatAyah'] ?? '';
       _selectedPenghasilanAyah = widget.savedData?['penghasilanAyah'];
       _namaIbuController.text = widget.savedData?['namaIbu'] ?? '';
+      _nikIbuController.text = widget.savedData?['nikIbu'] ?? '';
       _pekerjaanIbuController.text = widget.savedData?['pekerjaanIbu'] ?? '';
       _noTlpIbuController.text = widget.savedData?['noTlpIbu'] ?? '';
       _alamatIbuController.text = widget.savedData?['alamatIbu'] ?? '';
@@ -98,11 +106,13 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
     _alamatIbuController.removeListener(_notifyDataChanged);
 
     _namaAyahController.dispose();
+    _nikAyahController.dispose();
     _pekerjaanAyahController.dispose();
     _noTlpAyahController.dispose();
     _alamatAyahController.dispose();
 
     _namaIbuController.dispose();
+    _nikIbuController.dispose();
     _pekerjaanIbuController.dispose();
     _noTlpIbuController.dispose();
     _alamatIbuController.dispose();
@@ -167,6 +177,14 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
                 "Nama Ayah",
                 "Masukkan nama ayah",
                 controller: _namaAyahController,
+              ),
+
+              // NIK Ayah
+              _inputField(
+                "NIK Ayah",
+                "Masukkan NIK ayah (16 digit)",
+                controller: _nikAyahController,
+                keyboardType: TextInputType.number,
               ),
 
               // Pekerjaan Ayah
@@ -269,6 +287,14 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
                 "Nama Ibu",
                 "Masukkan nama ibu",
                 controller: _namaIbuController,
+              ),
+
+              // NIK Ibu
+              _inputField(
+                "NIK Ibu",
+                "Masukkan NIK ibu (16 digit)",
+                controller: _nikIbuController,
+                keyboardType: TextInputType.number,
               ),
 
               // Pekerjaan Ibu
