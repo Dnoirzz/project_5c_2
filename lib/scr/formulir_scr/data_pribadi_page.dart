@@ -45,54 +45,23 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   final TextEditingController _villageController = TextEditingController();
 
   void _notifyDataChanged() {
-    Map<String, dynamic> data = {};
+    Map<String, dynamic> data = {
+      'namaLengkap': _namaLengkapController.text,
+      'nik': _nikController.text,
+      'tempatLahir': _tempatLahirController.text,
+      'alamat': _alamatController.text,
+      'noHp': _noHpController.text,
+      'email': _emailController.text,
+      'kodePos': _kodePosController.text,
+      'tanggalLahir': _tanggalLahir?.toIso8601String(),
+      'jenisKelamin': _jenisKelamin,
+      'province': _selectedProvince?.toJson(),
+      'regency': _selectedRegency?.toJson(),
+      'district': _selectedDistrict?.toJson(),
+      'village': _selectedVillage?.toJson(),
+    };
 
-    // Text fields
-    if (_namaLengkapController.text.isNotEmpty) {
-      data['namaLengkap'] = _namaLengkapController.text;
-    }
-    if (_nikController.text.isNotEmpty) {
-      data['nik'] = _nikController.text;
-    }
-    if (_tempatLahirController.text.isNotEmpty) {
-      data['tempatLahir'] = _tempatLahirController.text;
-    }
-    if (_alamatController.text.isNotEmpty) {
-      data['alamat'] = _alamatController.text;
-    }
-    if (_noHpController.text.isNotEmpty) {
-      data['noHp'] = _noHpController.text;
-    }
-    if (_emailController.text.isNotEmpty) {
-      data['email'] = _emailController.text;
-    }
-    if (_kodePosController.text.isNotEmpty) {
-      data['kodePos'] = _kodePosController.text;
-    }
-
-    // Selected values
-    if (_tanggalLahir != null) {
-      data['tanggalLahir'] = _tanggalLahir!.toIso8601String();
-    }
-    if (_jenisKelamin != null) {
-      data['jenisKelamin'] = _jenisKelamin;
-    }
-
-    // Location data
-    if (_selectedProvince != null) {
-      data['province'] = _selectedProvince!.toJson();
-    }
-    if (_selectedRegency != null) {
-      data['regency'] = _selectedRegency!.toJson();
-    }
-    if (_selectedDistrict != null) {
-      data['district'] = _selectedDistrict!.toJson();
-    }
-    if (_selectedVillage != null) {
-      data['village'] = _selectedVillage!.toJson();
-    }
-
-    widget.onDataChanged(data);
+    widget.onDataChanged.call(data);
   }
 
   void _setupTextFieldListeners() {
@@ -108,60 +77,47 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   @override
   void initState() {
     super.initState();
-    _initializeLocationData();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    await _initializeLocationData(); // ✅ tunggu data siap
+
     _setupTextFieldListeners();
 
-    // Restore saved data if available
-    if (widget.savedData != null) {
-      // Restore text fields
-      if (widget.savedData?['namaLengkap'] != null) {
-        _namaLengkapController.text = widget.savedData!['namaLengkap'];
-      }
-      if (widget.savedData?['nik'] != null) {
-        _nikController.text = widget.savedData!['nik'];
-      }
-      if (widget.savedData?['tempatLahir'] != null) {
-        _tempatLahirController.text = widget.savedData!['tempatLahir'];
-      }
-      if (widget.savedData?['alamat'] != null) {
-        _alamatController.text = widget.savedData!['alamat'];
-      }
-      if (widget.savedData?['kodePos'] != null) {
-        _kodePosController.text = widget.savedData!['kodePos'];
-      }
-      if (widget.savedData?['noHp'] != null) {
-        _noHpController.text = widget.savedData!['noHp'];
-      }
-      if (widget.savedData?['email'] != null) {
-        _emailController.text = widget.savedData!['email'];
-      }
+    final draft = widget.savedData ?? {};
 
-      // Restore selected values
-      if (widget.savedData?['tanggalLahir'] != null) {
-        _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
-      }
-      if (widget.savedData?['jenisKelamin'] != null) {
-        _jenisKelamin = widget.savedData!['jenisKelamin'];
-      }
+    _namaLengkapController.text = draft['namaLengkap'] ?? '';
+    _nikController.text = draft['nik'] ?? '';
+    _tempatLahirController.text = draft['tempatLahir'] ?? '';
+    _alamatController.text = draft['alamat'] ?? '';
+    _noHpController.text = draft['noHp'] ?? '';
+    _emailController.text = draft['email'] ?? '';
+    _kodePosController.text = draft['kodePos'] ?? '';
 
-      // Restore location data
-      if (widget.savedData?['province'] != null) {
-        _selectedProvince = Province.fromJson(widget.savedData!['province']);
-        _provinceController.text = _selectedProvince?.name ?? '';
-      }
-      if (widget.savedData?['regency'] != null) {
-        _selectedRegency = Regency.fromJson(widget.savedData?['regency']);
-        _regencyController.text = _selectedRegency?.name ?? '';
-      }
-      if (widget.savedData?['district'] != null) {
-        _selectedDistrict = District.fromJson(widget.savedData?['district']);
-        _districtController.text = _selectedDistrict?.name ?? '';
-      }
-      if (widget.savedData?['village'] != null) {
-        _selectedVillage = Village.fromJson(widget.savedData?['village']);
-        _villageController.text = _selectedVillage?.name ?? '';
-      }
+    _tanggalLahir = draft['tanggalLahir'] != null
+        ? DateTime.tryParse(draft['tanggalLahir'])
+        : null;
+    _jenisKelamin = draft['jenisKelamin'];
+
+    if (draft['province'] != null) {
+      _selectedProvince = Province.fromJson(draft['province']);
+      _provinceController.text = _selectedProvince?.name ?? '';
     }
+    if (draft['regency'] != null) {
+      _selectedRegency = Regency.fromJson(draft['regency']);
+      _regencyController.text = _selectedRegency?.name ?? '';
+    }
+    if (draft['district'] != null) {
+      _selectedDistrict = District.fromJson(draft['district']);
+      _districtController.text = _selectedDistrict?.name ?? '';
+    }
+    if (draft['village'] != null) {
+      _selectedVillage = Village.fromJson(draft['village']);
+      _villageController.text = _selectedVillage?.name ?? '';
+    }
+
+    setState(() {}); // ✅ panggil di akhir setelah semua siap
   }
 
   Future<void> _initializeLocationData() async {
@@ -247,6 +203,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
+      key: const PageStorageKey('DataPribadiPage'),
       padding: const EdgeInsets.all(12),
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -480,6 +437,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                     _provinceController.text = province.name;
                   });
                   _clearRegencyAndBelow();
+                  _notifyDataChanged();
                 },
                 enabled: true,
               ),
@@ -502,6 +460,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                     _regencyController.text = regency.name;
                   });
                   _clearDistrictAndBelow();
+                  _notifyDataChanged();
                 },
                 enabled: _selectedProvince != null,
               ),
@@ -524,6 +483,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                     _districtController.text = district.name;
                   });
                   _clearVillage();
+                  _notifyDataChanged();
                 },
                 enabled: _selectedRegency != null,
               ),
@@ -545,6 +505,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                     _selectedVillage = village;
                     _villageController.text = village.name;
                   });
+                  _notifyDataChanged(); // <-- WAJIB, supaya tersimpan ke _formData
                 },
                 enabled: _selectedDistrict != null,
               ),

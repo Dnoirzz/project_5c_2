@@ -69,9 +69,12 @@ class LoginScreen extends StatelessWidget {
 
                       const SizedBox(height: 20),
 
-                      // TextField Email
+                      
                       TextField(
                         controller: emailController,
+                        keyboardType:
+                            TextInputType.emailAddress, // <-- ini kuncinya
+                        textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
                             Icons.email,

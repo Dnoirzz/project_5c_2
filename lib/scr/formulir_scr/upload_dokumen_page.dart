@@ -37,7 +37,10 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
   void initState() {
     super.initState();
     if (widget.savedData != null) {
-      _loadSavedData();
+      // Tambahkan ini agar data langsung sinkron ke _formData
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadSavedData();
+      });
     }
   }
 
@@ -45,7 +48,10 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
   void didUpdateWidget(UploadDokumenPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.savedData != oldWidget.savedData) {
+      // Tambahkan ini supaya data tetap sinkron meskipun widget diperbarui
+
       _loadSavedData();
+      _notifyDataChanged();
     }
   }
 
@@ -54,10 +60,12 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
     final data = widget.savedData!;
 
     setState(() {
-      if (data['ijazah']?.isNotEmpty == true) {
+      if (data['ijazah']?.isNotEmpty == true &&
+          File(data['ijazah']).existsSync()) {
         _images['Ijazah/SKL'] = File(data['ijazah']);
         _uploadDates['Ijazah/SKL'] = DateTime.now();
       }
+
       if (data['kk']?.isNotEmpty == true) {
         _images['Kartu Keluarga'] = File(data['kk']);
         _uploadDates['Kartu Keluarga'] = DateTime.now();
@@ -71,6 +79,46 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
         _uploadDates['Pas Foto 3x4'] = DateTime.now();
       }
     });
+  }
+
+  Future<void> _pickImageFromGallery(String docType) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
+      if (image != null) {
+        setState(() {
+          _images[docType] = File(image.path);
+          _uploadDates[docType] = DateTime.now();
+        });
+
+        _notifyDataChanged();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('File $docType berhasil diunggah'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengunggah $docType: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _pickImageFromCamera(String docType) async {
@@ -178,7 +226,10 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
               const SizedBox(height: 16),
 
               // Upload cards
-              ..._images.keys.map((docType) => _buildDocumentCard(docType)),
+              ..._images.keys
+                  .map((docType) => _buildDocumentCard(docType))
+                  .where((widget) => widget != null)
+                  .toList(),
             ],
           ),
         ),
@@ -237,7 +288,13 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => _pickImageFromCamera(docType),
+              onPressed: () {
+                if (docType == 'Pas Foto 3x4') {
+                  _pickImageFromCamera(docType); // hanya ini pakai kamera
+                } else {
+                  _pickImageFromGallery(docType); //  yang lain pakai galeri
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor:
                     image != null ? Colors.green.shade50 : Colors.white,
@@ -264,7 +321,11 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    image != null ? 'Foto sudah diambil' : 'Ambil foto',
+                    image != null
+                        ? 'File sudah diunggah'
+                        : docType == 'Pas Foto 3x4'
+                            ? 'Ambil foto'
+                            : 'Unggah file',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
