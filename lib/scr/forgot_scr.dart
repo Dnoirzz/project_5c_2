@@ -110,9 +110,13 @@ class ForgotPasswordScreen extends StatelessWidget {
                       TextField(
                         controller: konfirmasiPasswordController,
                         obscureText: true,
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.lock_outline,
-                              color: Color(0xFF36566F)),
+                        // decoration: const InputDecoration(
+                        //   prefixIcon: Icon(
+                        //     Icons.lock_outline,
+                        //   ),
+                        decoration: InputDecoration(
+                          prefixIcon:
+                              Icon(Icons.security, color: Color(0xFF36566F)),
                           labelText: "confirm password",
                           border: OutlineInputBorder(),
                         ),

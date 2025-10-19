@@ -155,8 +155,7 @@ class LoginScreen extends StatelessWidget {
                                     context: context,
                                     builder: (context) => AlertDialog(
                                       title: const Text("Berhasil"),
-                                      content:
-                                          const Text("Registrasi berhasil!"),
+                                      content: const Text("Login berhasil!"),
                                       actions: [
                                         TextButton(
                                           onPressed: () {

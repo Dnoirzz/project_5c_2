@@ -194,15 +194,22 @@ class _PengumumanPageState extends State<PengumumanPage> {
                       final item = data[index];
                       return InkWell(
                         onTap: () {
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => DetailPengumumanPage(
+                          //       judul: item.judul,
+                          //       tanggal: item.tanggal,
+                          //       deskripsi: item.isi,
+                          //       gambar: item.gambar,
+                          //     ),
+                          //   ),
+                          // );
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailPengumumanPage(
-                                judul: item.judul,
-                                tanggal: item.tanggal,
-                                deskripsi: item.isi,
-                                gambar: item.gambar,
-                              ),
+                              builder: (context) =>
+                                  DetailPengumumanPage(pengumuman: item),
                             ),
                           );
                         },
