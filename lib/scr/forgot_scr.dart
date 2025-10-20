@@ -1,17 +1,10 @@
-import 'package:SPMB/services/auth_servise.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController emailController = TextEditingController();
-    TextEditingController newPasswordController = TextEditingController();
-    TextEditingController konfirmasiPasswordController =
-        TextEditingController();
     return Scaffold(
       backgroundColor: const Color(0xFF36566F),
       body: SafeArea(
@@ -84,9 +77,8 @@ class ForgotPasswordScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // Input Email
-                      TextField(
-                        controller: emailController,
-                        decoration: const InputDecoration(
+                      const TextField(
+                        decoration: InputDecoration(
                           prefixIcon:
                               Icon(Icons.email, color: Color(0xFF36566F)),
                           labelText: "Gmail.com",
@@ -96,21 +88,20 @@ class ForgotPasswordScreen extends StatelessWidget {
                       const SizedBox(height: 15),
 
                       // Input Code Verifikasi
-                      // const TextField(
-                      //   controller: codeController,
-                      //   decoration: InputDecoration(
-                      //     prefixIcon:
-                      //         Icon(Icons.verified, color: Color(0xFF36566F)),
-                      //     labelText: "code verifikasi",
-                      //     border: OutlineInputBorder(),
-                      //   ),
-                      // ),
+                      const TextField(
+                        decoration: InputDecoration(
+                          prefixIcon:
+                              Icon(Icons.verified, color: Color(0xFF36566F)),
+                          labelText: "code verifikasi",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
 
                       // Input New Password
-                      TextField(
-                        controller: newPasswordController,
+                      const TextField(
                         obscureText: true,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           prefixIcon:
                               Icon(Icons.lock, color: Color(0xFF36566F)),
                           labelText: "new password",
@@ -120,12 +111,11 @@ class ForgotPasswordScreen extends StatelessWidget {
                       const SizedBox(height: 15),
 
                       // Input Confirm Password
-                      TextField(
-                        controller: konfirmasiPasswordController,
+                      const TextField(
                         obscureText: true,
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.lock_outline,
-                              color: Color(0xFF36566F)),
+                        decoration: InputDecoration(
+                          prefixIcon:
+                              Icon(Icons.security, color: Color(0xFF36566F)),
                           labelText: "confirm password",
                           border: OutlineInputBorder(),
                         ),
@@ -177,6 +167,7 @@ class ForgotPasswordScreen extends StatelessWidget {
 
                       const SizedBox(height: 25),
 
+                      // Tombol Submit
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -187,34 +178,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          onPressed: () async {
-                            try {
-                              var data = await ApiService.reset_password(
-                                emailController.text.trim(),
-                                newPasswordController.text.trim(),
-                              );
-
-                              if (data['status'] == 'success') {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(data['message'])),
-                                );
-                                Navigator.pop(context);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(data['message'] ??
-                                        'Gagal reset password'),
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("Terjadi kesalahan: $e"),
-                                ),
-                              );
-                            }
-                          },
+                          onPressed: () {},
                           child: const Text(
                             "Submit",
                             style: TextStyle(fontSize: 18, color: Colors.white),
