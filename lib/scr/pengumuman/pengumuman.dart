@@ -65,7 +65,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
             const SizedBox(height: 10),
             Expanded(
               child: filteredPengumuman.isEmpty
-                  ? const Center(child: Text('No pengumuman found'));
+                  ? const Center(child: Text('No pengumuman found'))
                   : ListView.builder(
                       itemCount: filteredPengumuman.length,
                       itemBuilder: (context, index) {
