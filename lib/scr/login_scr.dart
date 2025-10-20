@@ -4,18 +4,93 @@ import 'forgot_scr.dart';
 import 'register_scr.dart';
 import 'dashboard_scr.dart';
 import '../scr_admin/admin_dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginScreen extends StatelessWidget {
+// class LoginScreen extends StatelessWidget {
+//   const LoginScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // controller untuk ambil input dari TextField
+//     final TextEditingController emailController = TextEditingController();
+//     final TextEditingController passwordController = TextEditingController();
+//     bool rememberMe = false;
+
+//     @override
+//     void initState() {
+//       super.initState();
+//       loadCredentials();
+//     }
+
+//     Future<void> loadCredentials() async {
+//       final prefs = await SharedPreferences.getInstance();
+//       setState(() {
+//         rememberMe = prefs.getBool('rememberMe') ?? false;
+//         if (rememberMe) {
+//           emailController.text = prefs.getString('email') ?? '';
+//           passwordController.text = prefs.getString('password') ?? '';
+//         }
+//       });
+//     }
+
+//     Future<void> saveCredentials() async {
+//       final prefs = await SharedPreferences.getInstance();
+//       if (rememberMe) {
+//         await prefs.setString('email', emailController.text.trim());
+//         await prefs.setString('password', passwordController.text.trim());
+//         await prefs.setBool('rememberMe', true);
+//       } else {
+//         await prefs.remove('email');
+//         await prefs.remove('password');
+//         await prefs.setBool('rememberMe', false);
+//       }
+//     }
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // controller untuk ambil input dari TextField
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadCredentials();
+  }
+
+  Future<void> loadCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      rememberMe = prefs.getBool('rememberMe') ?? false;
+      if (rememberMe) {
+        emailController.text = prefs.getString('email') ?? '';
+        passwordController.text = prefs.getString('password') ?? '';
+      }
+    });
+  }
+
+  Future<void> saveCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (rememberMe) {
+      await prefs.setString('email', emailController.text.trim());
+      await prefs.setString('password', passwordController.text.trim());
+      await prefs.setBool('rememberMe', true);
+    } else {
+      await prefs.remove('email');
+      await prefs.remove('password');
+      await prefs.setBool('rememberMe', false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF36566F), // warna biru background
+      backgroundColor: const Color(0xFF36566F),
       body: SafeArea(
         child: Column(
           children: [
