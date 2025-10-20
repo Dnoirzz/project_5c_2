@@ -447,27 +447,10 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                           child: const Text("< Sebelumnya"),
                         ),
                       ),
-
-// <<<<<<< HEAD
-//                       // Tombol Simpan Draft (tidak ditampilkan di halaman review & submit)
-//                       if (_currentPage != 4)
-//                         ElevatedButton.icon(
-//                           // Only allow saving draft if there's any data filled
-//                           onPressed: _checkAnyFieldFilled(
-//                                       _formData[_currentPage] ?? {}) ||
-//                                   _pagesSaved[_currentPage] == true
-//                               ? _saveDraft
-//                               : null,
-//                           icon: Icon(
-//                             Icons.save_outlined,
-//                             color: (_checkAnyFieldFilled(
-// =======
-                      // Tombol Simpan Draft (hanya tampil jika bukan di halaman review)
                       if (_currentPage != 4)
                         Container(
                           child: ElevatedButton.icon(
                             onPressed: _checkAnyFieldFilled(
-// >>>>>>> origin/jeki
                                         _formData[_currentPage] ?? {}) ||
                                     _pagesSaved[_currentPage] == true
                                 ? _saveDraft
