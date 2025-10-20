@@ -67,6 +67,24 @@ class ResetPasswordPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   // logika ubah kata sandi di sini
+                  String oldPass = oldPasswordController.text.trim();
+                  String newPass = newPasswordController.text.trim();
+                  String confirm = confirmPasswordController.text.trim();
+
+                  if (oldPass.isEmpty || newPass.isEmpty || confirm.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Semua kolom wajib diisi")),
+                    );
+                    return;
+                  }
+
+                  if (newPass != confirm) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Konfirmasi password tidak cocok")),
+                    );
+                    return;
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,

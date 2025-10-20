@@ -63,6 +63,7 @@ class DetailPengumumanPage extends StatelessWidget {
               // 🔹 Isi / Deskripsi
               Text(
                 item.isi,
+                textAlign: TextAlign.justify,
                 style: const TextStyle(
                   fontSize: 15,
                   height: 1.5,
