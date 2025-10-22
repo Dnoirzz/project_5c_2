@@ -214,6 +214,90 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
+                          // onPressed: () async {
+                          //   try {
+                          //     var data = await ApiService.login(
+                          //       emailController.text.trim(),
+                          //       passwordController.text.trim(),
+                          //     );
+
+                          //     if (data['status'] == 'success') {
+                          //       var user = data['data'];
+                          //       String role = user['role'] ?? 'mahasiswa';
+
+                          //       if (role == 'admin') {
+                          //         showDialog(
+                          //           context: context,
+                          //           builder: (context) => AlertDialog(
+                          //             title: const Text("Berhasil"),
+                          //             content: const Text("Login berhasil!"),
+                          //             actions: [
+                          //               TextButton(
+                          //                 onPressed: () {
+                          //                   Navigator.pop(
+                          //                       context); // tutup dialog
+                          //                   Navigator.pushReplacement(
+                          //                     context,
+                          //                     MaterialPageRoute(
+                          //                         builder: (context) =>
+                          //                             const AdminDashboard()),
+                          //                   );
+                          //                 },
+                          //                 child: const Text("OK"),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         );
+                          //       } else {
+                          //         showDialog(
+                          //           context: context,
+                          //           builder: (context) => AlertDialog(
+                          //             title: const Text("Berhasil"),
+                          //             content: const Text("Login berhasil!"),
+                          //             actions: [
+                          //               TextButton(
+                          //                 onPressed: () {
+                          //                   Navigator.pop(
+                          //                       context); // tutup dialog
+                          //                   Navigator.pushReplacement(
+                          //                     context,
+                          //                     MaterialPageRoute(
+                          //                         builder: (context) =>
+                          //                             const DashboardPage()),
+                          //                   );
+                          //                 },
+                          //                 child: const Text("OK"),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         );
+                          //       }
+                          //     } else {
+                          //       emailController.clear();
+                          //       passwordController.clear();
+                          //       showDialog(
+                          //         context: context,
+                          //         builder: (context) => AlertDialog(
+                          //           title: Text("Gagal"),
+                          //           content: Text(data['message'] ??
+                          //               "Username atau password salah"),
+                          //           actions: [
+                          //             TextButton(
+                          //               onPressed: () => Navigator.pop(context),
+                          //               child: Text("OK"),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //       );
+                          //     }
+                          //   } catch (e) {
+                          //     ScaffoldMessenger.of(context).showSnackBar(
+                          //       SnackBar(
+                          //           content: Text("Terjadi kesalahan: $e")),
+                          //     );
+                          //   }
+                          // },
+                          // Update bagian onPressed tombol Login
                           onPressed: () async {
                             try {
                               var data = await ApiService.login(
@@ -225,6 +309,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                 var user = data['data'];
                                 String role = user['role'] ?? 'mahasiswa';
 
+                                // 🔹 Simpan data user ke SharedPreferences
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setString(
+                                    'user_email', user['email'] ?? '');
+                                await prefs.setString('user_nama_lengkap',
+                                    user['nama_lengkap'] ?? '');
+                                await prefs.setString('user_role', role);
+                                await prefs.setBool('is_logged_in', true);
+
+                                // Simpan credentials jika remember me dicentang
+                                await saveCredentials();
+
                                 if (role == 'admin') {
                                   showDialog(
                                     context: context,
@@ -234,8 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(
-                                                context); // tutup dialog
+                                            Navigator.pop(context);
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
@@ -257,8 +353,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(
-                                                context); // tutup dialog
+                                            Navigator.pop(context);
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
@@ -278,13 +373,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title: Text("Gagal"),
+                                    title: const Text("Gagal"),
                                     content: Text(data['message'] ??
                                         "Username atau password salah"),
                                     actions: [
                                       TextButton(
                                         onPressed: () => Navigator.pop(context),
-                                        child: Text("OK"),
+                                        child: const Text("OK"),
                                       ),
                                     ],
                                   ),

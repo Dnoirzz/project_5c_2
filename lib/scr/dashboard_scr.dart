@@ -725,6 +725,7 @@ import 'package:SPMB/services/pengumuman_services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/app_bar.dart';
 import 'formulir_scr/formulir_main.dart';
 import 'pengumuman/pengumuman.dart';
@@ -744,11 +745,25 @@ class _DashboardPageState extends State<DashboardPage> {
   bool isLoading = true;
   List<Pengumuman> pengumumanList = [];
 
+  // 🔹 Variabel untuk menyimpan data user
+  String userName = '';
+  String userEmail = '';
+
   @override
   void initState() {
     super.initState();
     _initializeDateFormatting();
     _loadPengumuman();
+    _loadUserData(); // 🔹 Tambahkan ini
+  }
+
+  // 🔹 Fungsi untuk load data user dari SharedPreferences
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('user_nama_lengkap') ?? 'User';
+      userEmail = prefs.getString('user_email') ?? 'email@example.com';
+    });
   }
 
   Future<void> _initializeDateFormatting() async {
@@ -787,7 +802,7 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Card
+            // Profile Card - 🔹 Update bagian ini
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFF233746),
@@ -806,18 +821,20 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Aldi Mahendra',
-                          style: TextStyle(
+                        // 🔹 Tampilkan nama user
+                        Text(
+                          userName,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'NIK: 1234567890123456',
-                          style: TextStyle(color: Colors.white70),
+                        // 🔹 Tampilkan email user
+                        Text(
+                          userEmail,
+                          style: const TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 8),
                         Container(
@@ -860,6 +877,127 @@ class _DashboardPageState extends State<DashboardPage> {
                 ],
               ),
             ),
+// class _DashboardPageState extends State<DashboardPage> {
+//   String formattedDate = '';
+//   bool isLoading = true;
+//   List<Pengumuman> pengumumanList = [];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _initializeDateFormatting();
+//     _loadPengumuman();
+//   }
+
+//   Future<void> _initializeDateFormatting() async {
+//     await initializeDateFormatting('id_ID', null);
+//     setState(() {
+//       formattedDate =
+//           DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(DateTime.now());
+//     });
+//   }
+
+//   Future<void> _loadPengumuman() async {
+//     try {
+//       final data = await PengumumanService.getSemuaPengumuman();
+//       setState(() {
+//         pengumumanList = data;
+//         isLoading = false;
+//       });
+//     } catch (e) {
+//       setState(() => isLoading = false);
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.grey.shade100,
+//       appBar: CustomAppBar(
+//         title: 'Dashboard',
+//         showMenuButton: true,
+//         showProfileMenu: true,
+//         currentPage: 'dashboard',
+//       ),
+//       drawer: const AppDrawer(currentPage: 'dashboard'),
+//       body: SingleChildScrollView(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             // Profile Card
+//             Container(
+//               decoration: BoxDecoration(
+//                 color: const Color(0xFF233746),
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//               padding: const EdgeInsets.all(16),
+//               child: Row(
+//                 children: [
+//                   const CircleAvatar(
+//                     radius: 35,
+//                     backgroundColor: Colors.white24,
+//                     child: Icon(Icons.person, size: 40, color: Colors.white),
+//                   ),
+//                   const SizedBox(width: 16),
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         const Text(
+//                           'Aldi Mahendra',
+//                           style: TextStyle(
+//                             color: Colors.white,
+//                             fontSize: 18,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         ),
+//                         const SizedBox(height: 4),
+//                         const Text(
+//                           'NIK: 1234567890123456',
+//                           style: TextStyle(color: Colors.white70),
+//                         ),
+//                         const SizedBox(height: 8),
+//                         Container(
+//                           padding: const EdgeInsets.symmetric(
+//                               horizontal: 8, vertical: 4),
+//                           decoration: BoxDecoration(
+//                             color: Colors.yellow.shade700,
+//                             borderRadius: BorderRadius.circular(8),
+//                           ),
+//                           child: const Text(
+//                             'Status: Lengkapi Verifikasi',
+//                             style: TextStyle(
+//                               color: Colors.black87,
+//                               fontSize: 12,
+//                               fontWeight: FontWeight.w500,
+//                             ),
+//                           ),
+//                         ),
+//                         const SizedBox(height: 8),
+//                         Align(
+//                           alignment: Alignment.bottomRight,
+//                           child: Row(
+//                             mainAxisSize: MainAxisSize.min,
+//                             children: [
+//                               const Icon(Icons.calendar_today,
+//                                   size: 16, color: Colors.white70),
+//                               const SizedBox(width: 6),
+//                               Text(
+//                                 formattedDate,
+//                                 textAlign: TextAlign.right,
+//                                 style: const TextStyle(
+//                                     color: Colors.white70, fontSize: 13),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
             const SizedBox(height: 24),
 
             // Progress Pendaftaran
