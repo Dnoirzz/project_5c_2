@@ -1,6 +1,7 @@
 import '../../models/pengumuman_models.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/app_bar.dart';
+import 'dart:convert';
 
 class DetailPengumumanPage extends StatelessWidget {
   final Pengumuman item;
@@ -47,25 +48,21 @@ class DetailPengumumanPage extends StatelessWidget {
               const SizedBox(height: 16),
 
               // 🔹 Gambar (kalau ada)
-              // if (item.uploadGambar.isNotEmpty)
-              //   ClipRRect(
-              //     borderRadius: BorderRadius.circular(10),
-              //     child: Image.network(
-              //       "http://44.220.144.82/api/${item.uploadGambar}",
-              //       fit: BoxFit.cover,
-              //       width: double.infinity,
-              //       errorBuilder: (context, error, stackTrace) =>
-              //           const Icon(Icons.broken_image, size: 80),
-              //     ),
-              //   ),
-              // const SizedBox(height: 16),
+              Image.memory(
+                base64Decode(item.gambar),
+                fit: BoxFit.cover,
+                width: double.infinity,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.broken_image, size: 80),
+              ),
+              const SizedBox(height: 16),
 
               // 🔹 Isi / Deskripsi
               Text(
                 item.isi,
                 textAlign: TextAlign.justify,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 20,
                   height: 1.5,
                   fontFamily: 'Cambria',
                 ),

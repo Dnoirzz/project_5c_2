@@ -753,10 +753,10 @@ class _DashboardPageState extends State<DashboardPage> {
     super.initState();
     _initializeDateFormatting();
     _loadPengumuman();
-    _loadUserData(); // 🔹 Tambahkan ini
+    _loadUserData();
   }
 
-  // 🔹 Fungsi untuk load data user dari SharedPreferences
+  // Fungsi untuk load data user dari SharedPreferences
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -801,7 +801,7 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Card - 🔹 Update bagian ini
+            // Profile Card - Update bagian ini
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFF233746),
@@ -820,7 +820,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 🔹 Tampilkan nama user
+                        // Tampilkan nama user
                         Text(
                           userName,
                           style: const TextStyle(
