@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:SPMB/models/pengumuman_models.dart';
-import 'package:SPMB/services/pengumuman_services.dart';
+import '../../models/pengumuman_models.dart';
+import '../../services/pengumuman_services.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/app_bar.dart';
 import 'detail_pengumuman.dart';

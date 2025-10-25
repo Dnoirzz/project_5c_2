@@ -351,7 +351,7 @@
 //     );
 //   }
 // }
-import 'package:SPMB/services/auth_servise.dart';
+import '../services/auth_servise.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:SPMB/models/pengumuman_models.dart';
+import '../../models/pengumuman_models.dart';
 import 'package:http/http.dart' as http;
 
 class PengumumanService {

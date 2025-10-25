@@ -1,4 +1,4 @@
-import 'package:SPMB/models/pengumuman_models.dart';
+import '../../models/pengumuman_models.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/app_bar.dart';
 
