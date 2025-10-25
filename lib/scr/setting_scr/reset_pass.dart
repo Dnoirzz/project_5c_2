@@ -180,7 +180,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       );
       return;
     }
-
+    if (newPass == oldPass) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Password baru tidak boleh sama dengan lama")),
+      );
+      return;
+    }
     if (newPass != confirm) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Konfirmasi password tidak cocok")),
