@@ -37,15 +37,31 @@ class ApiService {
   }
 
   //  Fungsi Reset_password
-  static Future<Map<String, dynamic>> reset_password(
-      String email, String new_password) async {
-    var url = Uri.parse("$baseUrl/forgot_password_mahasiswa.php");
+//   static Future<Map<String, dynamic>> reset_password(
+//       String email, String new_password) async {
+//     var url = Uri.parse("$baseUrl/forgot_password_mahasiswa.php");
+//     var response = await http.post(
+//       url,
+//       headers: {"Content-Type": "application/json"},
+//       body: jsonEncode({
+//         "email": email,
+//         "password": new_password,
+//       }),
+//     );
+
+//     return json.decode(response.body);
+//   }
+// }
+  static Future<Map<String, dynamic>> reset_Password(
+      String email, String oldPassword, String newPassword) async {
+    var url = Uri.parse("$baseUrl/reset_password_mahasiswa.php");
     var response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "email": email,
-        "password": new_password,
+        "old_password": oldPassword,
+        "new_password": newPassword,
       }),
     );
 

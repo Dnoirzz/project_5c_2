@@ -367,6 +367,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController konfirmasiPasswordController =
       TextEditingController();
   final TextEditingController captchaController = TextEditingController();
+  final TextEditingController oldPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -513,10 +514,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       }
 
                       try {
-                        final data = await ApiService.reset_password(
-                          emailController.text.trim(),
-                          newPasswordController.text.trim(),
-                        );
+                        final data = await ApiService.reset_Password(
+                            emailController.text.trim(),
+                            oldPasswordController.text.trim(),
+                            newPasswordController.text.trim());
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(data['message'] ?? 'Gagal')),

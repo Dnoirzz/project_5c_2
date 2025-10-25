@@ -908,3 +908,129 @@ DETAIL PENGUMUMAN
 //     );
 //   }
 // }
+
+
+BUTTON LOGIN
+// class LoginScreen extends StatelessWidget {
+//   const LoginScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // controller untuk ambil input dari TextField
+//     final TextEditingController emailController = TextEditingController();
+//     final TextEditingController passwordController = TextEditingController();
+//     bool rememberMe = false;
+
+//     @override
+//     void initState() {
+//       super.initState();
+//       loadCredentials();
+//     }
+
+//     Future<void> loadCredentials() async {
+//       final prefs = await SharedPreferences.getInstance();
+//       setState(() {
+//         rememberMe = prefs.getBool('rememberMe') ?? false;
+//         if (rememberMe) {
+//           emailController.text = prefs.getString('email') ?? '';
+//           passwordController.text = prefs.getString('password') ?? '';
+//         }
+//       });
+//     }
+
+//     Future<void> saveCredentials() async {
+//       final prefs = await SharedPreferences.getInstance();
+//       if (rememberMe) {
+//         await prefs.setString('email', emailController.text.trim());
+//         await prefs.setString('password', passwordController.text.trim());
+//         await prefs.setBool('rememberMe', true);
+//       } else {
+//         await prefs.remove('email');
+//         await prefs.remove('password');
+//         await prefs.setBool('rememberMe', false);
+//       }
+//     }
+// onPressed: () async {
+                          //   try {
+                          //     var data = await ApiService.login(
+                          //       emailController.text.trim(),
+                          //       passwordController.text.trim(),
+                          //     );
+
+                          //     if (data['status'] == 'success') {
+                          //       var user = data['data'];
+                          //       String role = user['role'] ?? 'mahasiswa';
+
+                          //       if (role == 'admin') {
+                          //         showDialog(
+                          //           context: context,
+                          //           builder: (context) => AlertDialog(
+                          //             title: const Text("Berhasil"),
+                          //             content: const Text("Login berhasil!"),
+                          //             actions: [
+                          //               TextButton(
+                          //                 onPressed: () {
+                          //                   Navigator.pop(
+                          //                       context); // tutup dialog
+                          //                   Navigator.pushReplacement(
+                          //                     context,
+                          //                     MaterialPageRoute(
+                          //                         builder: (context) =>
+                          //                             const AdminDashboard()),
+                          //                   );
+                          //                 },
+                          //                 child: const Text("OK"),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         );
+                          //       } else {
+                          //         showDialog(
+                          //           context: context,
+                          //           builder: (context) => AlertDialog(
+                          //             title: const Text("Berhasil"),
+                          //             content: const Text("Login berhasil!"),
+                          //             actions: [
+                          //               TextButton(
+                          //                 onPressed: () {
+                          //                   Navigator.pop(
+                          //                       context); // tutup dialog
+                          //                   Navigator.pushReplacement(
+                          //                     context,
+                          //                     MaterialPageRoute(
+                          //                         builder: (context) =>
+                          //                             const DashboardPage()),
+                          //                   );
+                          //                 },
+                          //                 child: const Text("OK"),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         );
+                          //       }
+                          //     } else {
+                          //       emailController.clear();
+                          //       passwordController.clear();
+                          //       showDialog(
+                          //         context: context,
+                          //         builder: (context) => AlertDialog(
+                          //           title: Text("Gagal"),
+                          //           content: Text(data['message'] ??
+                          //               "Username atau password salah"),
+                          //           actions: [
+                          //             TextButton(
+                          //               onPressed: () => Navigator.pop(context),
+                          //               child: Text("OK"),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //       );
+                          //     }
+                          //   } catch (e) {
+                          //     ScaffoldMessenger.of(context).showSnackBar(
+                          //       SnackBar(
+                          //           content: Text("Terjadi kesalahan: $e")),
+                          //     );
+                          //   }
+                          // },
+                          // Update bagian onPressed tombol Login
