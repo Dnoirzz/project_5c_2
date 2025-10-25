@@ -97,13 +97,16 @@ class _PengumumanPageState extends State<PengumumanPage> {
                                       children: [
                                         if (item.gambar.isNotEmpty)
                                           ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            child: Image.memory(
-                                              base64Decode(item.gambar),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Center(
+                                                child: Image.memory(
+                                                  width: 200,
+                                                  height: 150,
+                                                  base64Decode(item.gambar),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )),
                                         const SizedBox(height: 8),
                                         Text(
                                           item.judul,

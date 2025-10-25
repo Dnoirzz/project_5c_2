@@ -48,12 +48,16 @@ class DetailPengumumanPage extends StatelessWidget {
               const SizedBox(height: 16),
 
               // 🔹 Gambar (kalau ada)
-              Image.memory(
-                base64Decode(item.gambar),
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.broken_image, size: 80),
+              Center(
+                child: Image.memory(
+                  width: 200,
+                  height: 150,
+                  base64Decode(item.gambar),
+                  fit: BoxFit.cover,
+                  // width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image, size: 80),
+                ),
               ),
               const SizedBox(height: 16),
 
