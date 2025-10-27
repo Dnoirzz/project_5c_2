@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import 'data_pribadi_page.dart';
 import 'data_akademik_page.dart';
 import 'data_ortu_page.dart';
 import 'upload_dokumen_page.dart';
 import 'review_submit_page.dart';
+import '../dashboard_scr.dart';
 
 /// Main Formulir Pendaftaran dengan konten terpisah
 /// Hanya konten yang berubah, AppBar dan header tetap
@@ -21,7 +22,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   final ScrollController _scrollController = ScrollController();
 
   // Track which pages have been saved
-  Map<int, bool> _pagesSaved = {
+  final Map<int, bool> _pagesSaved = {
     0: false,
     1: false,
     2: false,
@@ -30,7 +31,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   };
 
   // Store form data for each page
-  Map<int, Map<String, dynamic>> _formData = {};
+  final Map<int, Map<String, dynamic>> _formData = {};
   @override
   void initState() {
     super.initState();
@@ -64,8 +65,8 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
             data['namaIbu']?.isNotEmpty == true &&
             data['pekerjaanIbu']?.isNotEmpty == true;
 
-      case 3: // Upload Dokumen
-        return data['uploaded'] == true;
+      case 3: // Upload Dokumen - tidak ada auto-save, harus manual save
+        return false;
 
       default:
         return false;
@@ -104,7 +105,6 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
 
       case 3: // Upload Dokumen
         return data['uploaded'] == true ||
-            data['ktp'] != null ||
             data['ijazah'] != null ||
             data['akta'] != null ||
             data['kk'] != null ||
@@ -308,7 +308,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       offset: const Offset(0, 4),
                       blurRadius: 8,
                     ),
@@ -373,7 +373,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       offset: const Offset(0, 2),
                       blurRadius: 4,
                     ),
@@ -414,7 +414,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     offset: const Offset(0, 4),
                     blurRadius: 12,
                   ),
@@ -425,7 +425,10 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: _currentPage == 4
+                        ? MainAxisAlignment
+                            .start // Only show back button on review page
+                        : MainAxisAlignment.spaceBetween,
                     children: [
                       // Tombol Sebelumnya
                       Container(
@@ -444,29 +447,21 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                           child: const Text("< Sebelumnya"),
                         ),
                       ),
+// <<<<<<< HEAD
+// =======
 
-                      // Tombol Simpan Draft
-                      Container(
-                        child: ElevatedButton.icon(
-                          // Only allow saving draft if there's any data filled
-                          onPressed: _checkAnyFieldFilled(
-                                      _formData[_currentPage] ?? {}) ||
-                                  _pagesSaved[_currentPage] == true
-                              ? _saveDraft
-                              : null,
-                          icon: Icon(
-                            Icons.save_outlined,
-                            color: (_checkAnyFieldFilled(
+//                       // Tombol Simpan Draft (hanya tampil jika bukan di halaman review)
+// >>>>>>> origin/Ryan
+                      if (_currentPage != 4)
+                        Container(
+                          child: ElevatedButton.icon(
+                            onPressed: _checkAnyFieldFilled(
                                         _formData[_currentPage] ?? {}) ||
-                                    _pagesSaved[_currentPage] == true)
-                                ? (_pagesSaved[_currentPage] == true
-                                    ? Colors.white
-                                    : const Color(0xFF233746))
-                                : Colors.grey.shade400,
-                          ),
-                          label: Text(
-                            "Simpan Draft",
-                            style: TextStyle(
+                                    _pagesSaved[_currentPage] == true
+                                ? _saveDraft
+                                : null,
+                            icon: Icon(
+                              Icons.save_outlined,
                               color: (_checkAnyFieldFilled(
                                           _formData[_currentPage] ?? {}) ||
                                       _pagesSaved[_currentPage] == true)
@@ -475,29 +470,40 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                       : const Color(0xFF233746))
                                   : Colors.grey.shade400,
                             ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _pagesSaved[_currentPage] == true
-                                ? const Color(0xFF009137)
-                                : (_checkAnyFieldFilled(
-                                        _formData[_currentPage] ?? {})
-                                    ? Colors.white
-                                    : Colors.grey.shade100),
-                            elevation: 0,
-                            side: BorderSide(
-                              color: _pagesSaved[_currentPage] == true
+                            label: Text(
+                              "Simpan Draft",
+                              style: TextStyle(
+                                color: (_checkAnyFieldFilled(
+                                            _formData[_currentPage] ?? {}) ||
+                                        _pagesSaved[_currentPage] == true)
+                                    ? (_pagesSaved[_currentPage] == true
+                                        ? Colors.white
+                                        : const Color(0xFF233746))
+                                    : Colors.grey.shade400,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _pagesSaved[_currentPage] == true
                                   ? const Color(0xFF009137)
                                   : (_checkAnyFieldFilled(
                                           _formData[_currentPage] ?? {})
-                                      ? const Color(0xFF233746)
-                                      : Colors.grey.shade300),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                                      ? Colors.white
+                                      : Colors.grey.shade100),
+                              elevation: 0,
+                              side: BorderSide(
+                                color: _pagesSaved[_currentPage] == true
+                                    ? const Color(0xFF009137)
+                                    : (_checkAnyFieldFilled(
+                                            _formData[_currentPage] ?? {})
+                                        ? const Color(0xFF233746)
+                                        : Colors.grey.shade300),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -572,6 +578,15 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                                         Duration(seconds: 3),
                                                   ),
                                                 );
+                                                // Add navigation to dashboard after success message
+                                                Navigator.of(context)
+                                                    .pushAndRemoveUntil(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const DashboardPage(),
+                                                  ),
+                                                  (route) => false,
+                                                );
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
@@ -611,9 +626,10 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                               ? (_checkRequiredFields(
                                           _formData[_currentPage] ?? {}) ||
                                       _pagesSaved[_currentPage] == true
-                                  ? const Color(0xFF233746).withOpacity(0.3)
+                                  ? const Color(0xFF233746)
+                                      .withValues(alpha: 0.3)
                                   : Colors.transparent)
-                              : const Color(0xFF009137).withOpacity(0.3),
+                              : const Color(0xFF009137).withValues(alpha: 0.3),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

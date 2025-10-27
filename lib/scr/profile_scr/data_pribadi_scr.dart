@@ -14,7 +14,7 @@ class DataPribadiTab extends StatelessWidget {
         border: Border.all(color: const Color(0xFF4F6C7A), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),

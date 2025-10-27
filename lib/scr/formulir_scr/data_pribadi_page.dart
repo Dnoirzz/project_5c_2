@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../../models/location_models.dart';
@@ -49,30 +48,49 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     Map<String, dynamic> data = {};
 
     // Text fields
-    if (_namaLengkapController.text.isNotEmpty)
+    if (_namaLengkapController.text.isNotEmpty) {
       data['namaLengkap'] = _namaLengkapController.text;
-    if (_nikController.text.isNotEmpty) data['nik'] = _nikController.text;
-    if (_tempatLahirController.text.isNotEmpty)
+    }
+    if (_nikController.text.isNotEmpty) {
+      data['nik'] = _nikController.text;
+    }
+    if (_tempatLahirController.text.isNotEmpty) {
       data['tempatLahir'] = _tempatLahirController.text;
-    if (_alamatController.text.isNotEmpty)
+    }
+    if (_alamatController.text.isNotEmpty) {
       data['alamat'] = _alamatController.text;
-    if (_noHpController.text.isNotEmpty) data['noHp'] = _noHpController.text;
-    if (_emailController.text.isNotEmpty) data['email'] = _emailController.text;
-    if (_kodePosController.text.isNotEmpty)
+    }
+    if (_noHpController.text.isNotEmpty) {
+      data['noHp'] = _noHpController.text;
+    }
+    if (_emailController.text.isNotEmpty) {
+      data['email'] = _emailController.text;
+    }
+    if (_kodePosController.text.isNotEmpty) {
       data['kodePos'] = _kodePosController.text;
+    }
 
     // Selected values
-    if (_tanggalLahir != null)
+    if (_tanggalLahir != null) {
       data['tanggalLahir'] = _tanggalLahir!.toIso8601String();
-    if (_jenisKelamin != null) data['jenisKelamin'] = _jenisKelamin;
+    }
+    if (_jenisKelamin != null) {
+      data['jenisKelamin'] = _jenisKelamin;
+    }
 
     // Location data
-    if (_selectedProvince != null)
+    if (_selectedProvince != null) {
       data['province'] = _selectedProvince!.toJson();
-    if (_selectedRegency != null) data['regency'] = _selectedRegency!.toJson();
-    if (_selectedDistrict != null)
+    }
+    if (_selectedRegency != null) {
+      data['regency'] = _selectedRegency!.toJson();
+    }
+    if (_selectedDistrict != null) {
       data['district'] = _selectedDistrict!.toJson();
-    if (_selectedVillage != null) data['village'] = _selectedVillage!.toJson();
+    }
+    if (_selectedVillage != null) {
+      data['village'] = _selectedVillage!.toJson();
+    }
 
     widget.onDataChanged(data);
   }
@@ -356,7 +374,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: _jenisKelamin == 'Laki-laki'
-                              ? const Color(0xFF4F6C7A).withOpacity(0.1)
+                              ? const Color(0xFF4F6C7A).withValues(alpha: 0.1)
                               : Colors.white,
                         ),
                         child: Row(
@@ -406,7 +424,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: _jenisKelamin == 'Perempuan'
-                              ? const Color(0xFF4F6C7A).withOpacity(0.1)
+                              ? const Color(0xFF4F6C7A).withValues(alpha: 0.1)
                               : Colors.white,
                         ),
                         child: Row(

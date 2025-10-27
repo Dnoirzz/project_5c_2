@@ -19,14 +19,14 @@ class UploadDokumenPage extends StatefulWidget {
 class _UploadDokumenPageState extends State<UploadDokumenPage> {
   final ImagePicker _picker = ImagePicker();
 
-  Map<String, File?> _images = {
+  final Map<String, File?> _images = {
     'Ijazah/SKL': null,
     'Kartu Keluarga': null,
     'Akta Kelahiran': null,
     'Pas Foto 3x4': null,
   };
 
-  Map<String, DateTime?> _uploadDates = {
+  final Map<String, DateTime?> _uploadDates = {
     'Ijazah/SKL': null,
     'Kartu Keluarga': null,
     'Akta Kelahiran': null,

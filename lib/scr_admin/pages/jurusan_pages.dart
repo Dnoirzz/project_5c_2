@@ -33,7 +33,7 @@ class TeknikElektroPage extends StatelessWidget {
             Icon(
               Icons.electrical_services,
               size: 100,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -91,7 +91,7 @@ class TeknikMesinPage extends StatelessWidget {
             Icon(
               Icons.precision_manufacturing,
               size: 100,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -149,7 +149,7 @@ class AkuntansiPage extends StatelessWidget {
             Icon(
               Icons.account_balance,
               size: 100,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -207,7 +207,7 @@ class TeknologiPertanianPage extends StatelessWidget {
             Icon(
               Icons.agriculture,
               size: 100,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 20),
             const Text(

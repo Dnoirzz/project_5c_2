@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import 'data_pribadi_scr.dart';
 import 'informasi_akademik_scr.dart';
 import 'data_ortu_scr.dart';
 import 'dokumen_scr.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileMain extends StatefulWidget {
   const ProfileMain({super.key});
@@ -22,15 +23,25 @@ class _ProfileMainState extends State<ProfileMain>
     'Data Orang tua',
     'Dokumen',
   ];
-
+  String userName = '';
+  String userEmail = '';
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     _tabController = TabController(length: 4, vsync: this, initialIndex: 0);
     _tabController.addListener(() {
       setState(() {
         // Update state ketika tab berubah
       });
+    });
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('user_nama_lengkap') ?? 'User';
+      userEmail = prefs.getString('user_email') ?? 'email@example.com';
     });
   }
 
@@ -93,7 +104,7 @@ class _ProfileMainState extends State<ProfileMain>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             offset: const Offset(0, 4),
             blurRadius: 8,
           ),
@@ -149,32 +160,44 @@ class _ProfileMainState extends State<ProfileMain>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Aldi',
-                      style: TextStyle(
+                    // const Text(
+                    //   'Aldi',
+                    //   style: TextStyle(
+                    //     color: Colors.white,
+                    //     fontSize: 18,
+                    //     fontWeight: FontWeight.bold,
+                    //     height: 1.0,
+                    //   ),
+                    // ),
+                    // const Text(
+                    //   'Mahendra',
+                    //   style: TextStyle(
+                    //     color: Colors.white,
+                    //     fontSize: 18,
+                    //     fontWeight: FontWeight.bold,
+                    //     height: 1.0,
+                    //   ),
+                    // ),
+                    Text(
+                      userName,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        height: 1.0,
-                      ),
-                    ),
-                    const Text(
-                      'Mahendra',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        height: 1.0,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'NIK:1234567890123456',
-                      style: TextStyle(
-                        color: Color(0xFFA9A9A9),
-                        fontSize: 14,
-                        height: 1.0,
-                      ),
+                    // const Text(
+                    //   'NIK:1234567890123456',
+                    //   style: TextStyle(
+                    //     color: Color(0xFFA9A9A9),
+                    //     fontSize: 14,
+                    //     height: 1.0,
+                    //   ),
+                    // ),
+                    Text(
+                      userEmail,
+                      style: const TextStyle(color: Colors.white70),
                     ),
                   ],
                 ),
@@ -217,7 +240,7 @@ class _ProfileMainState extends State<ProfileMain>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),

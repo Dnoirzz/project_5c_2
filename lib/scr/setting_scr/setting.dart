@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import 'reset_pass.dart';
 import 'privacy_policy.dart';
 import 'term_scr.dart';

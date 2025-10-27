@@ -1,22 +1,57 @@
+import '../services/auth_servise.dart';
 import 'package:flutter/material.dart';
 import 'forgot_scr.dart';
 import 'register_scr.dart';
 import 'dashboard_scr.dart';
 import '../scr_admin/admin_dashboard.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // controller untuk ambil input dari TextField
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadCredentials();
+  }
+
+  Future<void> loadCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      rememberMe = prefs.getBool('rememberMe') ?? false;
+      if (rememberMe) {
+        emailController.text = prefs.getString('email') ?? '';
+        passwordController.text = prefs.getString('password') ?? '';
+      }
+    });
+  }
+
+  Future<void> saveCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (rememberMe) {
+      await prefs.setString('email', emailController.text.trim());
+      await prefs.setString('password', passwordController.text.trim());
+      await prefs.setBool('rememberMe', true);
+    } else {
+      await prefs.remove('email');
+      await prefs.remove('password');
+      await prefs.setBool('rememberMe', false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF36566F), // warna biru background
+      backgroundColor: const Color(0xFF36566F),
       body: SafeArea(
         child: Column(
           children: [
@@ -140,133 +175,97 @@ class LoginScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          //     onPressed: () {
-                          //       String email = emailController.text.trim();
-                          //       String password = passwordController.text.trim();
-
-                          //       if (email == '' && password == 'admin') {
-                          //         // Login sebagai Admin
-                          //         Navigator.pushReplacement(
-                          //           context,
-                          //           MaterialPageRoute(
-                          //             builder: (context) => const AdminDashboard(),
-                          //           ),
-                          //         );
-                          //       } else if (email == 'user' && password == 'user') {
-                          //         // Login sebagai User
-                          //         Navigator.pushReplacement(
-                          //           context,
-                          //           MaterialPageRoute(
-                          //             builder: (context) => const DashboardPage(),
-                          //           ),
-                          //         );
-                          //       } else {
-                          //         // Jika login salah
-                          //         ScaffoldMessenger.of(context).showSnackBar(
-                          //           const SnackBar(
-                          //             content: Text(
-                          //                 'Email atau password salah! Coba lagi.'),
-                          //           ),
-                          //         );
-                          //       }
-                          //     },
-                          //     child: const Text(
-                          //       "Login",
-                          //       style: TextStyle(fontSize: 18, color: Colors.white),
-                          //     ),
-                          //   ),
-                          // ),
                           onPressed: () async {
-                            var url = Uri.parse(
-                              "http://44.220.144.82/api/login.php",
-                            );
-
                             try {
-                              var response = await http.post(
-                                url,
-                                headers: {"Content-Type": "application/json"},
-                                body: jsonEncode({
-                                  "username": emailController.text.trim(),
-                                  "password": passwordController.text.trim(),
-                                }),
+                              var data = await ApiService.login(
+                                emailController.text.trim(),
+                                passwordController.text.trim(),
                               );
 
-                              if (response.statusCode == 200) {
-                                var data = json.decode(response.body);
+                              if (data['status'] == 'success') {
+                                var user = data['data'];
+                                String role = user['role'] ?? 'mahasiswa';
 
-                                //   if (data['status'] == 'success') {
-                                //     showDialog(
-                                //       context: context,
-                                //       builder: (context) => AlertDialog(
-                                //         title: Text("Berhasil"),
-                                //         content: Text("Login Berhasil"),
-                                //         actions: [
-                                //           TextButton(
-                                //             onPressed: () =>
-                                //                 Navigator.pop(context),
-                                //             child: Text("OK"),
-                                //           ),
-                                //         ],
-                                //       ),
-                                //     );
-                                //     Navigator.pushReplacement(
-                                //       context,
-                                //       MaterialPageRoute(
-                                //         builder: (context) =>
-                                //             const DashboardPage(),
-                                //       ),
-                                //     );
-                                if (data['status'] == 'success') {
-                                  var user = data['data'];
-                                  String role = user['role'] ?? 'mahasiswa';
+                                // 🔹 Simpan data user ke SharedPreferences
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setString(
+                                    'user_email', user['email'] ?? '');
+                                await prefs.setString('user_nama_lengkap',
+                                    user['nama_lengkap'] ?? '');
+                                await prefs.setString('user_role', role);
+                                await prefs.setBool('is_logged_in', true);
 
-                                  if (role == 'admin') {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              AdminDashboard()),
-                                    );
-                                  } else {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const DashboardPage()),
-                                    );
-                                  }
-                                } else {
-                                  emailController.clear();
-                                  passwordController.clear();
+                                // Simpan credentials jika remember me dicentang
+                                await saveCredentials();
+
+                                if (role == 'admin') {
                                   showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: Text("Gagal"),
-                                      content: Text(
-                                        "Username atau password salah",
-                                      ),
+                                      title: const Text("Berhasil"),
+                                      content: const Text("Login berhasil!"),
                                       actions: [
                                         TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: Text("OK"),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const AdminDashboard()),
+                                            );
+                                          },
+                                          child: const Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text("Berhasil"),
+                                      content: const Text("Login berhasil!"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const DashboardPage()),
+                                            );
+                                          },
+                                          child: const Text("OK"),
                                         ),
                                       ],
                                     ),
                                   );
                                 }
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Gagal terhubung ke server"),
+                                emailController.clear();
+                                passwordController.clear();
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Gagal"),
+                                    content: Text(data['message'] ??
+                                        "Username atau password salah"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
                                   ),
                                 );
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text("Terjadi kesalahan: $e"),
-                                ),
+                                    content: Text("Terjadi kesalahan: $e")),
                               );
                             }
                           },
@@ -276,87 +275,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      //     onPressed: () async {
-                      //       var url = Uri.parse(
-                      //         "http://44.220.144.82/api/login.php",
-                      //       );
 
-                      //       try {
-                      //         var response = await http.post(
-                      //           url,
-                      //           headers: {"Content-Type": "application/json"},
-                      //           body: jsonEncode({
-                      //             "username": emailController.text.trim(),
-                      //             "password": passwordController.text.trim(),
-                      //           }),
-                      //         );
-
-                      //         if (response.statusCode == 200) {
-                      //           var data = json.decode(response.body);
-
-                      //           if (data['status'] == 'success') {
-                      //             showDialog(
-                      //               context: context,
-                      //               builder: (context) => AlertDialog(
-                      //                 title: Text("Berhasil"),
-                      //                 content: Text("Login Berhasil"),
-                      //                 actions: [
-                      //                   TextButton(
-                      //                     onPressed: () =>
-                      //                         Navigator.pop(context),
-                      //                     child: Text("OK"),
-                      //                   ),
-                      //                 ],
-                      //               ),
-                      //             );
-                      //             Navigator.pushReplacement(
-                      //               context,
-                      //               MaterialPageRoute(
-                      //                 builder: (context) =>
-                      //                     const DashboardPage(),
-                      //               ),
-                      //             );
-                      //           } else {
-                      //             emailController.clear();
-                      //             passwordController.clear();
-                      //             showDialog(
-                      //               context: context,
-                      //               builder: (context) => AlertDialog(
-                      //                 title: Text("Gagal"),
-                      //                 content: Text(
-                      //                   "Username atau password salah",
-                      //                 ),
-                      //                 actions: [
-                      //                   TextButton(
-                      //                     onPressed: () =>
-                      //                         Navigator.pop(context),
-                      //                     child: Text("OK"),
-                      //                   ),
-                      //                 ],
-                      //               ),
-                      //             );
-                      //           }
-                      //         } else {
-                      //           ScaffoldMessenger.of(context).showSnackBar(
-                      //             const SnackBar(
-                      //               content: Text("Gagal terhubung ke server"),
-                      //             ),
-                      //           );
-                      //         }
-                      //       } catch (e) {
-                      //         ScaffoldMessenger.of(context).showSnackBar(
-                      //           SnackBar(
-                      //             content: Text("Terjadi kesalahan: $e"),
-                      //           ),
-                      //         );
-                      //       }
-                      //     },
-                      //     child: const Text(
-                      //       "Login",
-                      //       style: TextStyle(fontSize: 18, color: Colors.white),
-                      //     ),
-                      //   ),
-                      // ),
                       const SizedBox(height: 15),
 
                       // Link daftar
