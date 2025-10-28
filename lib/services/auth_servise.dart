@@ -67,4 +67,41 @@ class ApiService {
 
     return json.decode(response.body);
   }
+
+  static Future<Map<String, dynamic>> forgotPassword(
+      String email, String newPassword) async {
+    var url = Uri.parse("$baseUrl/forgot_password.php");
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "new_password": newPassword,
+      }),
+    );
+    return json.decode(response.body);
+  }
+
+  // Kirim OTP ke email
+  static Future<Map<String, dynamic>> sendVerification(String email) async {
+    var url = Uri.parse("$baseUrl/send_verification.php");
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email}),
+    );
+    return json.decode(response.body);
+  }
+
+// Verifikasi OTP
+  static Future<Map<String, dynamic>> verifyOtp(
+      String email, String otp) async {
+    var url = Uri.parse("$baseUrl/verify_otp.php");
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email, "otp": otp}),
+    );
+    return json.decode(response.body);
+  }
 }
