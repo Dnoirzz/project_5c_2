@@ -8,6 +8,7 @@ import 'review_submit_page.dart';
 import '../../services/local_storage_service.dart';
 import '../../services/formulir_service.dart';
 
+
 class FormulirPendaftaranMain extends StatefulWidget {
   const FormulirPendaftaranMain({super.key});
 
@@ -151,6 +152,52 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
     }
   }
 
+  Future<void> _uploadFinal() async {
+    final url =
+        Uri.parse("https://IP_VPS_KAMU/upload_final.php"); // 🔥 ganti IP
+
+    final Map<String, dynamic> allData = {
+      "user_id": 1, // ganti dengan ID user yang login
+      "page_0": _formData[0], // Data pribadi
+      "page_1": _formData[1], // Data akademik
+      "page_2": _formData[2], // Data orangtua
+      "page_3": _formData[3], // Upload dokumen
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(allData),
+      );
+
+      final result = jsonDecode(response.body);
+
+      if (result['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("✅ Data berhasil dikirim ke database!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("❌ Gagal: ${result['message']}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("⚠️ Terjadi error: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   void _handlePageDataChanged(Map<String, dynamic> newData) {
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -218,14 +265,13 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
     );
 
     try {
-      int userId = 1; // TODO: Ganti dengan user ID yang login
+      int userId = 1;
 
       final result = await LocalStorageService.saveDraftLocal(
         userId: userId,
         pageNumber: _currentPage,
         formData: _formData[_currentPage] ?? {},
       );
-
 
       if (mounted) Navigator.pop(context);
 
@@ -612,7 +658,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                             ElevatedButton(
                                               onPressed: () {
                                                 Navigator.of(context).pop();
-                                                // _uploadFinal(); // 👈 PANGGIL FUNGSI UPLOAD
+                                                _uploadFinal(); // 👈 PANGGIL FUNGSI UPLOAD
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
