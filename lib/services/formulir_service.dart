@@ -1,83 +1,33 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FormulirService {
   // Ganti dengan URL VPS Anda (tanpa trailing slash)
   static const String baseUrl = 'http://44.220.144.82/api';
 
-  /// Simpan draft ke database
-  static Future<Map<String, dynamic>> saveDraft(
-      {required int userId,
-      required int pageNumber,
-      required Map<String, dynamic> formData,
-      x}) async {
-    try {
-      final url = Uri.parse('$baseUrl/upload_final.php');
-
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'user_id': userId,
-          'page_number': pageNumber,
-          'form_data': formData,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {
-          'status': 'error',
-          'message': 'HTTP Error: ${response.statusCode}',
-        };
-      }
-    } catch (e) {
-      return {
-        'status': 'error',
-        'message': 'Network error: $e',
-      };
-    }
-  }
-
-  /// Ambil draft dari database
-  static Future<Map<String, dynamic>> getDraft({
-    required int userId,
-    int? pageNumber,
-  }) async {
-    try {
-      String url = '$baseUrl/get_draft.php?user_id=$userId';
-      if (pageNumber != null) {
-        url += '&page_number=$pageNumber';
-      }
-
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {
-          'status': 'error',
-          'message': 'HTTP Error: ${response.statusCode}',
-        };
-      }
-    } catch (e) {
-      return {
-        'status': 'error',
-        'message': 'Network error: $e',
-      };
-    }
-  }
-
   /// Upload data final ke database
   static Future<Map<String, dynamic>> uploadFinal({
-    required int userId,
+    int? userId,
     required Map<int, Map<String, dynamic>> allFormData,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/upload_final.php');
+      // 🔹 Ambil user_id dari SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final storedId = prefs.getInt('user_id') ?? 0;
+      userId = userId == 0 ? storedId : userId;
 
-      // Format data sesuai dengan yang dibutuhkan PHP
+      if (userId == 0) {
+        print(" [WARNING] userId tidak valid ($userId). Silakan login ulang.");
+        return {
+          'status': 'error',
+          'message': 'User ID tidak valid. Silakan login ulang.',
+        };
+      }
+
+      final url = Uri.parse('$baseUrl/upload_final.php');
+      print(" [DEBUG] userId yang dikirim: $userId");
+
       Map<String, dynamic> payload = {
         'user_id': userId,
         'page_0': allFormData[0] ?? {},
@@ -86,11 +36,39 @@ class FormulirService {
         'page_3': allFormData[3] ?? {},
       };
 
+      print(" [DEBUG] Mengirim data ke server: ${jsonEncode(payload)}");
+
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
+
+      print(" [DEBUG] Response server: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'status': 'error',
+          'message': 'HTTP Error: ${response.statusCode}',
+          'body': response.body,
+        };
+      }
+    } catch (e) {
+      print("❌ Error di uploadFinal: $e");
+      return {'status': 'error', 'message': 'Network error: $e'};
+    }
+  }
+
+  /// Cek status pendaftaran mahasiswa
+  static Future<Map<String, dynamic>> checkStatus({
+    required int userId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/check_status.php?user_id=$userId');
+
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -108,35 +86,28 @@ class FormulirService {
     }
   }
 
-  /// Load semua draft saat membuka formulir
-  static Future<Map<int, Map<String, dynamic>>> loadAllDrafts({
+  /// Get data mahasiswa yang sudah tersimpan
+  static Future<Map<String, dynamic>> getMahasiswaData({
     required int userId,
   }) async {
     try {
-      final result = await getDraft(userId: userId);
+      final url = Uri.parse('$baseUrl/get_mahasiswa.php?user_id=$userId');
 
-      if (result['status'] == 'success' && result['data'] != null) {
-        Map<int, Map<String, dynamic>> drafts = {};
+      final response = await http.get(url);
 
-        if (result['data'] is List) {
-          // Multiple drafts
-          for (var draft in result['data']) {
-            int pageNum = draft['page_number'];
-            drafts[pageNum] = draft['form_data'];
-          }
-        } else {
-          // Single draft
-          int pageNum = result['data']['page_number'];
-          drafts[pageNum] = result['data']['form_data'];
-        }
-
-        return drafts;
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'status': 'error',
+          'message': 'HTTP Error: ${response.statusCode}',
+        };
       }
-
-      return {};
     } catch (e) {
-      print('Error loading drafts: $e');
-      return {};
+      return {
+        'status': 'error',
+        'message': 'Network error: $e',
+      };
     }
   }
 }
