@@ -1354,6 +1354,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void showDialogMessage(String message, {VoidCallback? onOk}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: const Text("Informasi"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Tutup dialog
+                if (onOk != null) onOk(); // Jika ada aksi tambahan
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // Kirim kode OTP ke email
   Future<void> sendOtp() async {
     String email = emailController.text.trim();
@@ -1387,12 +1410,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     String confirmPass = confirmPasswordController.text.trim();
 
     if ([email, otp, newPass, confirmPass].any((e) => e.isEmpty)) {
-      showSnack("Semua field wajib diisi");
+      showDialogMessage("Semua field wajib diisi");
       return;
     }
 
     if (newPass != confirmPass) {
-      showSnack("Password tidak sama");
+      showDialogMessage("Password tidak sama");
       return;
     }
 
@@ -1403,16 +1426,124 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       if (verify['status'] == 'success') {
         var reset = await ApiService.forgotPassword(email, newPass);
-        showSnack(reset['message']);
+
+        // Jika password valid dan reset berhasil
+        if (reset['status'] == 'success') {
+          showDialogMessage(reset['message'], onOk: () {
+            Navigator.pop(context); // tutup dialog
+            Navigator.pushReplacementNamed(
+                context, '/login'); // pindah ke login
+          });
+        }
+
+        // Jika gagal karena password tidak memenuhi aturan
+        else if (reset['message'] ==
+            'Password Harus 8 Karakter dan Mengandung huruf, angka dan simbol.') {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Peringatan"),
+              content: Text(reset['message']),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Jika gagal karena alasan lain
+        else {
+          showDialogMessage(reset['message']);
+        }
       } else {
-        showSnack(verify['message']);
+        showDialogMessage(verify['message']);
       }
     } catch (e) {
-      showSnack("Gagal menghubungi server");
+      showDialogMessage("Gagal menghubungi server");
     } finally {
       setState(() => isLoading = false);
     }
   }
+
+  // Future<void> verifyAndReset() async {
+  //   String email = emailController.text.trim();
+  //   String otp = otpController.text.trim();
+  //   String newPass = newPasswordController.text.trim();
+  //   String confirmPass = confirmPasswordController.text.trim();
+
+  //   if ([email, otp, newPass, confirmPass].any((e) => e.isEmpty)) {
+  //     showDialogMessage("Semua field wajib diisi");
+  //     return;
+  //   }
+
+  //   if (newPass != confirmPass) {
+  //     showDialogMessage("Password tidak sama");
+  //     return;
+  //   }
+
+  //   setState(() => isLoading = true);
+
+  //   try {
+  //     var verify = await ApiService.verifyOtp(email, otp);
+
+  //     if (verify['status'] == 'success') {
+  //       var reset = await ApiService.forgotPassword(email, newPass);
+
+  //       if (reset['status'] == 'success') {
+  //         //
+  //         showDialogMessage(reset['message'], onOk: () {
+  //           Navigator.pop(context); // tutup dialog
+  //           Navigator.pop(context); // kembali ke login
+  //         });
+  //       } else {
+  //         showDialogMessage(reset['message']);
+  //       }
+  //     } else {
+  //       showDialogMessage(verify['message']);
+  //     }
+  //   } catch (e) {
+  //     showDialogMessage("Gagal menghubungi server");
+  //   } finally {
+  //     setState(() => isLoading = false);
+  //   }
+  // }
+
+  // Future<void> verifyAndReset() async {
+  //   String email = emailController.text.trim();
+  //   String otp = otpController.text.trim();
+  //   String newPass = newPasswordController.text.trim();
+  //   String confirmPass = confirmPasswordController.text.trim();
+
+  //   if ([email, otp, newPass, confirmPass].any((e) => e.isEmpty)) {
+  //     showSnack("Semua field wajib diisi");
+  //     return;
+  //   }
+
+  //   if (newPass != confirmPass) {
+  //     showSnack("Password tidak cocok");
+  //     return;
+  //   }
+
+  //   setState(() => isLoading = true);
+
+  //   try {
+  //     var verify = await ApiService.verifyOtp(email, otp);
+
+  //     if (verify['status'] == 'success') {
+  //       var reset = await ApiService.forgotPassword(email, newPass);
+  //       showSnack(reset['message']);
+  //     } else {
+  //       showSnack(verify['message']);
+  //     }
+  //   } catch (e) {
+  //     showSnack("Gagal menghubungi server");
+  //   } finally {
+  //     setState(() => isLoading = false);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

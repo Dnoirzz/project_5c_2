@@ -21,7 +21,7 @@ class ApiService {
   static Future<Map<String, dynamic>> register(
       String email, String password, String namaLengkap,
       [String role = "mahasiswa"]) async {
-    var url = Uri.parse("$baseUrl/registrasi.php");
+    var url = Uri.parse("$baseUrl/registrasii.php");
     var response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
@@ -70,7 +70,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>> forgotPassword(
       String email, String newPassword) async {
-    var url = Uri.parse("$baseUrl/forgot_password.php");
+    var url = Uri.parse("$baseUrl/forgot_passworddd.php");
     var response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
