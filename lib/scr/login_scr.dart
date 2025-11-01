@@ -1,21 +1,57 @@
-import 'package:SPMB/services/auth_servise.dart';
+import '../services/auth_servise.dart';
 import 'package:flutter/material.dart';
 import 'forgot_scr.dart';
 import 'register_scr.dart';
 import 'dashboard_scr.dart';
 import '../scr_admin/admin_dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // controller untuk ambil input dari TextField
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadCredentials();
+  }
+
+  Future<void> loadCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      rememberMe = prefs.getBool('rememberMe') ?? false;
+      if (rememberMe) {
+        emailController.text = prefs.getString('email') ?? '';
+        passwordController.text = prefs.getString('password') ?? '';
+      }
+    });
+  }
+
+  Future<void> saveCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (rememberMe) {
+      await prefs.setString('email', emailController.text.trim());
+      await prefs.setString('password', passwordController.text.trim());
+      await prefs.setBool('rememberMe', true);
+    } else {
+      await prefs.remove('email');
+      await prefs.remove('password');
+      await prefs.setBool('rememberMe', false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF36566F), // warna biru background
+      backgroundColor: const Color(0xFF36566F),
       body: SafeArea(
         child: Column(
           children: [
@@ -113,8 +149,7 @@ class LoginScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ForgotPasswordScreen(),
+                                  builder: (context) => ForgotPasswordScreen(),
                                 ),
                               );
                             },
@@ -150,18 +185,29 @@ class LoginScreen extends StatelessWidget {
                                 var user = data['data'];
                                 String role = user['role'] ?? 'mahasiswa';
 
+                                // 🔹 Simpan data user ke SharedPreferences
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setString(
+                                    'user_email', user['email'] ?? '');
+                                await prefs.setString('user_nama_lengkap',
+                                    user['nama_lengkap'] ?? '');
+                                await prefs.setString('user_role', role);
+                                await prefs.setBool('is_logged_in', true);
+
+                                // Simpan credentials jika remember me dicentang
+                                await saveCredentials();
+
                                 if (role == 'admin') {
                                   showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
                                       title: const Text("Berhasil"),
-                                      content:
-                                          const Text("Registrasi berhasil!"),
+                                      content: const Text("Login berhasil!"),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(
-                                                context); // tutup dialog
+                                            Navigator.pop(context);
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
@@ -179,13 +225,11 @@ class LoginScreen extends StatelessWidget {
                                     context: context,
                                     builder: (context) => AlertDialog(
                                       title: const Text("Berhasil"),
-                                      content:
-                                          const Text("Registrasi berhasil!"),
+                                      content: const Text("Login berhasil!"),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(
-                                                context); // tutup dialog
+                                            Navigator.pop(context);
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
@@ -205,13 +249,13 @@ class LoginScreen extends StatelessWidget {
                                 showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title: Text("Gagal"),
+                                    title: const Text("Gagal"),
                                     content: Text(data['message'] ??
                                         "Username atau password salah"),
                                     actions: [
                                       TextButton(
                                         onPressed: () => Navigator.pop(context),
-                                        child: Text("OK"),
+                                        child: const Text("OK"),
                                       ),
                                     ],
                                   ),

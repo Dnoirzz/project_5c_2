@@ -1,6 +1,7 @@
-import 'package:SPMB/services/auth_servise.dart';
+// import 'package:SPMB/services/auth_servise.dart';
 import 'package:flutter/material.dart';
 import '../scr_admin/admin_dashboard.dart';
+import '../services/auth_servise.dart';
 import 'login_scr.dart';
 
 class RegisterScreen extends StatelessWidget {
