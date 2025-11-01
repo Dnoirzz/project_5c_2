@@ -30,7 +30,9 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
 
   Future<void> fetchPengumuman() async {
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.post(Uri.parse(apiUrl));
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}"); // <--- tambahkan ini
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data["success"] == true && data["data"] != null) {
@@ -119,6 +121,8 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
   }
 
   void _deletePengumuman(int index) {
+    final pengumuman = pengumumanList[index];
+    final id = pengumuman["id"];
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -137,51 +141,138 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
             child: const Text("Batal"),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                pengumumanList.removeAt(index);
-              });
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Pengumuman berhasil dihapus"),
-                  backgroundColor: Colors.green,
-                ),
+              final response = await http.post(
+                Uri.parse("http://44.220.144.82/api/delete_pengumuman.php"),
+                body: {"id": id.toString()},
               );
+
+              print("Response Body: ${response.body}");
+
+              if (response.statusCode == 200) {
+                final data = jsonDecode(response.body);
+                if (data["success"] == true) {
+                  setState(() {
+                    pengumumanList.removeAt(index);
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Pengumuman berhasil dihapus"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(data["message"]),
+                        backgroundColor: Colors.red),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text("Gagal menghubungi server"),
+                      backgroundColor: Colors.red),
+                );
+              }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text("Hapus"),
           ),
         ],
       ),
     );
   }
+  //       ElevatedButton(
+  //         onPressed: () {
+  //           setState(() {
+  //             pengumumanList.removeAt(index);
+  //           });
+  //           Navigator.pop(context);
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             const SnackBar(
+  //               content: Text("Pengumuman berhasil dihapus"),
+  //               backgroundColor: Colors.green,
+  //             ),
+  //           );
+  //         },
+  //         style: ElevatedButton.styleFrom(
+  //           backgroundColor: Colors.red,
+  //         ),
+  //         child: const Text("Hapus"),
+  //       ),
+  //     ],
+  //   ),
+  // );
+  // }
 
-  void _editPengumuman(int index) {
-    Navigator.push(
+  // void _editPengumuman(int index) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => EditPengumumanPage(
+  //         pengumuman: pengumumanList[index],
+  //       ),
+  //     ),
+  //   ).then((value) {
+  //     if (value != null) {
+  //       setState(() {
+  //         pengumumanList[index] = value;
+  //       });
+  //     }
+  //   });
+  // }
+  void _editPengumuman(int index) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditPengumumanPage(
           pengumuman: pengumumanList[index],
         ),
       ),
-    ).then((value) {
-      if (value != null) {
-        setState(() {
-          pengumumanList[index] = value;
-        });
-      }
-    });
+    );
+
+    // Kalau hasil edit berhasil (EditPengumumanPage mengembalikan 'true')
+    if (result == true) {
+      // Panggil ulang API supaya data terbaru muncul
+      fetchPengumuman();
+    }
   }
 
+  // void _viewDetail(int index) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => DetailPengumumanPage(
+  //         pengumuman: pengumumanList[index],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   void _viewDetail(int index) {
+    final item = pengumumanList[index];
+
+    // Ubah tanggal string menjadi DateTime
+    DateTime? tanggal;
+    try {
+      tanggal = DateTime.parse(item['tanggal']);
+    } catch (e) {
+      tanggal = DateTime.now(); // fallback kalau format tidak valid
+    }
+
+    // Panggil halaman detail
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DetailPengumumanPage(
-          pengumuman: pengumumanList[index],
+          pengumuman: {
+            "judul": item["judul"] ?? "",
+            "deskripsi": item["deskripsi"] ?? "",
+            "tanggal": tanggal,
+            "gambar": item["upload_gambar"], // samakan nama field agar terbaca
+          },
         ),
       ),
     );

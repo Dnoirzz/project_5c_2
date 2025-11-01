@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'dart:io';
+import 'dart:convert';
+import 'edit_pengumuman_page.dart';
 
 class DetailPengumumanPage extends StatefulWidget {
   final Map<String, dynamic> pengumuman;
@@ -14,14 +18,45 @@ class DetailPengumumanPage extends StatefulWidget {
 }
 
 class _DetailPengumumanPageState extends State<DetailPengumumanPage> {
+  late Map<String, dynamic> _currentPengumuman;
   // Variabel isFavorite tidak lagi diperlukan, dihapus
   // bool isFavorite = false;
 
-  void _onEditTapped() {
-    // Simulasi aksi Edit
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Aksi Edit dilakukan")),
+  // void _onEditTapped() async{
+
+  //   // Simulasi aksi Edit
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(content: Text("Aksi Edit dilakukan")),
+  //   );
+  // }
+  @override
+  void initState() {
+    super.initState();
+    _currentPengumuman = Map.from(widget.pengumuman);
+  }
+
+  void _onEditTapped() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            EditPengumumanPage(pengumuman: _currentPengumuman),
+      ),
     );
+
+    if (result != null) {
+      setState(() {
+        _currentPengumuman = Map.from(result);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Pengumuman berhasil diperbarui!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      // Navigator.pop(context); // Kembali ke halaman sebelumnya
+    }
   }
 
   void _onDeleteTapped() {
@@ -33,16 +68,49 @@ class _DetailPengumumanPageState extends State<DetailPengumumanPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Pastikan locale Indonesia telah diinisialisasi di main.dart,
-    // atau gunakan fungsi toLocale('id') jika tersedia pada Date/DateTime object.
+    // final tanggalFormatted = DateFormat('dd MMMM yyyy', 'id_ID')
+    //     .format(widget.pengumuman['tanggal']);
+    // final waktuFormatted =
+    //     DateFormat('HH:mm', 'id_ID').format(widget.pengumuman['tanggal']);
+
+    // Ambil data tanggal dari pengumuman (bisa String atau DateTime)
+    final tanggalData = _currentPengumuman['tanggal'];
+
+// Pastikan dikonversi ke DateTime
+    // DateTime tanggal;
+    // if (tanggalData is String) {
+    //   try {
+    //     tanggal = DateTime.parse(tanggalData);
+    //   } catch (e) {
+    //     tanggal = DateTime.now(); // fallback jika parsing gagal
+    //   }
+    // } else if (tanggalData is DateTime) {
+    //   tanggal = tanggalData;
+    // } else {
+    //   tanggal = DateTime.now();
+    // }
+    DateTime tanggal;
+    if (tanggalData is DateTime) {
+      tanggal = tanggalData;
+    } else if (tanggalData is String) {
+      try {
+        tanggal = DateTime.tryParse(tanggalData) ?? DateTime.now();
+      } catch (_) {
+        tanggal = DateTime.now();
+      }
+    } else {
+      tanggal = DateTime.now();
+    }
+
+// Format tanggal dan waktu
     final tanggalFormatted =
-        DateFormat('dd MMMM yyyy', 'id_ID').format(widget.pengumuman['tanggal']);
-    final waktuFormatted =
-        DateFormat('HH:mm', 'id_ID').format(widget.pengumuman['tanggal']);
+        DateFormat('dd MMMM yyyy', 'id_ID').format(tanggal);
+    final waktuFormatted = DateFormat('HH:mm', 'id_ID').format(tanggal);
 
     // Warna yang digunakan (sesuai tema biru tua/putih)
     const Color darkBlueBackground = Color(0xFF2C3E50);
-    const Color containerBackground = Color(0xFF34495E); // Untuk tombol back/action
+    const Color containerBackground =
+        Color(0xFF34495E); // Untuk tombol back/action
 
     return Scaffold(
       backgroundColor: darkBlueBackground,
@@ -124,7 +192,7 @@ class _DetailPengumumanPageState extends State<DetailPengumumanPage> {
 
                   // Judul
                   Text(
-                    widget.pengumuman["judul"],
+                    _currentPengumuman["judul"],
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24, // Sedikit lebih besar
@@ -134,11 +202,17 @@ class _DetailPengumumanPageState extends State<DetailPengumumanPage> {
                   const SizedBox(height: 20),
 
                   // Gambar (dipindahkan ke sini)
-                  if (widget.pengumuman["gambar"] != null)
+                  // if (widget.pengumuman["gambar"] != null)
+                  //   ClipRRect(
+                  //     borderRadius: BorderRadius.circular(12),
+                  //     child: Image.asset(
+                  //       widget.pengumuman["gambar"],
+                  if (_currentPengumuman["gambar"] != null &&
+                      _currentPengumuman["gambar"] != "")
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(
-                        widget.pengumuman["gambar"],
+                      child: Image.memory(
+                        base64Decode(_currentPengumuman["gambar"]),
                         fit: BoxFit.cover,
                         width: double.infinity,
                         errorBuilder: (context, error, stackTrace) {
@@ -160,7 +234,7 @@ class _DetailPengumumanPageState extends State<DetailPengumumanPage> {
 
                   // Deskripsi
                   Text(
-                    widget.pengumuman["deskripsi"],
+                    _currentPengumuman["deskripsi"],
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 14,
