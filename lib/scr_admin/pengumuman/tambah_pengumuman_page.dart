@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class TambahPengumumanPage extends StatefulWidget {
   const TambahPengumumanPage({super.key});
@@ -16,71 +18,188 @@ class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
 
   File? _selectedImage;
 
-  @override
-  void dispose() {
-    _judulController.dispose();
-    _deskripsiController.dispose();
-    super.dispose();
+  final picker = ImagePicker();
+  final String apiUrl = "http://44.220.144.82/api/tambah_pengumuman.php";
+
+  // @override
+  // void dispose() {
+  //   _judulController.dispose();
+  //   _deskripsiController.dispose();
+  //   super.dispose();
+  // }
+
+  // Future<void> _pickImageFromGallery() async {
+  //   try {
+  //     final XFile? pickedFile = await _imagePicker.pickImage(
+  //       source: ImageSource.gallery,
+  //     );
+  //     if (pickedFile != null) {
+  //       setState(() {
+  //         _selectedImage = File(pickedFile.path);
+  //       });
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("Error: $e")),
+  //     );
+  //   }
+  // }
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
   }
 
-  Future<void> _pickImageFromGallery() async {
-    try {
-      final XFile? pickedFile = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
+  Future<void> _publishPengumuman() async {
+    if (_judulController.text.isEmpty || _deskripsiController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Judul dan Deskripsi wajib diisi!")),
       );
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-        });
+      return;
+    }
+
+    String? base64Image;
+    if (_selectedImage != null) {
+      List<int> imageBytes = await _selectedImage!.readAsBytes();
+      base64Image = base64Encode(imageBytes);
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: {
+          "judul": _judulController.text,
+          "deskripsi": _deskripsiController.text,
+          "upload_gambar": base64Image ?? "",
+        },
+      );
+
+      final data = jsonDecode(response.body);
+      if (data["success"] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Pengumuman berhasil ditambahkan!")),
+        );
+        Navigator.pop(context, true); // kembali dan trigger refresh
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal: ${data["message"]}")),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+        SnackBar(content: Text("Terjadi kesalahan: $e")),
       );
     }
   }
 
-  void _publishPengumuman() {
-    // Validasi input
-    if (_judulController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Judul tidak boleh kosong!"),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+  // Future<void> _publishPengumuman() async {
+  //   if (_judulController.text.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //           content: Text("Judul tidak boleh kosong!"),
+  //           backgroundColor: Colors.red),
+  //     );
+  //     return;
+  //   }
 
-    if (_deskripsiController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Deskripsi tidak boleh kosong!"),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+  //   if (_deskripsiController.text.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //           content: Text("Deskripsi tidak boleh kosong!"),
+  //           backgroundColor: Colors.red),
+  //     );
+  //     return;
+  //   }
 
-    // Simulasi publish
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Pengumuman berhasil dipublikasikan!"),
-        backgroundColor: Colors.green,
-      ),
-    );
+  //   String? base64Image;
+  //   if (_selectedImage != null) {
+  //     List<int> imageBytes = await _selectedImage!.readAsBytes();
+  //     base64Image = base64Encode(imageBytes);
+  //   }
 
-    // Kembali ke halaman sebelumnya
-    Navigator.pop(context);
-  }
+  //   final url = Uri.parse("http://44.220.144.82/api/tambah_pengumuman.php");
+
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       body: {
+  //         "judul": _judulController.text,
+  //         "deskripsi": _deskripsiController.text,
+  //         "upload_gambar":
+  //             base64Image ?? "", // jika tidak ada gambar kirim kosong
+  //       },
+  //     );
+
+  //     final data = jsonDecode(response.body);
+
+  //     if (data["success"] == true) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //             content: Text("Pengumuman berhasil dipublikasikan!"),
+  //             backgroundColor: Colors.green),
+  //       );
+  //       Navigator.pop(context);
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //             content: Text("Gagal: ${data["message"]}"),
+  //             backgroundColor: Colors.red),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+  //     );
+  //   }
+  // }
+
+  // void _publishPengumuman() {
+  //   // Validasi input
+  //   if (_judulController.text.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text("Judul tidak boleh kosong!"),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     return;
+  //   }
+
+  //   if (_deskripsiController.text.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text("Deskripsi tidak boleh kosong!"),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     return;
+  //   }
+
+  //   // Simulasi publish
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(
+  //       content: Text("Pengumuman berhasil dipublikasikan!"),
+  //       backgroundColor: Colors.green,
+  //     ),
+  //   );
+
+  //   // Kembali ke halaman sebelumnya
+  //   Navigator.pop(context);
+  // }
 
   @override
   Widget build(BuildContext context) {
     // Warna yang digunakan dalam gambar (estimasi):
-    const Color darkBlueBackground = Color(0xFF365368); // Background Scaffold & App Bar
-    const Color formContainerColor = Color(0xFF1C3C53); // Warna yang terlihat di sekitar input fields
+    const Color darkBlueBackground =
+        Color(0xFF365368); // Background Scaffold & App Bar
+    const Color formContainerColor =
+        Color(0xFF1C3C53); // Warna yang terlihat di sekitar input fields
     // const Color inputFieldColor = Color(0xFF7F8C8D); // Warna di dalam Judul & Isi Pengumuman
-    const Color fileUploadButtonColor = Color(0xFF34495E); // Warna tombol Choose File
+    const Color fileUploadButtonColor =
+        Color(0xFF34495E); // Warna tombol Choose File
     // const Color fileUploadPlaceholderColor = Color(0xFF7F8C8D); // Warna placeholder Upload File/Gambar
     const Color publishButtonColor = Colors.green; // Warna tombol Publish
 
@@ -110,7 +229,8 @@ class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
           // Container tunggal untuk menampung semua elemen form
           // Ini adalah 'card' atau area utama yang menonjol dari background
           decoration: BoxDecoration(
-            color: formContainerColor, // Warna abu-abu kebiruan yang lebih terang
+            color:
+                formContainerColor, // Warna abu-abu kebiruan yang lebih terang
             borderRadius: BorderRadius.circular(12),
           ),
           padding: const EdgeInsets.all(20), // Padding di dalam container form
@@ -208,7 +328,7 @@ class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
                 children: [
                   // Tombol Choose File
                   ElevatedButton(
-                    onPressed: _pickImageFromGallery,
+                    onPressed: _pickImage,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: fileUploadButtonColor,
                       padding: const EdgeInsets.symmetric(
@@ -236,7 +356,8 @@ class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white12, // Warna abu-abu yang lebih terang
+                        color:
+                            Colors.white12, // Warna abu-abu yang lebih terang
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -265,12 +386,12 @@ class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
                     width: double.infinity,
                   ),
                 )
-              else 
-                const SizedBox.shrink(), // Hapus placeholder jika tidak ada gambar
+              else
+                const SizedBox
+                    .shrink(), // Hapus placeholder jika tidak ada gambar
 
               if (_selectedImage != null) const SizedBox(height: 30),
               if (_selectedImage == null) const SizedBox(height: 20),
-
 
               // Tombol Publish
               SizedBox(
