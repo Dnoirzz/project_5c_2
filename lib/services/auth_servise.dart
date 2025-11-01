@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   static const String baseUrl = "http://44.220.144.82/api";
@@ -8,13 +9,34 @@ class ApiService {
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
     var url = Uri.parse("$baseUrl/login.php");
-    var response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"email": email, "password": password}),
-    );
 
-    return json.decode(response.body);
+    try {
+      var response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
+
+      // Decode hasil dari server
+      final data = json.decode(response.body);
+
+      // ✅ Jika login sukses, simpan user_id ke SharedPreferences
+      if (data['status'] == 'success' && data['data'] != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final userData = data['data'];
+        if (userData['id_pengguna'] != null) {
+          await prefs.setInt('user_id', userData['id_pengguna']);
+          print("[DEBUG] User ID disimpan: ${userData['id_pengguna']}");
+        }
+      }
+
+      return data;
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'Terjadi kesalahan: $e',
+      };
+    }
   }
 
   //  Fungsi Register

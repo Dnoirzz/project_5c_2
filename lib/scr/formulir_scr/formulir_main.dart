@@ -5,10 +5,9 @@ import 'data_akademik_page.dart';
 import 'data_ortu_page.dart';
 import 'upload_dokumen_page.dart';
 import 'review_submit_page.dart';
-import '../dashboard_scr.dart';
+import '../../services/local_storage_service.dart';
+import '../../services/formulir_service.dart';
 
-/// Main Formulir Pendaftaran dengan konten terpisah
-/// Hanya konten yang berubah, AppBar dan header tetap
 class FormulirPendaftaranMain extends StatefulWidget {
   const FormulirPendaftaranMain({super.key});
 
@@ -26,18 +25,52 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
     0: false,
     1: false,
     2: false,
-    3: false, // Upload dokumen page
-    4: false, // Review page
+    3: false,
+    4: false,
   };
 
   // Store form data for each page
   final Map<int, Map<String, dynamic>> _formData = {};
+
   @override
   void initState() {
     super.initState();
     // Initialize form data for each page
     for (int i = 0; i < 5; i++) {
       _formData[i] = {};
+    }
+
+    //  LOAD DRAFT DARI FILE JSON SAAT BUKA FORMULIR
+    _loadLocalDrafts();
+  }
+
+  // FUNGSI LOAD DRAFT DARI FILE JSON
+  Future<void> _loadLocalDrafts() async {
+    int userId = 1;
+
+    final drafts = await LocalStorageService.loadAllDraftsLocal(userId: userId);
+
+    if (drafts.isNotEmpty && mounted) {
+      setState(() {
+        drafts.forEach((pageNum, data) {
+          _formData[pageNum] = data;
+          _pagesSaved[pageNum] = true;
+        });
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.folder_open, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Draft berhasil dimuat dari penyimpanan lokal'),
+            ],
+          ),
+          backgroundColor: Colors.blue,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -65,8 +98,11 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
             data['namaIbu']?.isNotEmpty == true &&
             data['pekerjaanIbu']?.isNotEmpty == true;
 
-      case 3: // Upload Dokumen - tidak ada auto-save, harus manual save
-        return false;
+      case 3: // Upload Dokumen
+        return data['ijazah'] != null &&
+            data['kk'] != null &&
+            data['akta'] != null &&
+            data['foto'] != null;
 
       default:
         return false;
@@ -117,7 +153,6 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
 
   void _handlePageDataChanged(Map<String, dynamic> newData) {
     if (mounted) {
-      // Use addPostFrameCallback to avoid setState during build
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
@@ -125,7 +160,6 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                 Map<String, dynamic>.from(_formData[_currentPage] ?? {});
             bool hasSignificantChanges = false;
 
-            // Deep comparison of old and new data
             if (existingData.isEmpty && newData.isNotEmpty) {
               hasSignificantChanges = true;
             } else if (existingData.length != newData.length) {
@@ -139,27 +173,22 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
               }
             }
 
-            // Create a deep copy of the new data
             Map<String, dynamic> dataCopy = {};
             newData.forEach((key, value) {
               dataCopy[key] = value;
             });
             _formData[_currentPage] = dataCopy;
 
-            // Check if all required fields are filled
             bool allFieldsFilled = _checkRequiredFields(dataCopy);
 
-            // Auto-save if all required fields are filled
             if (allFieldsFilled) {
               _pagesSaved[_currentPage] = true;
             } else {
-              // Only mark as unsaved if there are actual changes
               if (hasSignificantChanges) {
                 _pagesSaved[_currentPage] = false;
               }
             }
 
-            // Keep saved state if previously saved and no changes
             if (_pagesSaved[_currentPage] == true && !hasSignificantChanges) {
               _pagesSaved[_currentPage] = true;
             }
@@ -169,26 +198,71 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
     }
   }
 
-  void _saveDraft() {
-    setState(() {
-      // For all pages including document upload
-      if (_formData[_currentPage]?.isNotEmpty == true) {
-        // Create a deep copy of the current data to ensure it's preserved
-        Map<String, dynamic> dataCopy = {};
-        _formData[_currentPage]!.forEach((key, value) {
-          dataCopy[key] = value;
-        });
-        _formData[_currentPage] = dataCopy;
-        _pagesSaved[_currentPage] = true;
-      }
-    });
+  void _saveDraft() async {
+    bool anyFieldFilled =
+        _formData.values.any((pageData) => pageData.isNotEmpty);
+    if (!anyFieldFilled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tidak ada data untuk disimpan'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Draft berhasil disimpan!"),
-        backgroundColor: Color(0xFF009137),
-      ),
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
+
+    try {
+      int userId = 1; // TODO: Ganti dengan user ID yang login
+
+      final result = await LocalStorageService.saveDraftLocal(
+        userId: userId,
+        pageNumber: _currentPage,
+        formData: _formData[_currentPage] ?? {},
+      );
+
+      if (mounted) Navigator.pop(context);
+
+      if (result['status'] == 'success') {
+        setState(() {
+          _pagesSaved[_currentPage] = true;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.save, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Draft seluruh halaman berhasil disimpan!'),
+              ],
+            ),
+            backgroundColor: Color(0xFF009137),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${result['message']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   final List<String> _stepTitles = [
@@ -206,9 +280,6 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   }
 
   void _nextPage() {
-    // Allow moving forward if:
-    // 1. Current page is saved, or
-    // 2. Current page has data and was previously saved
     if (_currentPage < 4) {
       bool canProceed = _pagesSaved[_currentPage] == true ||
           (_formData[_currentPage]?.isNotEmpty == true &&
@@ -218,12 +289,10 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
         setState(() {
           _currentPage++;
 
-          // When moving to a new page, if it has saved data, mark it as saved
           if (_formData[_currentPage]?.isNotEmpty == true) {
             _pagesSaved[_currentPage] = true;
           }
         });
-        // Scroll ke atas setelah berpindah halaman
         _scrollToTop();
       }
     }
@@ -232,44 +301,89 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
   void _previousPage() {
     if (_currentPage > 0) {
       setState(() {
-        // Store the current page's state before moving
         if (_formData[_currentPage]?.isNotEmpty == true) {
           Map<String, dynamic> currentPageData = {};
           _formData[_currentPage]!.forEach((key, value) {
             currentPageData[key] = value;
           });
-          // Save the current page's data and state
           _formData[_currentPage] = currentPageData;
-          // Only preserve saved state if it was explicitly saved
           if (_pagesSaved[_currentPage] == true) {
             _pagesSaved[_currentPage] = true;
           }
         }
 
-        // Move to previous page
         _currentPage--;
 
-        // Restore previous page's state
         if (_formData[_currentPage]?.isNotEmpty == true) {
           Map<String, dynamic> prevPageData = {};
           _formData[_currentPage]!.forEach((key, value) {
             prevPageData[key] = value;
           });
           _formData[_currentPage] = prevPageData;
-          // If this page was previously saved, restore that state
           if (_pagesSaved[_currentPage] == true) {
             _pagesSaved[_currentPage] = true;
           }
         }
       });
 
-      // Scroll ke atas setelah berpindah halaman
       _scrollToTop();
     }
   }
 
+  Future<void> _uploadFinal() async {
+    // Tampilkan indikator loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      // 🔹 Kirim data ke server lewat service
+      final result = await FormulirService.uploadFinal(allFormData: _formData);
+
+      // Tutup loading dialog
+      if (mounted) Navigator.pop(context);
+
+      // 🔹 Tampilkan hasil dari server
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Upload gagal'),
+          backgroundColor:
+              result['status'] == 'success' ? Colors.green : Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      // 🔹 Jika berhasil, arahkan ke Dashboard
+      if (result['status'] == 'success') {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/dashboard', // pastikan rute dashboard ada di MaterialApp
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      // Tutup loading kalau error
+      if (mounted) Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan saat upload: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // ✅ Tambahan: fungsi untuk memperbarui data form tiap halaman berdasarkan index
+  void _handlePageDataChangedByIndex(
+      int pageIndex, Map<String, dynamic> newData) {
+    setState(() {
+      _formData[pageIndex] = newData;
+    });
+  }
+
   void _scrollToTop() {
-    // Delay kecil untuk memastikan widget sudah di-render
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -296,7 +410,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
         controller: _scrollController,
         child: Column(
           children: [
-            // ========== HEADER BOX (TIDAK BERUBAH) ==========
+            // Header Box
             Container(
               color: const Color(0xFF2C3E50),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
@@ -362,7 +476,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
               ),
             ),
 
-            // ========== TAB NAVIGATION (TIDAK BERUBAH) ==========
+            // Tab Navigation
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Container(
@@ -386,26 +500,19 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                     _tabItem(Icons.school, "Data Akademik", _currentPage == 1),
                     _tabItem(Icons.group, "Data Orang Tua", _currentPage == 2),
                     _tabItem(
-                      Icons.upload_file,
-                      "Upload Dokumen",
-                      _currentPage == 3,
-                    ),
-                    _tabItem(
-                      Icons.check_circle,
-                      "Review & Submit",
-                      _currentPage == 4,
-                    ),
+                        Icons.upload_file, "Upload Dokumen", _currentPage == 3),
+                    _tabItem(Icons.check_circle, "Review & Submit",
+                        _currentPage == 4),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 12),
 
-            // ========== KONTEN (YANG BERUBAH) ==========
-            // Ganti PageView dengan Column yang dapat di-scroll
+            // Current Page Content
             _buildCurrentPageContent(),
 
-            // ========== BOTTOM NAVIGATION BAR (SEKARANG BISA DI-SCROLL) ==========
+            // Bottom Navigation Bar
             Container(
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -425,13 +532,10 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
-                    mainAxisAlignment: _currentPage == 4
-                        ? MainAxisAlignment
-                            .start // Only show back button on review page
-                        : MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Tombol Sebelumnya
-                      Container(
+                      SizedBox(
                         width: 140,
                         child: ElevatedButton(
                           onPressed: _currentPage > 0 ? _previousPage : null,
@@ -447,21 +551,28 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                           child: const Text("< Sebelumnya"),
                         ),
                       ),
-// <<<<<<< HEAD
-// =======
 
-//                       // Tombol Simpan Draft (hanya tampil jika bukan di halaman review)
-// >>>>>>> origin/Ryan
+                      // Tombol Simpan Draft (tidak ditampilkan di halaman review)
                       if (_currentPage != 4)
-                        Container(
-                          child: ElevatedButton.icon(
-                            onPressed: _checkAnyFieldFilled(
+                        ElevatedButton.icon(
+                          onPressed: _checkAnyFieldFilled(
+                                      _formData[_currentPage] ?? {}) ||
+                                  _pagesSaved[_currentPage] == true
+                              ? _saveDraft
+                              : null,
+                          icon: Icon(
+                            Icons.save_outlined,
+                            color: (_checkAnyFieldFilled(
                                         _formData[_currentPage] ?? {}) ||
-                                    _pagesSaved[_currentPage] == true
-                                ? _saveDraft
-                                : null,
-                            icon: Icon(
-                              Icons.save_outlined,
+                                    _pagesSaved[_currentPage] == true)
+                                ? (_pagesSaved[_currentPage] == true
+                                    ? Colors.white
+                                    : const Color(0xFF233746))
+                                : Colors.grey.shade400,
+                          ),
+                          label: Text(
+                            "Simpan Draft",
+                            style: TextStyle(
                               color: (_checkAnyFieldFilled(
                                           _formData[_currentPage] ?? {}) ||
                                       _pagesSaved[_currentPage] == true)
@@ -470,37 +581,25 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                       : const Color(0xFF233746))
                                   : Colors.grey.shade400,
                             ),
-                            label: Text(
-                              "Simpan Draft",
-                              style: TextStyle(
-                                color: (_checkAnyFieldFilled(
-                                            _formData[_currentPage] ?? {}) ||
-                                        _pagesSaved[_currentPage] == true)
-                                    ? (_pagesSaved[_currentPage] == true
-                                        ? Colors.white
-                                        : const Color(0xFF233746))
-                                    : Colors.grey.shade400,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _pagesSaved[_currentPage] == true
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _pagesSaved[_currentPage] == true
+                                ? const Color(0xFF009137)
+                                : (_checkAnyFieldFilled(
+                                        _formData[_currentPage] ?? {})
+                                    ? Colors.white
+                                    : Colors.grey.shade100),
+                            elevation: 0,
+                            side: BorderSide(
+                              color: _pagesSaved[_currentPage] == true
                                   ? const Color(0xFF009137)
                                   : (_checkAnyFieldFilled(
                                           _formData[_currentPage] ?? {})
-                                      ? Colors.white
-                                      : Colors.grey.shade100),
-                              elevation: 0,
-                              side: BorderSide(
-                                color: _pagesSaved[_currentPage] == true
-                                    ? const Color(0xFF009137)
-                                    : (_checkAnyFieldFilled(
-                                            _formData[_currentPage] ?? {})
-                                        ? const Color(0xFF233746)
-                                        : Colors.grey.shade300),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                                      ? const Color(0xFF233746)
+                                      : Colors.grey.shade300),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
                         ),
@@ -509,7 +608,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                   const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Container(
+                    child: SizedBox(
                       width: 140,
                       child: ElevatedButton(
                         onPressed: _currentPage < 4
@@ -517,7 +616,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                 ? _nextPage
                                 : null)
                             : () {
-                                // Show confirmation dialog before submitting
+                                // 👇 KONFIRMASI UPLOAD KE DATABASE
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -525,22 +624,22 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
-                                      title: Row(
+                                      title: const Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.check_circle,
+                                          Icon(Icons.cloud_upload,
                                               color: Color(0xFF009137)),
                                           SizedBox(width: 8),
                                           Flexible(
                                             child: Text(
-                                              'Konfirmasi Pendaftaran',
+                                              'Konfirmasi Upload',
                                               style: TextStyle(fontSize: 16),
                                             ),
                                           ),
                                         ],
                                       ),
-                                      content: Text(
-                                        'Apakah Anda yakin ingin mengirim formulir pendaftaran? Pastikan semua data sudah benar dan lengkap.',
+                                      content: const Text(
+                                        'Data akan dikirim ke database server. Pastikan semua data sudah benar dan lengkap. Lanjutkan?',
                                         style: TextStyle(fontSize: 14),
                                       ),
                                       actions: [
@@ -553,40 +652,11 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                                   Navigator.of(context).pop(),
                                               child: const Text('Batal'),
                                             ),
-                                            SizedBox(width: 8),
+                                            const SizedBox(width: 8),
                                             ElevatedButton(
                                               onPressed: () {
                                                 Navigator.of(context).pop();
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Icon(Icons.check_circle,
-                                                            color:
-                                                                Colors.white),
-                                                        SizedBox(width: 8),
-                                                        Text(
-                                                            "Formulir berhasil dikirim!"),
-                                                      ],
-                                                    ),
-                                                    backgroundColor:
-                                                        Color(0xFF009137),
-                                                    duration:
-                                                        Duration(seconds: 3),
-                                                  ),
-                                                );
-                                                // Add navigation to dashboard after success message
-                                                Navigator.of(context)
-                                                    .pushAndRemoveUntil(
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const DashboardPage(),
-                                                  ),
-                                                  (route) => false,
-                                                );
+                                                _uploadFinal();
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
@@ -597,7 +667,7 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                                                       BorderRadius.circular(8),
                                                 ),
                                               ),
-                                              child: const Text('Kirim'),
+                                              child: const Text('Upload'),
                                             ),
                                           ],
                                         ),
@@ -638,24 +708,22 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                         ),
                         child: Text(_currentPage < 4
                             ? "Selanjutnya >"
-                            : "Daftar Sekarang"),
+                            : "Upload Sekarang"),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20), // Extra space at bottom
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  // Method untuk navigasi langsung ke halaman tertentu
   void _navigateToPage(int pageIndex) {
     if (pageIndex != _currentPage) {
-      // Use addPostFrameCallback to avoid setState during build
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
@@ -667,28 +735,27 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
     }
   }
 
-  // Method untuk menampilkan konten berdasarkan halaman saat ini
   Widget _buildCurrentPageContent() {
     switch (_currentPage) {
       case 0:
         return DataPribadiPage(
           savedData: _formData[0],
-          onDataChanged: _handlePageDataChanged,
+          onDataChanged: (data) => _handlePageDataChangedByIndex(0, data),
         );
       case 1:
         return DataAkademikPage(
           savedData: _formData[1],
-          onDataChanged: _handlePageDataChanged,
+          onDataChanged: (data) => _handlePageDataChangedByIndex(1, data),
         );
       case 2:
         return DataOrtuPage(
           savedData: _formData[2],
-          onDataChanged: _handlePageDataChanged,
+          onDataChanged: (data) => _handlePageDataChangedByIndex(2, data),
         );
       case 3:
         return UploadDokumenPage(
           savedData: _formData[3],
-          onDataChanged: _handlePageDataChanged,
+          onDataChanged: (data) => _handlePageDataChangedByIndex(3, data),
         );
       case 4:
         return ReviewSubmitPage(
@@ -699,12 +766,11 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
       default:
         return DataPribadiPage(
           savedData: _formData[0],
-          onDataChanged: _handlePageDataChanged,
+          onDataChanged: (data) => _handlePageDataChangedByIndex(0, data),
         );
     }
   }
 
-  // Tab Navigation Item (simple progress indicator)
   Widget _tabItem(IconData icon, String title, bool active) {
     return Column(
       mainAxisSize: MainAxisSize.min,
