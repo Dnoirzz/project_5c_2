@@ -9,7 +9,8 @@ class dataMahasiswaService {
   static const String baseUrl = "http://44.220.144.82/api";
 
   static Future<DataMahasiswa> getDataMahasiswaByEmail(String email) async {
-    final url = Uri.parse("$baseUrl/get_dataMahasiswaaa.php?email=$email");
+    // final url = Uri.parse("$baseUrl/get_dataMahasiswaaa.php?email=$email");
+    final url = Uri.parse("$baseUrl/get_dataMahasiswa_final.php?email=$email");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

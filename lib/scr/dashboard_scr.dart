@@ -720,6 +720,9 @@
 //     );
 //   }
 // }
+import 'package:SPMB/models/dataDokumen_models.dart';
+import 'package:SPMB/services/profile_services.dart';
+
 import '../services/pengumuman_services.dart';
 import '../models/pengumuman_models.dart';
 import 'package:flutter/material.dart';
@@ -743,6 +746,9 @@ class _DashboardPageState extends State<DashboardPage> {
   String formattedDate = '';
   bool isLoading = true;
   List<Pengumuman> pengumumanList = [];
+  List<DataDokumen> dokumenUser = [];
+  String statusText = 'Menunggu Verifikasi';
+  Color statusColor = Colors.yellow.shade700;
 
   // 🔹 Variabel untuk menyimpan data user
   String userName = '';
@@ -754,15 +760,102 @@ class _DashboardPageState extends State<DashboardPage> {
     _initializeDateFormatting();
     _loadPengumuman();
     _loadUserData();
+    print('Status dokumen: $statusText');
   }
 
   // Fungsi untuk load data user dari SharedPreferences
+//   Future<void> _loadUserData() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     setState(() {
+//       userName = prefs.getString('user_nama_lengkap') ?? 'User';
+//       userEmail = prefs.getString('user_email') ?? 'email@example.com';
+//     });
+//     try {
+//       // Ambil id_mahasiswa dari dataMahasiswaService
+//       final dataMahasiswa =
+//           await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+//       dokumenUser = await dataMahasiswaService
+//           .getDataDokumenByIdMahasiswa(dataMahasiswa.id);
+
+//       // Tentukan status global dokumen
+//       final status = getStatusDokumen(dokumenUser);
+//       setState(() {
+//         statusText = status['status'];
+//         statusColor = status['color'];
+//       });
+//     } catch (e) {
+//       print("Error load dokumen: $e");
+//     }
+//   }
+
+// // Fungsi menentukan status dokumen
+//   Map<String, dynamic> getStatusDokumen(List<DataDokumen> dokumenList) {
+//     if (dokumenList.any((d) => d.statusVerifikasi == 'Ditolak Verifikasi')) {
+//       return {'status': 'Tolak Verifikasi', 'color': Colors.red};
+//     } else if (dokumenList
+//         .every((d) => d.statusVerifikasi == 'Lulus Verifikasi')) {
+//       return {'status': 'Verifikasi', 'color': Colors.green};
+//     } else {
+//       return {'status': 'Menunggu Verifikasi', 'color': Colors.yellow.shade700};
+//     }
+//   }
+  // Future<void> _loadUserData() async {
+  //   final status = getStatusDokumen(dokumenUser);
+  //   final prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     userName = prefs.getString('user_nama_lengkap') ?? 'User';
+  //     userEmail = prefs.getString('user_email') ?? 'email@example.com';
+  //   });
+  //   dokumenUser.forEach((d) {
+  //     print(
+  //         'Dokumen: ${d.jenisDokumen}, statusVerifikasi raw: "${d.statusVerifikasi}"');
+  //     print(
+  //         'status lowercase trim: "${d.statusVerifikasi.trim().toLowerCase()}"');
+  //   });
+  // }
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       userName = prefs.getString('user_nama_lengkap') ?? 'User';
       userEmail = prefs.getString('user_email') ?? 'email@example.com';
     });
+
+    try {
+      // Ambil data mahasiswa dulu
+      final dataMahasiswa =
+          await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+
+      // Ambil dokumen mahasiswa
+      dokumenUser = await dataMahasiswaService
+          .getDataDokumenByIdMahasiswa(dataMahasiswa.idMahasiswa);
+
+      // Debug: lihat isi dokumen dan statusnya
+      dokumenUser.forEach((d) {
+        print(
+            'Dokumen: ${d.jenisDokumen}, status raw: "${d.statusVerifikasi}"');
+      });
+
+      // Hitung status dokumen
+      final status = getStatusDokumen(dokumenUser);
+      setState(() {
+        statusText = status['status'];
+        statusColor = status['color'];
+      });
+    } catch (e) {
+      print("Error load dokumen: $e");
+    }
+  }
+
+  Map<String, dynamic> getStatusDokumen(List<DataDokumen> dokumenList) {
+    if (dokumenList.any((d) =>
+        d.statusVerifikasi.trim().toLowerCase() == 'ditolak verifikasi')) {
+      return {'status': 'Tolak Verifikasi', 'color': Colors.red};
+    } else if (dokumenList.every(
+        (d) => d.statusVerifikasi.trim().toLowerCase() == 'lulus verifikasi')) {
+      return {'status': 'Verifikasi', 'color': Colors.green};
+    } else {
+      return {'status': 'Menunggu Verifikasi', 'color': Colors.yellow.shade700};
+    }
   }
 
   Future<void> _initializeDateFormatting() async {
@@ -784,6 +877,7 @@ class _DashboardPageState extends State<DashboardPage> {
       setState(() => isLoading = false);
     }
   }
+// print('Status dokumen: $statusText');
 
   @override
   Widget build(BuildContext context) {
@@ -836,16 +930,32 @@ class _DashboardPageState extends State<DashboardPage> {
                           style: const TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 8),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(
+                        //       horizontal: 8, vertical: 4),
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.yellow.shade700,
+                        //     borderRadius: BorderRadius.circular(8),
+                        //   ),
+                        //   child: const Text(
+                        //     'Status: Lengkapi Verifikasi',
+                        //     style: TextStyle(
+                        //       color: Colors.black87,
+                        //       fontSize: 12,
+                        //       fontWeight: FontWeight.w500,
+                        //     ),
+                        //   ),
+                        // ),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.yellow.shade700,
+                            color: statusColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'Status: Lengkapi Verifikasi',
-                            style: TextStyle(
+                          child: Text(
+                            'Status: $statusText',
+                            style: const TextStyle(
                               color: Colors.black87,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,

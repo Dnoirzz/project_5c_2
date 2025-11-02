@@ -600,6 +600,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               } else {
                                 // Login gagal
                                 print('Login failed: ${data['message']}');
+
                                 if (mounted) {
                                   showDialog(
                                     context: context,
@@ -616,6 +617,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   );
                                 }
+                                emailController.clear();
+                                passwordController.clear();
                               }
                             } catch (e) {
                               print('Login error: $e');
