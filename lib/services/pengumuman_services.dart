@@ -103,31 +103,60 @@ class PengumumanService {
   static Future<List<Pengumuman>> getSemuaPengumuman() async {
     try {
       final res = await http.get(Uri.parse("$baseUrl/get_pengumuman.php"));
+
       if (res.statusCode == 200) {
+        print("=== FULL RESPONSE ===");
+        print(res.body);
+        print("=== END RESPONSE ===");
+
         final body = jsonDecode(res.body);
         if (body['success'] == true && body['data'] != null) {
-          return (body['data'] as List)
-              .map((e) => Pengumuman.fromJson(e))
-              .toList();
+          final dataList = body['data'] as List;
+
+          if (dataList.isNotEmpty) {
+            print("=== SAMPLE ITEM ===");
+            print(dataList[0]); // Print item pertama untuk lihat struktur
+            print("=== END SAMPLE ===");
+          }
+
+          return dataList.map((e) => Pengumuman.fromJson(e)).toList();
         }
       }
       return [];
     } catch (e) {
-      print("❌ Error getSemuaPengumuman: $e");
+      print("Error getSemuaPengumuman: $e");
       return [];
     }
   }
+  // }
 
-  static Future<bool> deletePengumuman(String id) async {
+  static Future<bool> deletePengumuman(int id) async {
     try {
-      final res = await http.post(
-        Uri.parse("$baseUrl/delete_pengumuman.php"),
-        body: {'id': id},
+      if (id <= 0) {
+        print("ERROR: ID tidak valid ($id)");
+        return false;
+      }
+
+      print("Menghapus pengumuman dengan ID: $id");
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/delete_pengumuman.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          'id': id.toString(), // Ubah jadi 'id'
+        },
       );
-      final body = jsonDecode(res.body);
-      return body['success'] == true;
+
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      }
+      return false;
     } catch (e) {
-      print("❌ Error deletePengumuman: $e");
+      print("Error deletePengumuman: $e");
       return false;
     }
   }
@@ -141,7 +170,36 @@ class PengumumanService {
       final body = jsonDecode(res.body);
       return body['success'] == true;
     } catch (e) {
-      print("❌ Error tambahPengumuman: $e");
+      print("Error tambahPengumuman: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> updatePengumuman(
+      int id, Map<String, dynamic> data) async {
+    try {
+      final Map<String, String> body = {
+        'id_pengumuman': id.toString(),
+        'judul': data['judul'],
+        'deskripsi': data['deskripsi'],
+      };
+
+      if (data['gambar'] != null) {
+        body['upload_gambar'] = data['gambar'];
+      }
+
+      final res = await http.post(
+        Uri.parse("$baseUrl/edit_pengumuman_final.php"),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: body,
+      );
+
+      print("Server response: ${res.body}"); // penting untuk debugging
+
+      final bodyRes = jsonDecode(res.body);
+      return bodyRes['success'] == true;
+    } catch (e) {
+      print("Error updatePengumuman: $e");
       return false;
     }
   }

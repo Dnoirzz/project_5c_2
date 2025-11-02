@@ -1,419 +1,11 @@
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
-// import 'tambah_pengumuman_page.dart';
-// import 'edit_pengumuman_page.dart';
-// import 'detail_pengumuman_page.dart';
-
-// class AdminPengumumanPage extends StatefulWidget {
-//   const AdminPengumumanPage({super.key});
-
-//   @override
-//   State<AdminPengumumanPage> createState() => _AdminPengumumanPageState();
-// }
-
-// class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
-//   final TextEditingController _searchController = TextEditingController();
-
-//   List<Map<String, dynamic>> pengumumanList = [
-//     {
-//       "judul": "Pengumuman Hari Libur",
-//       "deskripsi":
-//           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum.",
-//       "tanggal": DateTime(2025, 1, 25, 15, 30),
-//       "gambar": "assets/images/beasiswa.png",
-//     },
-//     {
-//       "judul": "Timeline Pendaftaran Beasiswa",
-//       "deskripsi":
-//           "Pendaftaran beasiswa dibuka kembali hingga akhir bulan ini. Segera lengkapi berkas kamu!",
-//       "tanggal": DateTime(2025, 1, 25, 15, 30),
-//       "gambar": "assets/images/beasiswa.jpg",
-//     },
-//     {
-//       "judul": "Timeline Pendaftaran Beasiswa",
-//       "deskripsi":
-//           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum.",
-//       "tanggal": DateTime(2025, 1, 25, 15, 30),
-//       "gambar": "assets/images/beasiswa.png",
-//     },
-//     {
-//       "judul": "Timeline Pendaftaran Beasiswa",
-//       "deskripsi":
-//           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum.",
-//       "tanggal": DateTime(2025, 1, 25, 15, 30),
-//       "gambar": "assets/images/beasiswa.png",
-//     },
-//     {
-//       "judul": "Timeline Pendaftaran Beasiswa",
-//       "deskripsi":
-//           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum.",
-//       "tanggal": DateTime(2025, 1, 25, 15, 30),
-//       "gambar": "assets/images/students.png",
-//     },
-//   ];
-
-//   List<Map<String, dynamic>> get filteredPengumuman {
-//     if (_searchController.text.isEmpty) {
-//       return pengumumanList;
-//     }
-//     return pengumumanList
-//         .where((item) =>
-//             item["judul"]
-//                 .toLowerCase()
-//                 .contains(_searchController.text.toLowerCase()) ||
-//             item["deskripsi"]
-//                 .toLowerCase()
-//                 .contains(_searchController.text.toLowerCase()))
-//         .toList();
-//   }
-
-//   void _deletePengumuman(int index) {
-//     showDialog(
-//       context: context,
-//       builder: (context) => AlertDialog(
-//         backgroundColor: const Color(0xFF1C3C53),
-//         title: const Text(
-//           "Hapus Pengumuman",
-//           style: TextStyle(color: Colors.white),
-//         ),
-//         content: const Text(
-//           "Apakah Anda yakin ingin menghapus pengumuman ini?",
-//           style: TextStyle(color: Colors.white70),
-//         ),
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.pop(context),
-//             child: const Text("Batal"),
-//           ),
-//           ElevatedButton(
-//             onPressed: () {
-//               setState(() {
-//                 pengumumanList.removeAt(index);
-//               });
-//               Navigator.pop(context);
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 const SnackBar(
-//                   content: Text("Pengumuman berhasil dihapus"),
-//                   backgroundColor: Colors.green,
-//                 ),
-//               );
-//             },
-//             style: ElevatedButton.styleFrom(
-//               backgroundColor: Colors.red,
-//             ),
-//             child: const Text("Hapus"),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   void _editPengumuman(int index) {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => EditPengumumanPage(
-//           pengumuman: pengumumanList[index],
-//         ),
-//       ),
-//     ).then((value) {
-//       if (value != null) {
-//         setState(() {
-//           pengumumanList[index] = value;
-//         });
-//       }
-//     });
-//   }
-
-//   void _viewDetail(int index) {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => DetailPengumumanPage(
-//           pengumuman: pengumumanList[index],
-//         ),
-//       ),
-//     );
-//   }
-
-//   void _tambahPengumuman() {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => const TambahPengumumanPage(),
-//       ),
-//     ).then((value) {
-//       if (value != null) {
-//         setState(() {
-//           pengumumanList.add(value);
-//         });
-//       }
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFF365368),
-//       appBar: AppBar(
-//         backgroundColor: const Color(0xFF365368),
-//         title: const Text(
-//           "PENGUMUMAN",
-//           style: TextStyle(
-//             fontWeight: FontWeight.bold,
-//             fontSize: 16,
-//             color: Color(0xffE8E995),
-//           ),
-//         ),
-//         centerTitle: false,
-//         elevation: 0,
-//         leading: IconButton(
-//           icon: const Icon(Icons.arrow_back, color: Colors.yellowAccent),
-//           onPressed: () => Navigator.pop(context),
-//         ),
-//       ),
-//       body: Column(
-//         children: [
-//           // Header dengan icon grid dan circle
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 Container(
-//                   padding: const EdgeInsets.all(8),
-//                   decoration: BoxDecoration(
-//                     color: const Color(0xFF365368),
-//                     borderRadius: BorderRadius.circular(8),
-//                   ),
-//                   // child: const Icon(Icons.grid_3x3, color: Colors.white70),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           const SizedBox(height: 8),
-
-//           // Search bar
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16),
-//             child: TextField(
-//               controller: _searchController,
-//               style: const TextStyle(color: Colors.white),
-//               decoration: InputDecoration(
-//                 hintText: "Search Here ...",
-//                 hintStyle: const TextStyle(color: Colors.white54),
-//                 prefixIcon: const Icon(Icons.search, color: Colors.white54),
-//                 filled: true,
-//                 fillColor: Colors.white12,
-//                 border: OutlineInputBorder(
-//                   borderRadius: BorderRadius.circular(20),
-//                   borderSide: BorderSide.none,
-//                 ),
-//                 contentPadding: const EdgeInsets.symmetric(
-//                   horizontal: 16,
-//                   vertical: 10,
-//                 ),
-//               ),
-//               onChanged: (value) => setState(() {}),
-//             ),
-//           ),
-//           const SizedBox(height: 12),
-
-//           // Tombol Tambah
-//           Padding(
-//             padding: const EdgeInsets.only(right: 16),
-//             child: Align(
-//               alignment: Alignment.centerRight,
-//               child: ElevatedButton(
-//                 onPressed: _tambahPengumuman,
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: Colors.green,
-//                   padding: const EdgeInsets.symmetric(
-//                     horizontal: 28,
-//                     vertical: 10,
-//                   ),
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(20),
-//                   ),
-//                 ),
-//                 child: const Text(
-//                   "Tambah",
-//                   style: TextStyle(
-//                     color: Colors.white,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//           const SizedBox(height: 16),
-
-//           // Daftar pengumuman
-//           Expanded(
-//             child: filteredPengumuman.isEmpty
-//                 ? Center(
-//                     child: Column(
-//                       mainAxisAlignment: MainAxisAlignment.center,
-//                       children: [
-//                         Icon(
-//                           Icons.inbox,
-//                           size: 80,
-//                           color: Colors.white54,
-//                         ),
-//                         const SizedBox(height: 16),
-//                         const Text(
-//                           "Tidak ada pengumuman",
-//                           style: TextStyle(
-//                             color: Colors.white54,
-//                             fontSize: 16,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   )
-//                 : ListView.builder(
-//                     padding: const EdgeInsets.symmetric(horizontal: 16),
-//                     itemCount: filteredPengumuman.length,
-//                     itemBuilder: (context, index) {
-//                       final realIndex =
-//                           pengumumanList.indexOf(filteredPengumuman[index]);
-//                       final item = filteredPengumuman[index];
-//                       final tanggalFormatted =
-//                           DateFormat('dd MMMM yyyy', 'id_ID')
-//                               .format(item['tanggal']);
-//                       final waktuFormatted =
-//                           DateFormat('HH:mm', 'id_ID').format(item['tanggal']);
-
-//                       return GestureDetector(
-//                         onTap: () => _viewDetail(realIndex),
-//                         child: Container(
-//                           margin: const EdgeInsets.only(bottom: 12),
-//                           padding: const EdgeInsets.all(12),
-//                           decoration: BoxDecoration(
-//                             color: const Color(0xFF34495E),
-//                             borderRadius: BorderRadius.circular(12),
-//                           ),
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               // Tanggal dan action buttons
-//                               Row(
-//                                 children: [
-//                                   Expanded(
-//                                     child: Row(
-//                                       children: [
-//                                         const Icon(Icons.calendar_month,
-//                                             color: Color(0xff947979), size: 14),
-//                                         const SizedBox(width: 6),
-//                                         Text(
-//                                           "$tanggalFormatted pukul $waktuFormatted",
-//                                           style: const TextStyle(
-//                                               color: Color(0xff947979),
-//                                               fontSize: 11),
-//                                         ),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                   GestureDetector(
-//                                     onTap: () => _deletePengumuman(realIndex),
-//                                     child: Padding(
-//                                       padding: const EdgeInsets.symmetric(
-//                                           horizontal: 4),
-//                                       child: Image.asset(
-//                                         'assets/images/hapus.png',
-//                                         width: 18,
-//                                         height: 18,
-//                                         errorBuilder:
-//                                             (context, error, stackTrace) {
-//                                           return const Icon(Icons.delete,
-//                                               color: Colors.white70, size: 18);
-//                                         },
-//                                       ),
-//                                     ),
-//                                   ),
-//                                   GestureDetector(
-//                                     onTap: () => _editPengumuman(realIndex),
-//                                     child: Padding(
-//                                       padding: const EdgeInsets.symmetric(
-//                                           horizontal: 4),
-//                                       child: Image.asset(
-//                                         'assets/images/Edit.png',
-//                                         width: 18,
-//                                         height: 18,
-//                                         errorBuilder:
-//                                             (context, error, stackTrace) {
-//                                           return const Icon(Icons.edit,
-//                                               color: Colors.white70, size: 18);
-//                                         },
-//                                       ),
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                               const SizedBox(height: 8),
-
-//                               // Judul
-//                               Text(
-//                                 item["judul"],
-//                                 style: const TextStyle(
-//                                   color: Color(0xffE8E995),
-//                                   fontWeight: FontWeight.bold,
-//                                   fontSize: 14,
-//                                 ),
-//                               ),
-//                               const SizedBox(height: 4),
-
-//                               // Deskripsi
-//                               Text(
-//                                 item["deskripsi"],
-//                                 maxLines: 2,
-//                                 overflow: TextOverflow.ellipsis,
-//                                 style: const TextStyle(
-//                                     color: Colors.white70, fontSize: 12),
-//                               ),
-//                               const SizedBox(height: 8),
-
-//                               // Gambar (jika ada)
-//                               if (item["gambar"] != null)
-//                                 ClipRRect(
-//                                   borderRadius: BorderRadius.circular(8),
-//                                   child: Image.asset(
-//                                     item["gambar"],
-//                                     fit: BoxFit.cover,
-//                                     height: 120,
-//                                     width: double.infinity,
-//                                     errorBuilder: (context, error, stackTrace) {
-//                                       return Container(
-//                                         height: 120,
-//                                         color: Colors.grey[700],
-//                                         child: const Center(
-//                                             child: Icon(Icons.broken_image,
-//                                                 color: Colors.white70,
-//                                                 size: 40)),
-//                                       );
-//                                     },
-//                                   ),
-//                                 ),
-//                             ],
-//                           ),
-//                         ),
-//                       );
-//                     },
-//                   ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:SPMB/services/pengumuman_services.dart';
 import 'package:SPMB/models/pengumuman_models.dart';
+import 'package:SPMB/services/pengumuman_services.dart';
+import 'detail_pengumuman_page.dart';
 import 'tambah_pengumuman_page.dart';
 import 'edit_pengumuman_page.dart';
-import 'detail_pengumuman_page.dart';
 
 class AdminPengumumanPage extends StatefulWidget {
   const AdminPengumumanPage({super.key});
@@ -424,18 +16,16 @@ class AdminPengumumanPage extends StatefulWidget {
 
 class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
   final TextEditingController _searchController = TextEditingController();
-  final _service = PengumumanService();
-
   List<Pengumuman> pengumumanList = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchPengumuman();
+    _fetchPengumuman();
   }
 
-  Future<void> fetchPengumuman() async {
+  Future<void> _fetchPengumuman() async {
     try {
       final data = await PengumumanService.getSemuaPengumuman();
       setState(() {
@@ -443,180 +33,114 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
         isLoading = false;
       });
     } catch (e) {
-      print("Error fetchPengumuman: $e");
+      print("Error ambil pengumuman: $e");
       setState(() => isLoading = false);
     }
   }
 
   List<Pengumuman> get filteredPengumuman {
-    if (_searchController.text.isEmpty) return pengumumanList;
+    final query = _searchController.text.toLowerCase();
+    if (query.isEmpty) return pengumumanList;
     return pengumumanList
         .where((item) =>
-            item.judul
-                .toLowerCase()
-                .contains(_searchController.text.toLowerCase()) ||
-            item.isi
-                .toLowerCase()
-                .contains(_searchController.text.toLowerCase()))
+            item.judul.toLowerCase().contains(query) ||
+            item.isi.toLowerCase().contains(query))
         .toList();
   }
 
-  void _deletePengumuman(int index) async {
-    final pengumuman = pengumumanList[index];
-
-    final konfirmasi = await showDialog<bool>(
+  Future<void> _deletePengumuman(int id) async {
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1C3C53),
-        title: const Text(
-          "Hapus Pengumuman",
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
-          "Apakah Anda yakin ingin menghapus pengumuman ini?",
-          style: TextStyle(color: Colors.white70),
-        ),
+        title: const Text('Konfirmasi'),
+        content: const Text('Yakin ingin menghapus pengumuman ini?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("Batal"),
+            child: const Text('Batal'),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text("Hapus"),
+            child: const Text('Hapus'),
           ),
         ],
       ),
     );
 
-    // Jika user menekan "Batal" atau keluar dari dialog
-    if (konfirmasi != true) return;
-
-    try {
-      final success = await PengumumanService.deletePengumuman(pengumuman.id);
-
-      if (!mounted) return;
-
+    if (confirm == true) {
+      final success = await PengumumanService.deletePengumuman(id);
       if (success) {
         setState(() {
-          pengumumanList.removeAt(index);
+          pengumumanList.removeWhere((item) => item.id == id);
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Pengumuman berhasil dihapus"),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Pengumuman berhasil dihapus')),
+          );
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Gagal menghapus pengumuman (server error)"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Gagal menghapus pengumuman')),
+          );
+        }
       }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Terjadi kesalahan saat menghapus pengumuman."),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
-  // void _deletePengumuman(int index) {
-  //   final pengumuman = pengumumanList[index];
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       backgroundColor: const Color(0xFF1C3C53),
-  //       title: const Text(
-  //         "Hapus Pengumuman",
-  //         style: TextStyle(color: Colors.white),
-  //       ),
-  //       content: const Text(
-  //         "Apakah Anda yakin ingin menghapus pengumuman ini?",
-  //         style: TextStyle(color: Colors.white70),
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text("Batal"),
-  //         ),
-  //         ElevatedButton(
-  //           onPressed: () async {
-  //             Navigator.pop(context);
-  //             try {
-  //               final success =
-  //                   await PengumumanService.deletePengumuman(pengumuman.id);
-  //               if (success) {
-  //                 setState(() {
-  //                   pengumumanList.removeAt(index);
-  //                 });
-  //                 if (mounted) {
-  //                   ScaffoldMessenger.of(context).showSnackBar(
-  //                     const SnackBar(
-  //                       content: Text("Pengumuman berhasil dihapus"),
-  //                       backgroundColor: Colors.green,
-  //                     ),
-  //                   );
-  //                 }
-  //               } else {
-  //                 ScaffoldMessenger.of(context).showSnackBar(
-  //                   const SnackBar(
-  //                     content:
-  //                         Text("Gagal menghapus pengumuman (server error)"),
-  //                     backgroundColor: Colors.red,
-  //                   ),
-  //                 );
-  //               }
-  //             } catch (e) {
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 SnackBar(
-  //                   content: Text("Terjadi kesalahan: $e"),
-  //                 ),
-  //               );
-  //             }
-  //           },
-  //           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-  //           child: const Text("Hapus"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // void _editPengumuman(int index) async {
-  //   final result = await Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) =>
-  //           EditPengumumanPage(pengumuman: pengumumanList[index]),
-  //     ),
-  //   );
-
-  //   if (result == true) fetchPengumuman();
-  // }
-
-  void _viewDetail(int index) {
-    final item = pengumumanList[index];
-    Navigator.push(
+  void _editPengumuman(int id) async {
+    final pengumuman = pengumumanList.firstWhere((e) => e.id == id);
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailPengumumanPage(pengumuman: item),
+        builder: (_) => EditPengumumanPage(
+          pengumuman: {
+            'id': pengumuman.id,
+            'judul': pengumuman.judul,
+            'deskripsi': pengumuman.isi,
+            'gambar': pengumuman.gambar.isNotEmpty ? pengumuman.gambar : null,
+          },
+        ),
       ),
     );
+    // if (result == true) _fetchPengumuman();
+    if (result is Pengumuman) {
+      setState(() {
+        final index = pengumumanList.indexWhere((p) => p.id == result.id);
+        if (index != -1) pengumumanList[index] = result;
+      });
+    }
   }
 
   void _tambahPengumuman() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const TambahPengumumanPage()),
+      MaterialPageRoute(builder: (_) => const TambahPengumumanPage()),
     );
-    if (result == true) fetchPengumuman();
+    if (result == true) _fetchPengumuman();
+  }
+
+  // void _viewDetail(Pengumuman data) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (_) => DetailPengumumanPage(pengumuman: data),
+  //     ),
+  //   );
+  void _viewDetail(Pengumuman data) async {
+    final updated = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailPengumumanPage(pengumuman: data),
+      ),
+    );
+
+    if (updated != null && updated is Pengumuman) {
+      setState(() {
+        final index = pengumumanList.indexWhere((p) => p.id == updated.id);
+        if (index != -1) pengumumanList[index] = updated;
+      });
+    }
   }
 
   @override
@@ -626,20 +150,20 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF365368),
         title: const Text(
-          "PENGUMUMAN",
+          "PENGUMUMAN ADMIN",
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: Color(0xffE8E995),
-          ),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Color(0xffE8E995)),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.yellowAccent),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Color(0xffE8E995)),
+          onPressed: () => Navigator.pop(context, true),
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.yellow))
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xffE8E995)))
           : Column(
               children: [
                 Padding(
@@ -649,7 +173,7 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
                     controller: _searchController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: "Search Here ...",
+                      hintText: "Cari pengumuman...",
                       hintStyle: const TextStyle(color: Colors.white54),
                       prefixIcon:
                           const Icon(Icons.search, color: Colors.white54),
@@ -660,7 +184,7 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    onChanged: (value) => setState(() {}),
+                    onChanged: (v) => setState(() {}),
                   ),
                 ),
                 Padding(
@@ -680,13 +204,12 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
                       child: const Text(
                         "Tambah",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
                 Expanded(
                   child: filteredPengumuman.isEmpty
                       ? const Center(
@@ -703,85 +226,136 @@ class _AdminPengumumanPageState extends State<AdminPengumumanPage> {
                             final item = filteredPengumuman[index];
                             final tanggal = DateFormat('dd MMM yyyy')
                                 .format(DateTime.parse(item.tanggal));
-
                             return GestureDetector(
-                              onTap: () => _viewDetail(index),
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF34495E),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Row(
-                                            children: [
-                                              const Icon(Icons.calendar_month,
-                                                  color: Color(0xff947979),
-                                                  size: 14),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                tanggal,
-                                                style: const TextStyle(
+                                onTap: () => _viewDetail(item),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF34495E),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  // ),
+                                  // return Container(
+                                  //   margin: const EdgeInsets.only(bottom: 12),
+                                  //   padding: const EdgeInsets.all(12),
+                                  //   decoration: BoxDecoration(
+                                  //     color: const Color(0xFF34495E),
+                                  //     borderRadius: BorderRadius.circular(12),
+                                  //   ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.calendar_month,
                                                     color: Color(0xff947979),
-                                                    fontSize: 11),
+                                                    size: 14),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  tanggal,
+                                                  style: const TextStyle(
+                                                      color: Color(0xff947979),
+                                                      fontSize: 11),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () =>
+                                                _deletePengumuman(item.id),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4),
+                                              child: Image.asset(
+                                                'assets/images/hapus.png',
+                                                width: 18,
+                                                height: 18,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return const Icon(
+                                                      Icons.delete,
+                                                      color: Colors.white70,
+                                                      size: 18);
+                                                },
                                               ),
-                                            ],
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () =>
+                                                _editPengumuman(item.id),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4),
+                                              child: Image.asset(
+                                                'assets/images/Edit.png',
+                                                width: 18,
+                                                height: 18,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return const Icon(Icons.edit,
+                                                      color: Colors.white70,
+                                                      size: 18);
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          // IconButton(
+                                          //   icon: const Icon(Icons.delete,
+                                          //       color: Colors.red, size: 18),
+                                          //   onPressed: () =>
+                                          //       _deletePengumuman(item.id),
+                                          // ),
+                                          // IconButton(
+                                          //   icon: const Icon(Icons.delete,
+                                          //       color: Colors.red, size: 18),
+                                          //   onPressed: () =>
+                                          //       _deletePengumuman(item.id),
+                                          // ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        item.judul,
+                                        style: const TextStyle(
+                                          color: Color(0xffE8E995),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        item.isi,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      if (item.gambar.isNotEmpty)
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Image.memory(
+                                            base64Decode(item.gambar),
+                                            fit: BoxFit.cover,
+                                            height: 120,
+                                            width: double.infinity,
+                                            errorBuilder: (_, __, ___) =>
+                                                const Icon(Icons.broken_image,
+                                                    color: Colors.white54),
                                           ),
                                         ),
-                                        GestureDetector(
-                                          onTap: () => _deletePengumuman(index),
-                                          child: const Icon(Icons.delete,
-                                              color: Colors.red, size: 18),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        // GestureDetector(
-                                        //   onTap: () => (),
-                                        //   child: const Icon(Icons.edit,
-                                        //       color: Colors.white70, size: 18),
-                                        // ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      item.judul,
-                                      style: const TextStyle(
-                                        color: Color(0xffE8E995),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      item.isi,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                          color: Colors.white70, fontSize: 12),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    if (item.gambar.isNotEmpty)
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Image.memory(
-                                          base64Decode(item.gambar),
-                                          fit: BoxFit.cover,
-                                          height: 120,
-                                          width: double.infinity,
-                                          errorBuilder: (_, __, ___) =>
-                                              const Icon(Icons.broken_image,
-                                                  color: Colors.white54),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            );
+                                    ],
+                                  ),
+                                ));
                           },
                         ),
                 ),
