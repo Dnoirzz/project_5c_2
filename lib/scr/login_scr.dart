@@ -188,6 +188,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 // 🔹 Simpan data user ke SharedPreferences
                                 final prefs =
                                     await SharedPreferences.getInstance();
+                                await prefs.setInt(
+                                    'user_id', user['id_pengguna']);
                                 await prefs.setString(
                                     'user_email', user['email'] ?? '');
                                 await prefs.setString('user_nama_lengkap',

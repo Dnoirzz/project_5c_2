@@ -12,23 +12,24 @@ class FormulirService {
     required Map<int, Map<String, dynamic>> allFormData,
   }) async {
     try {
-      // 🔹 Ambil user_id dari SharedPreferences
+      // 🔹 Ambil ID pengguna yang tersimpan
       final prefs = await SharedPreferences.getInstance();
       final storedId = prefs.getInt('user_id') ?? 0;
       userId = (userId == null || userId == 0) ? storedId : userId;
 
       if (userId == 0) {
-        print(" [WARNING] userId tidak valid ($userId). Silakan login ulang.");
+        print("[ERROR] userId tidak valid");
         return {
           'status': 'error',
-          'message': 'User ID tidak valid. Silakan login ulang.',
+          'message': 'User ID tidak valid. Silakan login ulang.'
         };
       }
 
+      // 🔹 Endpoint upload
       final url = Uri.parse('$baseUrl/upload_final.php');
-      print(" [DEBUG] userId yang dikirim: $userId");
 
-      Map<String, dynamic> payload = {
+      // 🔹 Data JSON dikirim ke PHP
+      final Map<String, dynamic> bodyData = {
         'user_id': userId,
         'page_0': allFormData[0] ?? {},
         'page_1': allFormData[1] ?? {},
@@ -36,28 +37,39 @@ class FormulirService {
         'page_3': allFormData[3] ?? {},
       };
 
-      print(" [DEBUG] Mengirim data ke server: ${jsonEncode(payload)}");
+      print("[DEBUG] Body data yang dikirim: ${jsonEncode(bodyData)}");
 
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(bodyData),
       );
 
-      print(" [DEBUG] Response server: ${response.body}");
+      print("[DEBUG] HTTP Status: ${response.statusCode}");
+      print("[DEBUG] Response body: ${response.body}");
 
+      // 🔹 Pastikan response JSON valid
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        try {
+          return jsonDecode(response.body);
+        } catch (e) {
+          print("[ERROR] Gagal decode JSON: $e");
+          return {
+            'status': 'error',
+            'message': 'Respon server bukan JSON valid.'
+          };
+        }
       } else {
         return {
           'status': 'error',
           'message': 'HTTP Error: ${response.statusCode}',
-          'body': response.body,
         };
       }
     } catch (e) {
-      print("❌ Error di uploadFinal: $e");
-      return {'status': 'error', 'message': 'Network error: $e'};
+      print("[EXCEPTION] $e");
+      return {'status': 'error', 'message': e.toString()};
     }
   }
 
