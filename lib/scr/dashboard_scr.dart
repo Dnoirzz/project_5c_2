@@ -997,11 +997,70 @@ class _DashboardPageState extends State<DashboardPage> {
 //                 ],
 //               ),
 //             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 5),
+            Card(
+              elevation: 4,
+              color: const Color(0xFFFFF8E1), // kuning lembut
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.assignment_outlined,
+                            color: Colors.orangeAccent),
+                        SizedBox(width: 8),
+                        Text(
+                          'Informasi Deadline Pendaftaran',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '⏰ Pendaftaran tinggal 5 hari lagi!',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      '📅 Periode: 25 Oktober - 30 Oktober 2025',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      '⚠️ Jika kalian melewati batas tersebut maka formulir pendaftaran tidak akan berfungsi!',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 5),
 
             // Progress Pendaftaran
             Card(
               elevation: 2,
+              color: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
               child: InkWell(
@@ -1082,7 +1141,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 5),
 
             // 🔹 Pengumuman section
             _buildPengumumanSection(context),

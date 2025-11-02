@@ -58,10 +58,38 @@ class _ProfileMainState extends State<ProfileMain>
     await _fetchDataMahasiswa();
   }
 
+  // Future<void> _fetchDataMahasiswa() async {
+  //   try {
+  //     final data =
+  //         await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+
+  //     setState(() {
+  //       _dataMahasiswa = data;
+  //     });
+
+  //     if (_dataMahasiswa != null) {
+  //       await _fetchDataAkademik(_dataMahasiswa!.idMahasiswa);
+  //       await _fetchDataOrangTua(_dataMahasiswa!.idMahasiswa);
+  //       await _fetchDataDokumen(_dataMahasiswa!.idMahasiswa);
+  //     }
+
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       _isLoading = false;
+  //       errorMessage = e.toString();
+  //     });
+  //   }
+  // }
+
   Future<void> _fetchDataMahasiswa() async {
     try {
       final data =
           await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+          print("✅ Data Mahasiswa Ditemukan: ${data.idMahasiswa}");
+
 
       setState(() {
         _dataMahasiswa = data;
@@ -72,14 +100,24 @@ class _ProfileMainState extends State<ProfileMain>
         await _fetchDataOrangTua(_dataMahasiswa!.idMahasiswa);
         await _fetchDataDokumen(_dataMahasiswa!.idMahasiswa);
       }
-
-      setState(() {
-        _isLoading = false;
-      });
     } catch (e) {
+      // Jika data tidak ditemukan, kosongkan tanpa menampilkan error di layar
+      if (e.toString().contains("Data mahasiswa tidak ditemukan")) {
+        setState(() {
+          _dataMahasiswa = null;
+          _dataAkademik = [];
+          _dataOrangtua = [];
+          _dataDokumen = [];
+          errorMessage = null;
+        });
+      } else {
+        setState(() {
+          errorMessage = e.toString();
+        });
+      }
+    } finally {
       setState(() {
         _isLoading = false;
-        errorMessage = e.toString();
       });
     }
   }
@@ -146,7 +184,16 @@ class _ProfileMainState extends State<ProfileMain>
                     children: [
                       _buildProfileHeader(),
                       _buildTabNavigation(),
+                      if (errorMessage != null)
+                        const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Text(
+                            'Data belum tersedia. Silakan lengkapi pendaftaran Anda.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
                       _buildCurrentTabContent(),
+                      // _buildCurrentTabContent(),
                     ],
                   ),
                 ),
@@ -154,34 +201,121 @@ class _ProfileMainState extends State<ProfileMain>
   }
 
   Widget _buildCurrentTabContent() {
-    if (_dataMahasiswa == null) {
-      return const Center(child: Text('Data tidak ditemukan'));
-    }
-
     switch (_tabController.index) {
       case 0:
-        return DataPribadiTab(
-          dataPribadi: {
-            'nama_lengkap': _dataMahasiswa!.namaLengkap,
-            'nik': _dataMahasiswa!.nik,
-            'tempat_lahir': _dataMahasiswa!.tempatLahir,
-            'tanggal_lahir': _dataMahasiswa!.tanggalLahir,
-            'jenis_kelamin': _dataMahasiswa!.jenisKelamin,
-            'agama': _dataMahasiswa!.agama,
-            'no_hp': _dataMahasiswa!.noHp,
-            'email': _dataMahasiswa!.email,
-            'alamat': _dataMahasiswa!.alamatMahasiswa,
-            'provinsi': _dataMahasiswa!.namaProvinsi,
-            'kota': _dataMahasiswa!.namaKabupaten,
-            'kecamatan': _dataMahasiswa!.namaKecamatan,
-            'kelurahan': _dataMahasiswa!.namaKelurahan,
-            'kode_pos': _dataMahasiswa!.kodePos,
-          },
-        );
+        // case 0:
+        //   if (_dataMahasiswa == null) {
+        //     return const Center(
+        //       child: Padding(
+        //         padding: EdgeInsets.all(16),
+        //         child: Text(
+        //           'Data pribadi belum tersedia karena kamu belum melakukan pendaftaran.',
+        //           textAlign: TextAlign.center,
+        //           style: TextStyle(color: Colors.grey),
+        //         ),
+        //       ),
+        //     );
+        //   }
 
+        // return DataPribadiTab(
+        //   dataPribadi: {
+        //     'nama_lengkap': _dataMahasiswa!.namaLengkap,
+        //     'nik': _dataMahasiswa!.nik,
+        //     'tempat_lahir': _dataMahasiswa!.tempatLahir,
+        //     'tanggal_lahir': _dataMahasiswa!.tanggalLahir,
+        //     'jenis_kelamin': _dataMahasiswa!.jenisKelamin,
+        //     'agama': _dataMahasiswa!.agama,
+        //     'no_hp': _dataMahasiswa!.noHp,
+        //     'email': _dataMahasiswa!.email,
+        //     'alamat': _dataMahasiswa!.alamatMahasiswa,
+        //     'provinsi': _dataMahasiswa!.namaProvinsi,
+        //     'kota': _dataMahasiswa!.namaKabupaten,
+        //     'kecamatan': _dataMahasiswa!.namaKecamatan,
+        //     'kelurahan': _dataMahasiswa!.namaKelurahan,
+        //     'kode_pos': _dataMahasiswa!.kodePos,
+        //   },
+        // );
+
+        // dataPribadi:
+        // _dataMahasiswa == null
+        //     ? {
+        //         'nama_lengkap': '',
+        //         'nik': '',
+        //         'tempat_lahir': '',
+        //         'tanggal_lahir': '',
+        //         'jenis_kelamin': '',
+        //         'agama': '',
+        //         'no_hp': '',
+        //         'email': '',
+        //         'alamat': '',
+        //         'provinsi': '',
+        //         'kota': '',
+        //         'kecamatan': '',
+        //         'kelurahan': '',
+        //         'kode_pos': '',
+        //       }
+        //     : (
+        //         dataPribadi: {
+        //           'nama_lengkap': _dataMahasiswa!.namaLengkap,
+        //           'nik': _dataMahasiswa!.nik,
+        //           'tempat_lahir': _dataMahasiswa!.tempatLahir,
+        //           'tanggal_lahir': _dataMahasiswa!.tanggalLahir,
+        //           'jenis_kelamin': _dataMahasiswa!.jenisKelamin,
+        //           'agama': _dataMahasiswa!.agama,
+        //           'no_hp': _dataMahasiswa!.noHp,
+        //           'email': _dataMahasiswa!.email,
+        //           'alamat': _dataMahasiswa!.alamatMahasiswa,
+        //           'provinsi': _dataMahasiswa!.namaProvinsi,
+        //           'kota': _dataMahasiswa!.namaKabupaten,
+        //           'kecamatan': _dataMahasiswa!.namaKecamatan,
+        //           'kelurahan': _dataMahasiswa!.namaKelurahan,
+        //           'kode_pos': _dataMahasiswa!.kodePos,
+        //         },
+        //       );
+        return DataPribadiTab(
+          dataPribadi: _dataMahasiswa == null
+              ? {
+                  'nama_lengkap': '',
+                  'nik': '',
+                  'tempat_lahir': '',
+                  'tanggal_lahir': '',
+                  'jenis_kelamin': '',
+                  'agama': '',
+                  'no_hp': '',
+                  'email': '',
+                  'alamat': '',
+                  'provinsi': '',
+                  'kota': '',
+                  'kecamatan': '',
+                  'kelurahan': '',
+                  'kode_pos': '',
+                }
+              : {
+                  'nama_lengkap': _dataMahasiswa!.namaLengkap,
+                  'nik': _dataMahasiswa!.nik,
+                  'tempat_lahir': _dataMahasiswa!.tempatLahir,
+                  'tanggal_lahir': _dataMahasiswa!.tanggalLahir,
+                  'jenis_kelamin': _dataMahasiswa!.jenisKelamin,
+                  'agama': _dataMahasiswa!.agama,
+                  'no_hp': _dataMahasiswa!.noHp,
+                  'email': _dataMahasiswa!.email,
+                  'alamat': _dataMahasiswa!.alamatMahasiswa,
+                  'provinsi': _dataMahasiswa!.namaProvinsi,
+                  'kota': _dataMahasiswa!.namaKabupaten,
+                  'kecamatan': _dataMahasiswa!.namaKecamatan,
+                  'kelurahan': _dataMahasiswa!.namaKelurahan,
+                  'kode_pos': _dataMahasiswa!.kodePos,
+                },
+        );
       case 1:
         return _dataAkademik == null || _dataAkademik!.isEmpty
-            ? const Center(child: Text('Data akademik belum tersedia'))
+            ? InformasiAkademikTab(dataAkademik: {
+                'asal_sekolah': '',
+                'tahun_lulus': '',
+                'nilai_rata_rata': '',
+                'nama_jurusan': '',
+                'nama_prodi': '',
+              })
             : InformasiAkademikTab(dataAkademik: {
                 'asal_sekolah': _dataAkademik![0].asalSekolah,
                 'tahun_lulus': _dataAkademik![0].tahunLulus,
@@ -191,23 +325,35 @@ class _ProfileMainState extends State<ProfileMain>
               });
 
       case 2:
-        if (_dataOrangtua == null) {
-          return const Center(child: Text('Data orang tua belum tersedia'));
-        }
-        return DataOrtuTab(dataOrangTua: {
-          'nama_ayah': _dataOrangtua![0].namaAyah,
-          'nik_ayah': _dataOrangtua![0].nikAyah,
-          'pekerjaan_ayah': _dataOrangtua![0].pekerjaanAyah,
-          'nohp_ayah': _dataOrangtua![0].noHpAyah,
-          'penghasilan_ayah': _dataOrangtua![0].penghasilanAyah,
-          'alamat_ayah': _dataOrangtua![0].alamatAyah,
-          'nama_ibu': _dataOrangtua![0].namaIbu,
-          'nik_ibu': _dataOrangtua![0].nikIbu,
-          'pekerjaan_ibu': _dataOrangtua![0].pekerjaanIbu,
-          'nohp_ibu': _dataOrangtua![0].noHpIbu,
-          'penghasilan_ibu': _dataOrangtua![0].penghasilanIbu,
-          'alamat_ibu': _dataOrangtua![0].alamatIbu,
-        });
+        return _dataOrangtua == null || _dataOrangtua!.isEmpty
+            ? DataOrtuTab(dataOrangTua: {
+                'nama_ayah': '',
+                'nik_ayah': '',
+                'pekerjaan_ayah': '',
+                'nohp_ayah': '',
+                'penghasilan_ayah': '',
+                'alamat_ayah': '',
+                'nama_ibu': '',
+                'nik_ibu': '',
+                'pekerjaan_ibu': '',
+                'nohp_ibu': '',
+                'penghasilan_ibu': '',
+                'alamat_ibu': '',
+              })
+            : DataOrtuTab(dataOrangTua: {
+                'nama_ayah': _dataOrangtua![0].namaAyah,
+                'nik_ayah': _dataOrangtua![0].nikAyah,
+                'pekerjaan_ayah': _dataOrangtua![0].pekerjaanAyah,
+                'nohp_ayah': _dataOrangtua![0].noHpAyah,
+                'penghasilan_ayah': _dataOrangtua![0].penghasilanAyah,
+                'alamat_ayah': _dataOrangtua![0].alamatAyah,
+                'nama_ibu': _dataOrangtua![0].namaIbu,
+                'nik_ibu': _dataOrangtua![0].nikIbu,
+                'pekerjaan_ibu': _dataOrangtua![0].pekerjaanIbu,
+                'nohp_ibu': _dataOrangtua![0].noHpIbu,
+                'penghasilan_ibu': _dataOrangtua![0].penghasilanIbu,
+                'alamat_ibu': _dataOrangtua![0].alamatIbu,
+              });
 
       case 3:
         // return const DokumenTab();
