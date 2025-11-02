@@ -69,27 +69,80 @@
 //     }
 //   }
 // }
+// import 'dart:convert';
+// import '../../models/pengumuman_models.dart';
+// import 'package:http/http.dart' as http;
+
+// class PengumumanService {
+//   static const String baseUrl = "http://44.220.144.82/api";
+
+//   static Future<List<Pengumuman>> getSemuaPengumuman() async {
+//     final url = Uri.parse("$baseUrl/get_pengumuman_mahasiswa.php");
+//     final response = await http.get(url);
+
+//     if (response.statusCode == 200) {
+//       final body = json.decode(response.body);
+//       if (body["success"] == true) {
+//         final List data = body["data"];
+//         return data.map((e) => Pengumuman.fromJson(e)).toList();
+//       } else {
+//         throw Exception("Gagal: ${body["message"]}");
+//       }
+//     } else {
+//       throw Exception("Gagal memuat data pengumuman");
+//     }
+//   }
+// }
 import 'dart:convert';
-import '../../models/pengumuman_models.dart';
 import 'package:http/http.dart' as http;
+import '../models/pengumuman_models.dart';
 
 class PengumumanService {
   static const String baseUrl = "http://44.220.144.82/api";
 
   static Future<List<Pengumuman>> getSemuaPengumuman() async {
-    final url = Uri.parse("$baseUrl/get_pengumuman_mahasiswa.php");
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final body = json.decode(response.body);
-      if (body["success"] == true) {
-        final List data = body["data"];
-        return data.map((e) => Pengumuman.fromJson(e)).toList();
-      } else {
-        throw Exception("Gagal: ${body["message"]}");
+    try {
+      final res = await http.get(Uri.parse("$baseUrl/get_pengumuman.php"));
+      if (res.statusCode == 200) {
+        final body = jsonDecode(res.body);
+        if (body['success'] == true && body['data'] != null) {
+          return (body['data'] as List)
+              .map((e) => Pengumuman.fromJson(e))
+              .toList();
+        }
       }
-    } else {
-      throw Exception("Gagal memuat data pengumuman");
+      return [];
+    } catch (e) {
+      print("❌ Error getSemuaPengumuman: $e");
+      return [];
+    }
+  }
+
+  static Future<bool> deletePengumuman(String id) async {
+    try {
+      final res = await http.post(
+        Uri.parse("$baseUrl/delete_pengumuman.php"),
+        body: {'id': id},
+      );
+      final body = jsonDecode(res.body);
+      return body['success'] == true;
+    } catch (e) {
+      print("❌ Error deletePengumuman: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> tambahPengumuman(Map<String, dynamic> data) async {
+    try {
+      final res = await http.post(
+        Uri.parse("$baseUrl/tambah_pengumuman.php"),
+        body: data,
+      );
+      final body = jsonDecode(res.body);
+      return body['success'] == true;
+    } catch (e) {
+      print("❌ Error tambahPengumuman: $e");
+      return false;
     }
   }
 }
