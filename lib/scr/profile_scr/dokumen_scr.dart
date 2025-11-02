@@ -1,5 +1,4 @@
 // ignore_for_file: unnecessary_to_list_in_spreads, deprecated_member_use
-
 import 'package:flutter/material.dart';
 import '../../models/dataDokumen_models.dart';
 
@@ -49,19 +48,19 @@ class DokumenTab extends StatelessWidget {
               final isVerified = status == 'verifikasi';
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isVerified ? Colors.green.shade50 : Colors.red.shade50,
-                  border: Border.all(
-                    color: isVerified
-                        ? Colors.green.shade300
-                        : Colors.red.shade300,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color:
+                        isVerified ? Colors.green.shade50 : Colors.red.shade50,
+                    border: Border.all(
+                      color: isVerified
+                          ? Colors.green.shade300
+                          : Colors.red.shade300,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
+                  child: Row(children: [
                     Icon(
                       isVerified ? Icons.check_circle : Icons.cancel,
                       color: isVerified ? Colors.green : Colors.red,
@@ -83,15 +82,36 @@ class DokumenTab extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        // TODO: buka atau unduh file
-                      },
                       icon: const Icon(Icons.visibility,
                           color: Color(0xFF4F6C7A)),
+                      onPressed: () {
+                        final String baseUrl = "http://44.220.144.82/api/";
+                        final String filePath =
+                            doc.pathFile.replaceAll(r"\", "/");
+                        final String fullUrl = baseUrl + filePath;
+
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text(doc.jenisDokumen),
+                            content: Image.network(
+                              fullUrl,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Text("Gagal memuat gambar");
+                              },
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Tutup"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
-              );
+                  ]));
             }).toList(),
         ],
       ),
