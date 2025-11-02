@@ -334,3 +334,2503 @@ RESET Password
                       //     ),
                       //   // ),
                       // // ),
+
+
+PENGUMUMAN
+// // import 'package:flutter/material.dart';
+// // import 'detail_pengumuman.dart';
+// // import '../../widgets/app_bar.dart';
+
+// // // Tambahkan/eksport variabel pengumumanList sehingga bisa digunakan dari file lain
+// // const List<Map<String, String>> pengumumanList = [
+// //   {
+// //     'kategori': 'Pendaftaran',
+// //     'judul': 'Batas Waktu Pendaftaran Diperpanjang',
+// //     'tanggal': '25 Januari 2025 | 20:30',
+// //     'deskripsi':
+// //         'Batas waktu pendaftaran maksimal 25 Januari 2025. Pastikan Anda melengkapi semua berkas.',
+// //     'gambar': 'assets/images/pengumuman.jpg',
+// //   },
+// //   {
+// //     'kategori': 'Akademik',
+// //     'judul': 'Jadwal Kuliah Semester Genap',
+// //     'tanggal': '10 Februari 2025 | 08:00',
+// //     'deskripsi':
+// //         'Jadwal kuliah semester genap tahun ajaran 2024/2025 telah dirilis. Silakan cek portal akademik masing-masing.',
+// //   },
+// // ];
+
+// // class PengumumanPage extends StatelessWidget {
+// //   const PengumumanPage({super.key});
+
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return Scaffold(
+// //       appBar: CustomAppBar(
+// //         title: 'Pengumuman',
+// //         showBackButton: true,
+// //         showProfileMenu: true,
+// //         currentPage: 'pengumuman',
+// //       ),
+// //       body: Padding(
+// //         padding: const EdgeInsets.all(12.0),
+// //         child: Column(
+// //           children: [
+// //             // 🔍 Search Field
+// //             TextField(
+// //               decoration: InputDecoration(
+// //                 prefixIcon: const Icon(Icons.search),
+// //                 hintText: 'Search',
+// //                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
+// //                 border: OutlineInputBorder(
+// //                   borderRadius: BorderRadius.circular(8),
+// //                 ),
+// //               ),
+// //             ),
+// //             const SizedBox(height: 10),
+
+// //             // 📋 Daftar Pengumuman
+// //             Expanded(
+// //               child: ListView.builder(
+// //                 itemCount: pengumumanList.length,
+// //                 itemBuilder: (context, index) {
+// //                   final item = pengumumanList[index];
+
+// //                   return InkWell(
+// //                     onTap: () {
+// //                       Navigator.push(
+// //                         context,
+// //                         MaterialPageRoute(
+// //                           builder: (context) => DetailPengumumanPage(
+// //                             judul: item['judul']!,
+// //                             tanggal: item['tanggal']!,
+// //                             deskripsi: item['deskripsi']!,
+// //                             gambar: item['gambar'], // dikirim ke halaman detail
+// //                           ),
+// //                         ),
+// //                       );
+// //                     },
+// //                     child: Card(
+// //                       shape: RoundedRectangleBorder(
+// //                         borderRadius: BorderRadius.circular(12),
+// //                       ),
+// //                       margin: const EdgeInsets.only(bottom: 12),
+// //                       elevation: 2,
+// //                       child: Padding(
+// //                         padding: const EdgeInsets.all(12.0),
+// //                         child: Column(
+// //                           crossAxisAlignment: CrossAxisAlignment.start,
+// //                           children: [
+// //                             // Judul
+// //                             Text(
+// //                               item['judul']!,
+// //                               style: const TextStyle(
+// //                                 fontSize: 16,
+// //                                 fontWeight: FontWeight.bold,
+// //                               ),
+// //                             ),
+// //                             const SizedBox(height: 4),
+
+// //                             // Tanggal
+// //                             Row(
+// //                               children: [
+// //                                 const Icon(Icons.calendar_today,
+// //                                     size: 14, color: Colors.grey),
+// //                                 const SizedBox(width: 4),
+// //                                 Text(
+// //                                   item['tanggal']!,
+// //                                   style: const TextStyle(
+// //                                       fontSize: 12, color: Colors.grey),
+// //                                 ),
+// //                               ],
+// //                             ),
+
+// //                             const SizedBox(height: 8),
+
+// //                             // Deskripsi ringkas
+// //                             Text(
+// //                               item['deskripsi']!,
+// //                               maxLines: 2,
+// //                               overflow: TextOverflow.ellipsis,
+// //                               style: const TextStyle(fontSize: 13),
+// //                             ),
+// //                           ],
+// //                         ),
+// //                       ),
+// //                     ),
+// //                   );
+// //                 },
+// //               ),
+// //             ),
+// //           ],
+// //         ),
+// //       ),
+// //     );
+// //   }
+// // }
+// import 'dart:convert';
+// import 'package:SPMB/models/pengumuman_models.dart';
+// import 'package:SPMB/services/pengumuman_services.dart';
+// import 'package:flutter/material.dart';
+// import '../../widgets/app_bar.dart';
+// import 'detail_pengumuman.dart';
+
+// class PengumumanPage extends StatefulWidget {
+//   const PengumumanPage({super.key});
+
+//   @override
+//   State<PengumumanPage> createState() => _PengumumanPageState();
+// }
+
+// class _PengumumanPageState extends State<PengumumanPage> {
+//   late Future<List<Pengumuman>> futurePengumuman;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     futurePengumuman = PengumumanService.getSemuaPengumuman();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: CustomAppBar(
+//         title: 'Pengumuman',
+//         showBackButton: true,
+//         showProfileMenu: true,
+//         currentPage: 'pengumuman',
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(12.0),
+//         child: Column(
+//           children: [
+//             TextField(
+//               decoration: InputDecoration(
+//                 prefixIcon: const Icon(Icons.search),
+//                 hintText: 'Search',
+//                 border: OutlineInputBorder(
+//                   borderRadius: BorderRadius.circular(8),
+//                 ),
+//               ),
+//             ),
+//             const SizedBox(height: 10),
+//             Expanded(
+//               child: FutureBuilder<List<Pengumuman>>(
+//                 future: futurePengumuman,
+//                 builder: (context, snapshot) {
+//                   if (snapshot.connectionState == ConnectionState.waiting) {
+//                     return const Center(child: CircularProgressIndicator());
+//                   } else if (snapshot.hasError) {
+//                     return Center(child: Text("Error: ${snapshot.error}"));
+//                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+//                     return const Center(child: Text("Belum ada pengumuman"));
+//                   }
+
+//                   final data = snapshot.data!;
+//                   return ListView.builder(
+//                     itemCount: data.length,
+//                     itemBuilder: (context, index) {
+//                       final item = data[index];
+//                       return InkWell(
+//                         onTap: () {
+//                           // Navigator.push(
+//                           //   context,
+//                           //   MaterialPageRoute(
+//                           //     builder: (context) => DetailPengumumanPage(
+//                           //       judul: item.judul,
+//                           //       tanggal: item.tanggal,
+//                           //       deskripsi: item.isi,
+//                           //       gambar: item.gambar,
+//                           //     ),
+//                           //   ),
+//                           // );
+//                           Navigator.push(
+//                             context,
+//                             MaterialPageRoute(
+//                               builder: (context) =>
+//                                   DetailPengumumanPage(Pengumuman: item),
+//                             ),
+//                           );
+//                         },
+//                         child: Card(
+//                           shape: RoundedRectangleBorder(
+//                             borderRadius: BorderRadius.circular(12),
+//                           ),
+//                           margin: const EdgeInsets.only(bottom: 12),
+//                           elevation: 2,
+//                           child: Padding(
+//                             padding: const EdgeInsets.all(12.0),
+//                             child: Column(
+//                               crossAxisAlignment: CrossAxisAlignment.start,
+//                               children: [
+//                                 if (item.gambar.isNotEmpty)
+//                                   ClipRRect(
+//                                     borderRadius: BorderRadius.circular(10),
+//                                     child: Image.memory(
+//                                       base64Decode(item.gambar),
+//                                       fit: BoxFit.cover,
+//                                     ),
+//                                   ),
+//                                 const SizedBox(height: 8),
+//                                 Text(
+//                                   item.judul,
+//                                   style: const TextStyle(
+//                                     fontSize: 16,
+//                                     fontWeight: FontWeight.bold,
+//                                   ),
+//                                 ),
+//                                 const SizedBox(height: 4),
+//                                 Row(
+//                                   children: [
+//                                     const Icon(Icons.calendar_today,
+//                                         size: 14, color: Colors.grey),
+//                                     const SizedBox(width: 4),
+//                                     Text(
+//                                       item.tanggal,
+//                                       style: const TextStyle(
+//                                           fontSize: 12, color: Colors.grey),
+//                                     ),
+//                                   ],
+//                                 ),
+//                                 const SizedBox(height: 8),
+//                                 Text(
+//                                   item.isi,
+//                                   maxLines: 2,
+//                                   overflow: TextOverflow.ellipsis,
+//                                   style: const TextStyle(fontSize: 13),
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+//                         ),
+//                       );
+//                     },
+//                   );
+//                 },
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+DETAIL PENGUMUMAN
+// import 'package:flutter/material.dart';
+// import '../../widgets/app_bar.dart';
+
+// class DetailPengumumanPage extends StatelessWidget {
+//   final String judul;
+//   final String tanggal;
+//   final String deskripsi;
+//   final String? gambar;
+
+//   const DetailPengumumanPage({
+//     super.key,
+//     required this.judul,
+//     required this.tanggal,
+//     required this.deskripsi,
+//     this.gambar,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: CustomAppBar(
+//         title: 'Detail Pengumuman',
+//         showBackButton: true,
+//         showProfileMenu: true,
+//         currentPage: 'pengumuman',
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: SingleChildScrollView(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 judul,
+//                 style:
+//                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+//               ),
+//               const SizedBox(height: 8),
+
+//               Row(
+//                 children: [
+//                   const Icon(Icons.calendar_today,
+//                       size: 14, color: Colors.grey),
+//                   const SizedBox(width: 4),
+//                   Text(
+//                     tanggal,
+//                     style: const TextStyle(fontSize: 12, color: Colors.grey),
+//                   ),
+//                 ],
+//               ),
+//               const SizedBox(height: 16),
+
+//               // 🖼️ Gambar hanya muncul kalau pengumuman punya gambar
+//               if (gambar != null) ...[
+//                 ClipRRect(
+//                   borderRadius: BorderRadius.circular(10),
+//                   child: Image.asset(
+//                     gambar!,
+//                     fit: BoxFit.cover,
+//                     width: double.infinity,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 16),
+//               ],
+
+//               Text(
+//                 deskripsi,
+//                 style: const TextStyle(fontSize: 15, height: 1.5),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class PengumumanDetailPage extends StatelessWidget {
+//   final Map item;
+//   const PengumumanDetailPage({super.key, required this.item});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final String judul = item['judul'] ?? 'Pengumuman';
+//     final String deskripsi = item['deskripsi'] ?? '';
+//     final String tanggal = item['tanggal'] ?? (item['waktu'] ?? '');
+//     final String? gambar = item['gambar'];
+
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Detail Pengumuman'),
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: SingleChildScrollView(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(judul,
+//                   style: const TextStyle(
+//                       fontSize: 20, fontWeight: FontWeight.bold)),
+//               const SizedBox(height: 8),
+//               Row(
+//                 children: [
+//                   const Icon(Icons.calendar_today,
+//                       size: 16, color: Colors.black54),
+//                   const SizedBox(width: 8),
+//                   Text(tanggal, style: const TextStyle(color: Colors.black54)),
+//                 ],
+//               ),
+//               const SizedBox(height: 16),
+//               if (gambar != null && gambar.isNotEmpty) ...[
+//                 ClipRRect(
+//                   borderRadius: BorderRadius.circular(10),
+//                   child: Image.asset(
+//                     gambar,
+//                     fit: BoxFit.cover,
+//                     width: double.infinity,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 16),
+//               ],
+//               Text(
+//                 deskripsi,
+//                 style: const TextStyle(
+//                   fontSize: 15,
+//                   height: 1.4,
+//                 ),
+//                 textAlign: TextAlign.justify,
+//               )
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+// import 'package:SPMB/models/pengumuman_models.dart';
+// import 'package:flutter/material.dart';
+// import '../../widgets/app_bar.dart';
+// // import '../../models/pengumuman.dart';
+
+// class DetailPengumumanPage extends StatelessWidget {
+//   final Pengumuman pengumuman;
+
+//   const DetailPengumumanPage({super.key, required this.pengumuman});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: CustomAppBar(
+//         title: 'Detail Pengumuman',
+//         showBackButton: true,
+//         showProfileMenu: true,
+//         currentPage: 'pengumuman',
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: SingleChildScrollView(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // 🔹 Judul
+//               Text(
+//                 pengumuman.judul,
+//                 style:
+//                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+//               ),
+//               const SizedBox(height: 8),
+
+//               // 🔹 Tanggal
+//               Row(
+//                 children: [
+//                   const Icon(Icons.calendar_today,
+//                       size: 14, color: Colors.grey),
+//                   const SizedBox(width: 4),
+//                   Text(
+//                     pengumuman.tanggal,
+//                     style: const TextStyle(fontSize: 12, color: Colors.grey),
+//                   ),
+//                 ],
+//               ),
+//               const SizedBox(height: 16),
+
+//               // 🔹 Gambar (kalau ada)
+//               if (pengumuman.gambar.isNotEmpty)
+//                 ClipRRect(
+//                   borderRadius: BorderRadius.circular(10),
+//                   child: Image.network(
+//                     pengumuman.gambar,
+//                     fit: BoxFit.cover,
+//                     width: double.infinity,
+//                     errorBuilder: (context, error, stackTrace) =>
+//                         const Icon(Icons.broken_image, size: 80),
+//                   ),
+//                 ),
+//               const SizedBox(height: 16),
+
+//               // 🔹 Isi / Deskripsi
+//               Text(
+//                 pengumuman.isi,
+//                 style: const TextStyle(
+//                     fontSize: 15, height: 1.5, fontFamily: 'Cambria'),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// import 'package:SPMB/models/pengumuman_models.dart';
+// import 'package:flutter/material.dart';
+// import '../../widgets/app_bar.dart';
+
+// class DetailPengumumanPage extends StatelessWidget {
+//   final Pengumuman item;
+
+//   const DetailPengumumanPage({super.key, required this.item});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: CustomAppBar(
+//         title: 'Detail Pengumuman',
+//         showBackButton: true,
+//         showProfileMenu: true,
+//         currentPage: 'pengumuman',
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: SingleChildScrollView(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // 🔹 Judul
+//               Text(
+//                 item.judul,
+//                 style: const TextStyle(
+//                   fontSize: 20,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//               const SizedBox(height: 8),
+
+//               // 🔹 Tanggal
+//               Row(
+//                 children: [
+//                   const Icon(Icons.calendar_today,
+//                       size: 14, color: Colors.grey),
+//                   const SizedBox(width: 4),
+//                   Text(
+//                     item.tanggal,
+//                     style: const TextStyle(fontSize: 12, color: Colors.grey),
+//                   ),
+//                 ],
+//               ),
+//               const SizedBox(height: 16),
+
+//               // 🔹 Gambar (kalau ada)
+//               // if (item.uploadGambar.isNotEmpty)
+//               //   ClipRRect(
+//               //     borderRadius: BorderRadius.circular(10),
+//               //     child: Image.network(
+//               //       "http://44.220.144.82/api/${item.uploadGambar}",
+//               //       fit: BoxFit.cover,
+//               //       width: double.infinity,
+//               //       errorBuilder: (context, error, stackTrace) =>
+//               //           const Icon(Icons.broken_image, size: 80),
+//               //     ),
+//               //   ),
+//               // const SizedBox(height: 16),
+
+//               // 🔹 Isi / Deskripsi
+//               Text(
+//                 item.isi,
+//                 style: const TextStyle(
+//                   fontSize: 15,
+//                   height: 1.5,
+//                   fontFamily: 'Cambria',
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+BUTTON LOGIN
+// class LoginScreen extends StatelessWidget {
+//   const LoginScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // controller untuk ambil input dari TextField
+//     final TextEditingController emailController = TextEditingController();
+//     final TextEditingController passwordController = TextEditingController();
+//     bool rememberMe = false;
+
+//     @override
+//     void initState() {
+//       super.initState();
+//       loadCredentials();
+//     }
+
+//     Future<void> loadCredentials() async {
+//       final prefs = await SharedPreferences.getInstance();
+//       setState(() {
+//         rememberMe = prefs.getBool('rememberMe') ?? false;
+//         if (rememberMe) {
+//           emailController.text = prefs.getString('email') ?? '';
+//           passwordController.text = prefs.getString('password') ?? '';
+//         }
+//       });
+//     }
+
+//     Future<void> saveCredentials() async {
+//       final prefs = await SharedPreferences.getInstance();
+//       if (rememberMe) {
+//         await prefs.setString('email', emailController.text.trim());
+//         await prefs.setString('password', passwordController.text.trim());
+//         await prefs.setBool('rememberMe', true);
+//       } else {
+//         await prefs.remove('email');
+//         await prefs.remove('password');
+//         await prefs.setBool('rememberMe', false);
+//       }
+//     }
+// onPressed: () async {
+                          //   try {
+                          //     var data = await ApiService.login(
+                          //       emailController.text.trim(),
+                          //       passwordController.text.trim(),
+                          //     );
+
+                          //     if (data['status'] == 'success') {
+                          //       var user = data['data'];
+                          //       String role = user['role'] ?? 'mahasiswa';
+
+                          //       if (role == 'admin') {
+                          //         showDialog(
+                          //           context: context,
+                          //           builder: (context) => AlertDialog(
+                          //             title: const Text("Berhasil"),
+                          //             content: const Text("Login berhasil!"),
+                          //             actions: [
+                          //               TextButton(
+                          //                 onPressed: () {
+                          //                   Navigator.pop(
+                          //                       context); // tutup dialog
+                          //                   Navigator.pushReplacement(
+                          //                     context,
+                          //                     MaterialPageRoute(
+                          //                         builder: (context) =>
+                          //                             const AdminDashboard()),
+                          //                   );
+                          //                 },
+                          //                 child: const Text("OK"),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         );
+                          //       } else {
+                          //         showDialog(
+                          //           context: context,
+                          //           builder: (context) => AlertDialog(
+                          //             title: const Text("Berhasil"),
+                          //             content: const Text("Login berhasil!"),
+                          //             actions: [
+                          //               TextButton(
+                          //                 onPressed: () {
+                          //                   Navigator.pop(
+                          //                       context); // tutup dialog
+                          //                   Navigator.pushReplacement(
+                          //                     context,
+                          //                     MaterialPageRoute(
+                          //                         builder: (context) =>
+                          //                             const DashboardPage()),
+                          //                   );
+                          //                 },
+                          //                 child: const Text("OK"),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         );
+                          //       }
+                          //     } else {
+                          //       emailController.clear();
+                          //       passwordController.clear();
+                          //       showDialog(
+                          //         context: context,
+                          //         builder: (context) => AlertDialog(
+                          //           title: Text("Gagal"),
+                          //           content: Text(data['message'] ??
+                          //               "Username atau password salah"),
+                          //           actions: [
+                          //             TextButton(
+                          //               onPressed: () => Navigator.pop(context),
+                          //               child: Text("OK"),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //       );
+                          //     }
+                          //   } catch (e) {
+                          //     ScaffoldMessenger.of(context).showSnackBar(
+                          //       SnackBar(
+                          //           content: Text("Terjadi kesalahan: $e")),
+                          //     );
+                          //   }
+                          // },
+                          // Update bagian onPressed tombol Login
+
+
+CODINGAN CADANGAN BACKEND PROFILE MAIN BAGIAN 1
+
+// import 'package:SPMB/models/dataOrangTua_models.dart';
+// import 'package:flutter/material.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+
+// import '../../widgets/app_bar.dart';
+// import '../../models/dataPribadi_models.dart';
+// import '../../models/dataAkademik_models.dart';
+// import '../../services/profile_services.dart';
+
+// import 'data_pribadi_scr.dart';
+// import 'informasi_akademik_scr.dart';
+// import 'data_ortu_scr.dart';
+// import 'dokumen_scr.dart';
+
+// class ProfileMain extends StatefulWidget {
+//   const ProfileMain({super.key});
+
+//   @override
+//   State<ProfileMain> createState() => _ProfileMainState();
+// }
+
+// class _ProfileMainState extends State<ProfileMain>
+//     with SingleTickerProviderStateMixin {
+//   late TabController _tabController;
+//   String userName = '';
+//   String userEmail = '';
+
+//   DataMahasiswa? _dataMahasiswa;
+//   List<DataAkademik>? _dataAkademik;
+//   DataOrangtua? _dataOrangtua;
+
+//   bool _isLoading = true;
+//   String? errorMessage;
+
+//   final List<String> _tabTitles = [
+//     'Data Pribadi',
+//     'Informasi Akademik',
+//     'Data Orang Tua',
+//     'Dokumen',
+//   ];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _tabController = TabController(length: 4, vsync: this);
+//     _loadUserData();
+//   }
+
+//   Future<void> _loadUserData() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     userName = prefs.getString('user_nama_lengkap') ?? 'User';
+//     userEmail = prefs.getString('user_email') ?? 'email@example.com';
+
+//     setState(() {});
+//     await _fetchDataMahasiswa();
+//   }
+
+//   Future<void> _fetchDataMahasiswa() async {
+//     try {
+//       final data =
+//           await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+
+//       setState(() {
+//         _dataMahasiswa = data;
+//       });
+
+//       if (_dataMahasiswa != null) {
+//         await _fetchDataAkademik(_dataMahasiswa!.idMahasiswa);
+//         await _fetchDataOrangtua(_dataMahasiswa!.idMahasiswa);
+//       }
+
+//       setState(() {
+//         _isLoading = false;
+//       });
+//     } catch (e) {
+//       setState(() {
+//         _isLoading = false;
+//         errorMessage = e.toString();
+//       });
+//     }
+//   }
+
+//   Future<void> _fetchDataAkademik(int idMahasiswa) async {
+//     try {
+//       final data =
+//           await dataMahasiswaService.getDataAkademikByIdMahasiswa(idMahasiswa);
+//       setState(() {
+//         _dataAkademik = data;
+//       });
+//     } catch (e) {
+//       print('Error ambil data akademik: $e');
+//     }
+//   }
+
+//   Future<void> _fetchDataOrangtua(int idMahasiswa) async {
+//     try {
+//       print('🔍 Fetching data orangtua untuk ID: $idMahasiswa');
+//       final data =
+//           await dataMahasiswaService.getDataOrangtuaByIdMahasiswa(idMahasiswa);
+//       setState(() {
+//         _dataOrangtua = data;
+//       });
+//     } catch (e, stackTrace) {
+//       print('❌ Error ambil data orang tua: $e');
+//       print('🧩 Stack trace: $stackTrace');
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     _tabController.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.white,
+//       appBar: CustomAppBar(
+//         title: 'Profil Saya',
+//         showMenuButton: true,
+//         showProfileMenu: true,
+//         currentPage: 'profile',
+//       ),
+//       drawer: const AppDrawer(currentPage: 'profile'),
+//       body: _isLoading
+//           ? const Center(child: CircularProgressIndicator())
+//           : errorMessage != null
+//               ? Center(child: Text(errorMessage!))
+//               : SingleChildScrollView(
+//                   child: Column(
+//                     children: [
+//                       _buildProfileHeader(),
+//                       _buildTabNavigation(),
+//                       _buildCurrentTabContent(),
+//                     ],
+//                   ),
+//                 ),
+//     );
+//   }
+
+//   Widget _buildCurrentTabContent() {
+//     if (_dataMahasiswa == null) {
+//       return const Center(child: Text('Data tidak ditemukan'));
+//     }
+
+//     switch (_tabController.index) {
+//       case 0:
+//         return DataPribadiTab(
+//           dataPribadi: {
+//             'nama_lengkap': _dataMahasiswa!.namaLengkap,
+//             'tempat_lahir': _dataMahasiswa!.tempatLahir,
+//             'tanggal_lahir': _dataMahasiswa!.tanggalLahir,
+//             'jenis_kelamin': _dataMahasiswa!.jenisKelamin,
+//             'agama': _dataMahasiswa!.agama,
+//             'no_hp': _dataMahasiswa!.noHp,
+//             'email': _dataMahasiswa!.email,
+//             'alamat': _dataMahasiswa!.alamatMahasiswa,
+//             'provinsi': _dataMahasiswa!.namaProvinsi,
+//             'kota': _dataMahasiswa!.namaKabupaten,
+//             'kecamatan': _dataMahasiswa!.namaKecamatan,
+//             'kelurahan': _dataMahasiswa!.namaKelurahan,
+//             'kode_pos': _dataMahasiswa!.kodePos,
+//           },
+//         );
+
+//       case 1:
+//         return _dataAkademik == null || _dataAkademik!.isEmpty
+//             ? const Center(child: Text('Data akademik belum tersedia'))
+//             : InformasiAkademikTab(dataAkademik: {
+//                 'asal_sekolah': _dataAkademik![0].asalSekolah,
+//                 'tahun_lulus': _dataAkademik![0].tahunLulus,
+//                 'nilai_rata_rata': _dataAkademik![0].nilaiRataRata,
+//                 'nama_jurusan': _dataAkademik![0].namaJurusan,
+//                 'nama_prodi': _dataAkademik![0].namaProdi,
+//               });
+
+//       case 2:
+//         // FIX: Tambahkan pengecekan null sebelum mengakses _dataOrangtua
+//         if (_dataOrangtua == null) {
+//           return const Center(
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 Icon(Icons.warning_amber_rounded,
+//                     size: 48, color: Colors.orange),
+//                 SizedBox(height: 16),
+//                 Text('Data orang tua belum tersedia'),
+//               ],
+//             ),
+//           );
+//         }
+
+//         return DataOrtuTab(dataOrangTua: {
+//           'nama_ayah': _dataOrangtua!.namaAyah,
+//           'nik_ayah': _dataOrangtua!.nikAyah,
+//           'pekerjaan_ayah': _dataOrangtua!.pekerjaanAyah,
+//           'nohp_ayah': _dataOrangtua!.noHpAyah,
+//           'penghasilan_ayah': _dataOrangtua!.penghasilanAyah,
+//           'alamat_ayah': _dataOrangtua!.alamatAyah,
+//           'nama_ibu': _dataOrangtua!.namaIbu,
+//           'nik_ibu': _dataOrangtua!.nikIbu,
+//           'pekerjaan_ibu': _dataOrangtua!.pekerjaanIbu,
+//           'nohp_ibu': _dataOrangtua!.noHpIbu,
+//           'penghasilan_ibu': _dataOrangtua!.penghasilanIbu,
+//           'alamat_ibu': _dataOrangtua!.alamatIbu,
+//         });
+
+//       case 3:
+//         return const DokumenTab();
+
+//       default:
+//         return const SizedBox();
+//     }
+//   }
+
+//   Widget _buildProfileHeader() {
+//     return Container(
+//       margin: const EdgeInsets.all(12),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: const Color(0xFF263D4A),
+//         borderRadius: BorderRadius.circular(12),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.2),
+//             offset: const Offset(0, 4),
+//             blurRadius: 8,
+//           ),
+//         ],
+//       ),
+//       child: Stack(
+//         children: [
+//           Row(
+//             children: [
+//               Container(
+//                 width: 80,
+//                 height: 80,
+//                 decoration: BoxDecoration(
+//                   shape: BoxShape.circle,
+//                   border: Border.all(color: Colors.grey[300]!, width: 2),
+//                 ),
+//                 child: const CircleAvatar(
+//                   backgroundColor: Color(0xFF6C7A89),
+//                   child: Icon(Icons.person, size: 40, color: Colors.white70),
+//                 ),
+//               ),
+//               const SizedBox(width: 16),
+//               Expanded(
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       userName,
+//                       style: const TextStyle(
+//                         color: Colors.white,
+//                         fontSize: 18,
+//                         fontWeight: FontWeight.bold,
+//                       ),
+//                     ),
+//                     const SizedBox(height: 6),
+//                     Text(
+//                       userEmail,
+//                       style: const TextStyle(
+//                         color: Colors.white70,
+//                         fontSize: 14,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//           Positioned(
+//             top: 0,
+//             right: 0,
+//             child: Container(
+//               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+//               decoration: BoxDecoration(
+//                 color: const Color(0xFFF0E68C),
+//                 borderRadius: BorderRadius.circular(3),
+//                 border: Border.all(color: const Color(0xFFBDB76B), width: 1),
+//               ),
+//               child: const Text(
+//                 'Status: Menunggu Verifikasi',
+//                 style: TextStyle(
+//                   color: Colors.black,
+//                   fontSize: 9,
+//                   fontWeight: FontWeight.w500,
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildTabNavigation() {
+//     return Container(
+//       margin: const EdgeInsets.symmetric(horizontal: 12),
+//       padding: const EdgeInsets.symmetric(vertical: 14),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.08),
+//             offset: const Offset(0, 2),
+//             blurRadius: 4,
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceAround,
+//         children: [
+//           _tabItem(Icons.person, "Data Pribadi", 0),
+//           _tabItem(Icons.school, "Informasi Akademik", 1),
+//           _tabItem(Icons.family_restroom, "Data Orang Tua", 2),
+//           _tabItem(Icons.folder, "Dokumen", 3),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _tabItem(IconData icon, String title, int index) {
+//     bool active = _tabController.index == index;
+//     return GestureDetector(
+//       onTap: () {
+//         setState(() {
+//           _tabController.animateTo(index);
+//         });
+//       },
+//       child: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Container(
+//             width: 40,
+//             height: 40,
+//             decoration: BoxDecoration(
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: active ? const Color(0xFF4F6C7A) : Colors.grey.shade400,
+//                 width: 2,
+//               ),
+//               color: Colors.white,
+//             ),
+//             child: Icon(
+//               icon,
+//               color: active ? const Color(0xFF4F6C7A) : Colors.grey[600],
+//               size: 20,
+//             ),
+//           ),
+//           const SizedBox(height: 6),
+//           SizedBox(
+//             width: 60,
+//             child: Text(
+//               title,
+//               textAlign: TextAlign.center,
+//               maxLines: 2,
+//               overflow: TextOverflow.ellipsis,
+//               style: TextStyle(
+//                 fontSize: 11,
+//                 fontWeight: FontWeight.w500,
+//                 color: active ? Colors.black : Colors.grey,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+
+CODINGAN CADANGAN BACKEND PROFILE MAIN BAGIAN 2
+// // import 'package:flutter/material.dart';
+// // import '../../widgets/app_bar.dart';
+// // import 'data_pribadi_scr.dart';
+// // import 'informasi_akademik_scr.dart';
+// // import 'data_ortu_scr.dart';
+// // import 'dokumen_scr.dart';
+// // import 'package:shared_preferences/shared_preferences.dart';
+
+// // class ProfileMain extends StatefulWidget {
+// //   const ProfileMain({super.key});
+
+// //   @override
+// //   State<ProfileMain> createState() => _ProfileMainState();
+// // }
+
+// // class _ProfileMainState extends State<ProfileMain>
+// //     with SingleTickerProviderStateMixin {
+// //   late TabController _tabController;
+
+// //   final List<String> _tabTitles = [
+// //     'Data Pribadi',
+// //     'Informasi Akademik',
+// //     'Data Orang tua',
+// //     'Dokumen',
+// //   ];
+// //   String userName = '';
+// //   String userEmail = '';
+// //   @override
+// //   void initState() {
+// //     super.initState();
+// //     _loadUserData();
+// //     _tabController = TabController(length: 4, vsync: this, initialIndex: 0);
+// //     _tabController.addListener(() {
+// //       setState(() {
+// //         // Update state ketika tab berubah
+// //       });
+// //     });
+// //   }
+
+// //   Future<void> _loadUserData() async {
+// //     final prefs = await SharedPreferences.getInstance();
+// //     setState(() {
+// //       userName = prefs.getString('user_nama_lengkap') ?? 'User';
+// //       userEmail = prefs.getString('user_email') ?? 'email@example.com';
+// //     });
+// //   }
+
+// //   @override
+// //   void dispose() {
+// //     _tabController.dispose();
+// //     super.dispose();
+// //   }
+
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return Scaffold(
+// //       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+// //       appBar: CustomAppBar(
+// //         title: 'Profil Saya',
+// //         showMenuButton: true,
+// //         showProfileMenu: true,
+// //         currentPage: 'profile',
+// //       ),
+// //       drawer: const AppDrawer(currentPage: 'profile'),
+// //       body: SingleChildScrollView(
+// //         child: Column(
+// //           children: [
+// //             // Header Profil User
+// //             _buildProfileHeader(),
+
+// //             // Tab Navigation
+// //             _buildTabNavigation(),
+
+// //             // Tab Content
+// //             _buildCurrentTabContent(),
+// //           ],
+// //         ),
+// //       ),
+// //     );
+// //   }
+
+// //   // Method untuk menampilkan konten berdasarkan tab yang aktif
+// //   Widget _buildCurrentTabContent() {
+// //     switch (_tabController.index) {
+// //       case 0:
+// //         return const DataPribadiTab(
+// //           dataPribadi: {},
+// //         );
+// //       case 1:
+// //         return const InformasiAkademikTab(
+// //           dataAkademik: {},
+// //         );
+// //       case 2:
+// //         return const DataOrtuTab(
+// //           idMahasiswa: null,
+// //         );
+// //       case 3:
+// //         return const DokumenTab();
+// //       default:
+// //         return const InformasiAkademikTab(
+// //           dataAkademik: {},
+// //         );
+// //     }
+// //   }
+
+// //   Widget _buildProfileHeader() {
+// //     return Container(
+// //       margin: const EdgeInsets.all(12),
+// //       padding: const EdgeInsets.all(16),
+// //       decoration: BoxDecoration(
+// //         color: const Color(0xFF263D4A),
+// //         borderRadius: BorderRadius.circular(12),
+// //         boxShadow: [
+// //           BoxShadow(
+// //             color: Colors.black.withValues(alpha: 0.2),
+// //             offset: const Offset(0, 4),
+// //             blurRadius: 8,
+// //           ),
+// //         ],
+// //       ),
+// //       child: Stack(
+// //         children: [
+// //           // Main content row
+// //           Row(
+// //             children: [
+// //               // Avatar dengan multiple rings seperti gambar
+// //               Container(
+// //                 width: 80,
+// //                 height: 80,
+// //                 child: Stack(
+// //                   alignment: Alignment.center,
+// //                   children: [
+// //                     // Outer ring (light gray)
+// //                     Container(
+// //                       width: 80,
+// //                       height: 80,
+// //                       decoration: BoxDecoration(
+// //                         shape: BoxShape.circle,
+// //                         border: Border.all(
+// //                           color: const Color(0xFFD3D3D3),
+// //                           width: 2,
+// //                         ),
+// //                       ),
+// //                     ),
+// //                     // Middle ring (darker gray)
+// //                     Container(
+// //                       width: 70,
+// //                       height: 70,
+// //                       decoration: BoxDecoration(
+// //                         color: const Color(0xFF6C7A89),
+// //                         shape: BoxShape.circle,
+// //                       ),
+// //                     ),
+// //                     // Inner icon
+// //                     const Icon(
+// //                       Icons.person,
+// //                       size: 40,
+// //                       color: Color(0xFFD3D3D3),
+// //                     ),
+// //                   ],
+// //                 ),
+// //               ),
+// //               const SizedBox(width: 16),
+
+// //               // Info User
+// //               Expanded(
+// //                 child: Column(
+// //                   crossAxisAlignment: CrossAxisAlignment.start,
+// //                   mainAxisAlignment: MainAxisAlignment.center,
+// //                   children: [
+// //                     // const Text(
+// //                     //   'Aldi',
+// //                     //   style: TextStyle(
+// //                     //     color: Colors.white,
+// //                     //     fontSize: 18,
+// //                     //     fontWeight: FontWeight.bold,
+// //                     //     height: 1.0,
+// //                     //   ),
+// //                     // ),
+// //                     // const Text(
+// //                     //   'Mahendra',
+// //                     //   style: TextStyle(
+// //                     //     color: Colors.white,
+// //                     //     fontSize: 18,
+// //                     //     fontWeight: FontWeight.bold,
+// //                     //     height: 1.0,
+// //                     //   ),
+// //                     // ),
+// //                     Text(
+// //                       userName,
+// //                       style: const TextStyle(
+// //                         color: Colors.white,
+// //                         fontSize: 18,
+// //                         fontWeight: FontWeight.bold,
+// //                       ),
+// //                     ),
+// //                     const SizedBox(height: 6),
+// //                     // const Text(
+// //                     //   'NIK:1234567890123456',
+// //                     //   style: TextStyle(
+// //                     //     color: Color(0xFFA9A9A9),
+// //                     //     fontSize: 14,
+// //                     //     height: 1.0,
+// //                     //   ),
+// //                     // ),
+// //                     Text(
+// //                       userEmail,
+// //                       style: const TextStyle(color: Colors.white70),
+// //                     ),
+// //                   ],
+// //                 ),
+// //               ),
+// //             ],
+// //           ),
+
+// //           // Status Badge positioned at top-right
+// //           Positioned(
+// //             top: 0,
+// //             right: 0,
+// //             child: Container(
+// //               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+// //               decoration: BoxDecoration(
+// //                 color: const Color(0xFFF0E68C),
+// //                 borderRadius: BorderRadius.circular(3),
+// //                 border: Border.all(color: const Color(0xFFBDB76B), width: 1),
+// //               ),
+// //               child: const Text(
+// //                 'Status: menunggu Verifikasi',
+// //                 style: TextStyle(
+// //                   color: Colors.black,
+// //                   fontSize: 9,
+// //                   fontWeight: FontWeight.w500,
+// //                 ),
+// //               ),
+// //             ),
+// //           ),
+// //         ],
+// //       ),
+// //     );
+// //   }
+
+// //   Widget _buildTabNavigation() {
+// //     return Container(
+// //       margin: const EdgeInsets.symmetric(horizontal: 12),
+// //       padding: const EdgeInsets.symmetric(vertical: 14),
+// //       decoration: BoxDecoration(
+// //         color: Colors.white,
+// //         borderRadius: BorderRadius.circular(12),
+// //         boxShadow: [
+// //           BoxShadow(
+// //             color: Colors.black.withValues(alpha: 0.08),
+// //             offset: const Offset(0, 2),
+// //             blurRadius: 4,
+// //           ),
+// //         ],
+// //       ),
+// //       child: Row(
+// //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+// //         children: [
+// //           _tabItem(Icons.person, "Data Pribadi", _tabController.index == 0),
+// //           _tabItem(
+// //             Icons.school,
+// //             "Informasi Akademik",
+// //             _tabController.index == 1,
+// //           ),
+// //           _tabItem(
+// //             Icons.family_restroom,
+// //             "Data Orang tua",
+// //             _tabController.index == 2,
+// //           ),
+// //           _tabItem(Icons.folder, "Dokumen", _tabController.index == 3),
+// //         ],
+// //       ),
+// //     );
+// //   }
+
+// //   // Tab Navigation Item
+// //   Widget _tabItem(IconData icon, String title, bool active) {
+// //     return GestureDetector(
+// //       onTap: () {
+// //         int index = _tabTitles.indexOf(title);
+// //         if (index != -1) {
+// //           _tabController.animateTo(index);
+// //         }
+// //       },
+// //       child: Column(
+// //         mainAxisSize: MainAxisSize.min,
+// //         children: [
+// //           Container(
+// //             width: 40,
+// //             height: 40,
+// //             decoration: BoxDecoration(
+// //               shape: BoxShape.circle,
+// //               border: Border.all(
+// //                 color: active ? const Color(0xFF4F6C7A) : Colors.grey.shade400,
+// //                 width: 2,
+// //               ),
+// //               color: Colors.white,
+// //             ),
+// //             child: Icon(
+// //               icon,
+// //               color: active ? const Color(0xFF4F6C7A) : Colors.grey[600],
+// //               size: 20,
+// //             ),
+// //           ),
+// //           const SizedBox(height: 6),
+// //           SizedBox(
+// //             width: 60,
+// //             height: 32, // Fixed height untuk konsistensi
+// //             child: Text(
+// //               title,
+// //               textAlign: TextAlign.center,
+// //               maxLines: 2,
+// //               overflow: TextOverflow.ellipsis,
+// //               style: TextStyle(
+// //                 fontSize: 11,
+// //                 fontWeight: FontWeight.w500,
+// //                 color: active ? Colors.black : Colors.grey,
+// //                 height: 1.2, // Line height untuk spacing yang konsisten
+// //               ),
+// //             ),
+// //           ),
+// //         ],
+// //       ),
+// //     );
+// //   }
+// // }
+
+
+
+CODINGAN CADANGAN BACKEND PROFILE MAIN BAGIAN 2
+// // import 'package:SPMB/models/dataPribadi_models.dart';
+// // import 'package:SPMB/models/dataAkademik_models.dart';
+// // import 'package:SPMB/services/profile_services.dart';
+// // import 'package:flutter/material.dart';
+// // import '../../widgets/app_bar.dart';
+// // import 'data_pribadi_scr.dart';
+// // import 'informasi_akademik_scr.dart';
+// // import 'data_ortu_scr.dart';
+// // import 'dokumen_scr.dart';
+// // import 'package:shared_preferences/shared_preferences.dart';
+
+// // class ProfileMain extends StatefulWidget {
+// //   const ProfileMain({super.key});
+
+// //   @override
+// //   State<ProfileMain> createState() => _ProfileMainState();
+// // }
+
+// // class _ProfileMainState extends State<ProfileMain>
+// //     with SingleTickerProviderStateMixin {
+// //   late TabController _tabController;
+// //   String userName = '';
+// //   String userEmail = '';
+
+// //   DataMahasiswa? _dataMahasiswa; // data mahasiswa dari API
+// //   bool _isLoading = true;
+// //   String? errorMessage;
+
+// //   DataAkademik? _dataAkademik;
+
+// //   final List<String> _tabTitles = [
+// //     'Data Pribadi',
+// //     'Informasi Akademik',
+// //     'Data Orang tua',
+// //     'Dokumen',
+// //   ];
+
+// //   @override
+// //   void initState() {
+// //     super.initState();
+// //     _tabController = TabController(length: 4, vsync: this);
+// //     _loadUserData();
+// //   }
+
+// //   // ambil data user dari SharedPreferences
+// //   Future<void> _loadUserData() async {
+// //     final prefs = await SharedPreferences.getInstance();
+// //     userName = prefs.getString('user_nama_lengkap') ?? 'User';
+// //     userEmail = prefs.getString('user_email') ?? 'email@example.com';
+
+// //     setState(() {});
+// //     await _fetchDataMahasiswa(); // ambil data mahasiswa dari server
+// //   }
+
+// //   // ambil data dari server berdasarkan email
+// //   Future<void> _fetchDataMahasiswa() async {
+// //     try {
+// //       final data =
+// //           await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+// //       setState(() {
+// //         _dataMahasiswa = data;
+// //         _isLoading = false;
+// //       });
+// //     } catch (e) {
+// //       setState(() {
+// //         _isLoading = false;
+// //         errorMessage = e.toString();
+// //       });
+// //     }
+// //   }
+
+// //   Future<void> _fetchDataAkademik(String idMahasiswa) async {
+// //     try {
+// //       final data = await dataAkademikService.getDataAkademikByIdMahasiswa(
+// //         idMahasiswa,
+// //       );
+// //       setState(() {
+// //         _dataAkademik = data;
+// //       });
+// //     } catch (e) {
+// //       print('Error ambil data akademik: $e');
+// //     }
+// //   }
+
+// //   @override
+// //   void dispose() {
+// //     _tabController.dispose();
+// //     super.dispose();
+// //   }
+
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return Scaffold(
+// //       backgroundColor: Colors.white,
+// //       appBar: CustomAppBar(
+// //         title: 'Profil Saya',
+// //         showMenuButton: true,
+// //         showProfileMenu: true,
+// //         currentPage: 'profile',
+// //       ),
+// //       drawer: const AppDrawer(currentPage: 'profile'),
+// //       body: _isLoading
+// //           ? const Center(child: CircularProgressIndicator())
+// //           : errorMessage != null
+// //               ? Center(child: Text(errorMessage!))
+// //               : SingleChildScrollView(
+// //                   child: Column(
+// //                     children: [
+// //                       _buildProfileHeader(),
+// //                       _buildTabNavigation(),
+// //                       _buildCurrentTabContent(),
+// //                     ],
+// //                   ),
+// //                 ),
+// //     );
+// //   }
+
+// //   // tampilkan data tab sesuai yang dipilih
+// //   Widget _buildCurrentTabContent() {
+// //     if (_dataMahasiswa == null) {
+// //       return const Center(child: Text('Data tidak ditemukan'));
+// //     }
+
+// //     switch (_tabController.index) {
+// //       case 0:
+// //         return DataPribadiTab(
+// //           dataPribadi: {
+// //             'nama_lengkap': _dataMahasiswa!.namaLengkap,
+// //             'tempat_lahir': _dataMahasiswa!.tempatLahir,
+// //             'tanggal_lahir': _dataMahasiswa!.tanggalLahir,
+// //             'jenis_kelamin': _dataMahasiswa!.jenisKelamin,
+// //             'agama': _dataMahasiswa!.agama,
+// //             'no_hp': _dataMahasiswa!.noHp,
+// //             'email': _dataMahasiswa!.email,
+// //             'alamat': _dataMahasiswa!.alamatMahasiswa,
+// //             'provinsi': _dataMahasiswa!.namaProvinsi,
+// //             'kota': _dataMahasiswa!.namaKabupaten,
+// //             'kecamatan': _dataMahasiswa!.namaKecamatan,
+// //             'kelurahan': _dataMahasiswa!.namaKelurahan,
+// //             'kode_pos': _dataMahasiswa!.kodePos,
+// //           },
+// //         );
+
+// //       case 1:
+// //         return InformasiAkademikTab(dataAkademik: {
+// //           'asal_sekolah': _dataAkademik!.asalSekolah,
+// //           'tahun_lulus': _dataAkademik!.tahunLulus,
+// //           'nilai_rata_rata': _dataAkademik!.nilaiRataRata,
+// //           'nama_jurusan': _dataAkademik!.namaJurusan,
+// //           'nama_prodi': _dataAkademik!.namaProdi,
+// //         });
+
+// //       case 2:
+// //         return DataOrtuTab(idMahasiswa: _dataMahasiswa!.idMahasiswa);
+// //       case 3:
+// //         return const DokumenTab();
+// //       default:
+// //         return const SizedBox();
+// //     }
+// //   }
+
+// //   Widget _buildProfileHeader() {
+// //     return Container(
+// //       margin: const EdgeInsets.all(12),
+// //       padding: const EdgeInsets.all(16),
+// //       decoration: BoxDecoration(
+// //         color: const Color(0xFF263D4A),
+// //         borderRadius: BorderRadius.circular(12),
+// //         boxShadow: [
+// //           BoxShadow(
+// //             color: Colors.black.withOpacity(0.2),
+// //             offset: const Offset(0, 4),
+// //             blurRadius: 8,
+// //           ),
+// //         ],
+// //       ),
+// //       child: Stack(
+// //         children: [
+// //           Row(
+// //             children: [
+// //               // Avatar
+// //               Container(
+// //                 width: 80,
+// //                 height: 80,
+// //                 child: Stack(
+// //                   alignment: Alignment.center,
+// //                   children: [
+// //                     Container(
+// //                       width: 80,
+// //                       height: 80,
+// //                       decoration: BoxDecoration(
+// //                         shape: BoxShape.circle,
+// //                         border: Border.all(color: Colors.grey[300]!, width: 2),
+// //                       ),
+// //                     ),
+// //                     Container(
+// //                       width: 70,
+// //                       height: 70,
+// //                       decoration: const BoxDecoration(
+// //                         color: Color(0xFF6C7A89),
+// //                         shape: BoxShape.circle,
+// //                       ),
+// //                     ),
+// //                     const Icon(Icons.person, size: 40, color: Colors.white70),
+// //                   ],
+// //                 ),
+// //               ),
+// //               const SizedBox(width: 16),
+// //               Expanded(
+// //                 child: Column(
+// //                   crossAxisAlignment: CrossAxisAlignment.start,
+// //                   children: [
+// //                     Text(
+// //                       userName,
+// //                       style: const TextStyle(
+// //                         color: Colors.white,
+// //                         fontSize: 18,
+// //                         fontWeight: FontWeight.bold,
+// //                       ),
+// //                     ),
+// //                     const SizedBox(height: 6),
+// //                     Text(userEmail,
+// //                         style: const TextStyle(
+// //                             color: Colors.white70, fontSize: 14)),
+// //                   ],
+// //                 ),
+// //               ),
+// //             ],
+// //           ),
+// //           Positioned(
+// //             top: 0,
+// //             right: 0,
+// //             child: Container(
+// //               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+// //               decoration: BoxDecoration(
+// //                 color: const Color(0xFFF0E68C),
+// //                 borderRadius: BorderRadius.circular(3),
+// //                 border: Border.all(color: const Color(0xFFBDB76B), width: 1),
+// //               ),
+// //               child: const Text(
+// //                 'Status: menunggu Verifikasi',
+// //                 style: TextStyle(
+// //                   color: Colors.black,
+// //                   fontSize: 9,
+// //                   fontWeight: FontWeight.w500,
+// //                 ),
+// //               ),
+// //             ),
+// //           ),
+// //         ],
+// //       ),
+// //     );
+// //   }
+
+// //   Widget _buildTabNavigation() {
+// //     return Container(
+// //       margin: const EdgeInsets.symmetric(horizontal: 12),
+// //       padding: const EdgeInsets.symmetric(vertical: 14),
+// //       decoration: BoxDecoration(
+// //         color: Colors.white,
+// //         borderRadius: BorderRadius.circular(12),
+// //         boxShadow: [
+// //           BoxShadow(
+// //             color: Colors.black.withOpacity(0.08),
+// //             offset: const Offset(0, 2),
+// //             blurRadius: 4,
+// //           ),
+// //         ],
+// //       ),
+// //       child: Row(
+// //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+// //         children: [
+// //           _tabItem(Icons.person, "Data Pribadi", _tabController.index == 0),
+// //           _tabItem(
+// //               Icons.school, "Informasi Akademik", _tabController.index == 1),
+// //           _tabItem(Icons.family_restroom, "Data Orang tua",
+// //               _tabController.index == 2),
+// //           _tabItem(Icons.folder, "Dokumen", _tabController.index == 3),
+// //         ],
+// //       ),
+// //     );
+// //   }
+
+// //   Widget _tabItem(IconData icon, String title, bool active) {
+// //     return GestureDetector(
+// //       onTap: () {
+// //         int index = _tabTitles.indexOf(title);
+// //         if (index != -1) {
+// //           setState(() {
+// //             _tabController.animateTo(index);
+// //           });
+// //         }
+// //       },
+// //       child: Column(
+// //         mainAxisSize: MainAxisSize.min,
+// //         children: [
+// //           Container(
+// //             width: 40,
+// //             height: 40,
+// //             decoration: BoxDecoration(
+// //               shape: BoxShape.circle,
+// //               border: Border.all(
+// //                 color: active ? const Color(0xFF4F6C7A) : Colors.grey.shade400,
+// //                 width: 2,
+// //               ),
+// //               color: Colors.white,
+// //             ),
+// //             child: Icon(
+// //               icon,
+// //               color: active ? const Color(0xFF4F6C7A) : Colors.grey[600],
+// //               size: 20,
+// //             ),
+// //           ),
+// //           const SizedBox(height: 6),
+// //           SizedBox(
+// //             width: 60,
+// //             child: Text(
+// //               title,
+// //               textAlign: TextAlign.center,
+// //               maxLines: 2,
+// //               overflow: TextOverflow.ellipsis,
+// //               style: TextStyle(
+// //                 fontSize: 11,
+// //                 fontWeight: FontWeight.w500,
+// //                 color: active ? Colors.black : Colors.grey,
+// //                 height: 1.2,
+// //               ),
+// //             ),
+// //           ),
+// //         ],
+// //       ),
+// //     );
+// //   }
+// // }
+
+CODINGAN CDANGAN BACKEND DATA PRIBADI 
+// import 'package:flutter/material.dart';
+
+// class DataPribadiTab extends StatelessWidget {
+//   const DataPribadiTab({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(12),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         border: Border.all(color: const Color(0xFF4F6C7A), width: 1),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             offset: const Offset(0, 2),
+//             blurRadius: 4,
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           // Header
+//           const Row(
+//             children: [
+//               Icon(Icons.person, color: Color(0xFF4F6C7A), size: 24),
+//               SizedBox(width: 8),
+//               Text(
+//                 'Data Pribadi',
+//                 style: TextStyle(
+//                   fontSize: 16,
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.black,
+//                 ),
+//               ),
+//             ],
+//           ),
+//           const SizedBox(height: 4),
+//           const Text(
+//             'Informasi personal dan kontak',
+//             style: TextStyle(fontSize: 12, color: Colors.grey),
+//           ),
+//           const SizedBox(height: 20),
+
+//           // Content Fields - sesuai dengan formulir pendaftaran
+//           _buildInfoField('Nama Lengkap', 'Aldi Mahendra'),
+//           _buildInfoField('NIK', '1234567890123456'),
+//           _buildInfoField('Tempat Lahir', 'Pontianak'),
+//           _buildInfoField('Tanggal Lahir', '15 Januari 2005'),
+//           _buildInfoField('No. HP', '081234567890'),
+//           _buildInfoField('Email', 'aldi.mahendra@email.com'),
+//           _buildInfoField('Jenis Kelamin', 'Laki-laki'),
+//           _buildInfoField('Alamat', 'Jl. KOYOSO No. 123'),
+//           _buildInfoField('Provinsi', 'Kalimantan Barat'),
+//           _buildInfoField('Kabupaten/Kota', 'Kota Pontianak'),
+//           _buildInfoField('Kecamatan', 'Pontianak Selatan'),
+//           _buildInfoField('Kelurahan/Desa', 'Benua Melayu Laut'),
+//           _buildInfoField('Kode Pos', '78121'),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildInfoField(String label, String value) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 16),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             label,
+//             style: const TextStyle(
+//               fontSize: 14,
+//               fontWeight: FontWeight.w500,
+//               color: Colors.grey,
+//             ),
+//           ),
+//           const SizedBox(height: 4),
+//           Container(
+//             width: double.infinity,
+//             padding: const EdgeInsets.symmetric(vertical: 8),
+//             decoration: const BoxDecoration(
+//               border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
+//             ),
+//             child: Text(
+//               value,
+//               style: const TextStyle(fontSize: 14, color: Colors.black),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+CODINGAN CADANGAN BACKEND DATA AKADEMIK 
+// import 'package:flutter/material.dart';
+
+// class InformasiAkademikTab extends StatelessWidget {
+//   const InformasiAkademikTab({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(12),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         border: Border.all(color: const Color(0xFF4F6C7A), width: 1),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             offset: const Offset(0, 2),
+//             blurRadius: 4,
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           // Header
+//           const Row(
+//             children: [
+//               Icon(Icons.school, color: Color(0xFF4F6C7A), size: 24),
+//               SizedBox(width: 8),
+//               Text(
+//                 'Informasi Akademik',
+//                 style: TextStyle(
+//                   fontSize: 16,
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.black,
+//                 ),
+//               ),
+//             ],
+//           ),
+//           const SizedBox(height: 4),
+//           const Text(
+//             'Data pendidikan dan program studi',
+//             style: TextStyle(fontSize: 12, color: Colors.grey),
+//           ),
+//           const SizedBox(height: 20),
+
+//           // Content Fields - sesuai dengan formulir pendaftaran
+//           _buildInfoField('Asal Sekolah', 'SMA Negeri 1 Jakarta'),
+//           _buildInfoField('Tahun Lulus', '2024'),
+//           _buildInfoField('Nilai Rata-rata', '85.5'),
+//           _buildInfoField('Jurusan yang Dipilih', 'Teknik Elektro'),
+//           _buildInfoField('Prodi yang Dipilih', 'D3 - Teknik Listrik'),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildInfoField(String label, String value) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 16),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             label,
+//             style: const TextStyle(
+//               fontSize: 14,
+//               fontWeight: FontWeight.w500,
+//               color: Colors.grey,
+//             ),
+//           ),
+//           const SizedBox(height: 4),
+//           Container(
+//             width: double.infinity,
+//             padding: const EdgeInsets.symmetric(vertical: 8),
+//             decoration: const BoxDecoration(
+//               border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
+//             ),
+//             child: Text(
+//               value,
+//               style: const TextStyle(
+//                 fontSize: 14,
+//                 color: Colors.black,
+//                 decorationColor: Colors.grey,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+CODINGAN CADANGAN BACKEND ORANG TUA 
+// import 'package:flutter/material.dart';
+
+// class DataOrtuTab extends StatelessWidget {
+//   const DataOrtuTab({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(12),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         border: Border.all(color: const Color(0xFF4F6C7A), width: 1),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             offset: const Offset(0, 2),
+//             blurRadius: 4,
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           // Header
+//           const Row(
+//             children: [
+//               Icon(Icons.family_restroom, color: Color(0xFF4F6C7A), size: 24),
+//               SizedBox(width: 8),
+//               Text(
+//                 'Data Orang Tua',
+//                 style: TextStyle(
+//                   fontSize: 16,
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.black,
+//                 ),
+//               ),
+//             ],
+//           ),
+//           const SizedBox(height: 4),
+//           const Text(
+//             'Informasi orang tua dan wali',
+//             style: TextStyle(fontSize: 12, color: Colors.grey),
+//           ),
+//           const SizedBox(height: 20),
+
+//           // Data Ayah
+//           const Text(
+//             'Data Ayah',
+//             style: TextStyle(
+//               fontSize: 14,
+//               fontWeight: FontWeight.bold,
+//               color: Color(0xFF4F6C7A),
+//             ),
+//           ),
+//           const SizedBox(height: 12),
+//           _buildInfoField('Nama Ayah', 'Budi Pratama'),
+//           _buildInfoField('NIK Ayah', '3201234567890123'),
+//           _buildInfoField('Pekerjaan Ayah', 'PNS'),
+//           _buildInfoField('No. Telepon Ayah', '081234567891'),
+//           _buildInfoField('Penghasilan Ayah', 'RP 5.000.000 - RP 10.000.000'),
+//           _buildInfoField('Alamat Ayah', 'Jl. Merdeka No. 45, Jakarta Selatan'),
+
+//           const SizedBox(height: 20),
+
+//           // Data Ibu
+//           const Text(
+//             'Data Ibu',
+//             style: TextStyle(
+//               fontSize: 14,
+//               fontWeight: FontWeight.bold,
+//               color: Color(0xFF4F6C7A),
+//             ),
+//           ),
+//           const SizedBox(height: 12),
+//           _buildInfoField('Nama Ibu', 'Siti Rahayu'),
+//           _buildInfoField('NIK Ibu', '3201234567890124'),
+//           _buildInfoField('Pekerjaan Ibu', 'Ibu Rumah Tangga'),
+//           _buildInfoField('No. Telepon Ibu', '081234567892'),
+//           _buildInfoField('Penghasilan Ibu', '<RP500.000'),
+//           _buildInfoField('Alamat Ibu', 'Jl. Merdeka No. 45, Jakarta Selatan'),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildInfoField(String label, String value) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 16),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             label,
+//             style: const TextStyle(
+//               fontSize: 14,
+//               fontWeight: FontWeight.w500,
+//               color: Colors.grey,
+//             ),
+//           ),
+//           const SizedBox(height: 4),
+//           Container(
+//             width: double.infinity,
+//             padding: const EdgeInsets.symmetric(vertical: 8),
+//             decoration: const BoxDecoration(
+//               border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
+//             ),
+//             child: Text(
+//               value,
+//               style: const TextStyle(
+//                 fontSize: 14,
+//                 color: Colors.black,
+//                 decorationColor: Colors.grey,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+// import 'package:SPMB/services/profile_services.dart';
+// import 'package:flutter/material.dart';
+// // import '../../services/data_orangtua_services.dart';
+// import '../../models/dataOrangTua_models.dart';
+
+// class DataOrtuTab extends StatefulWidget {
+//   final int idMahasiswa; // dikirim dari halaman sebelumnya
+//   const DataOrtuTab({super.key, required this.idMahasiswa});
+
+//   @override
+//   State<DataOrtuTab> createState() => _DataOrtuTabState();
+// }
+
+// class _DataOrtuTabState extends State<DataOrtuTab> {
+//   late Future<DataOrangtua> _futureData;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _futureData =
+//         dataMahasiswaService.getDataOrangtuaByIdMahasiswa(widget.idMahasiswa);
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return FutureBuilder<DataOrangtua>(
+//       future: _futureData,
+//       builder: (context, snapshot) {
+//         if (snapshot.connectionState == ConnectionState.waiting) {
+//           return const Center(child: CircularProgressIndicator());
+//         } else if (snapshot.hasError) {
+//           return Center(child: Text("Terjadi kesalahan: ${snapshot.error}"));
+//         } else if (!snapshot.hasData) {
+//           return const Center(child: Text("Data orang tua tidak ditemukan"));
+//         }
+
+//         final data = snapshot.data!;
+//         return _buildContent(data);
+//       },
+//     );
+//   }
+
+//   Widget _buildContent(DataOrangtua data) {
+//     return Container(
+//       margin: const EdgeInsets.all(12),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         border: Border.all(color: const Color(0xFF4F6C7A), width: 1),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             offset: const Offset(0, 2),
+//             blurRadius: 4,
+//           ),
+//         ],
+//       ),
+//       child: SingleChildScrollView(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Row(
+//               children: [
+//                 Icon(Icons.family_restroom, color: Color(0xFF4F6C7A), size: 24),
+//                 SizedBox(width: 8),
+//                 Text(
+//                   'Data Orang Tua',
+//                   style: TextStyle(
+//                     fontSize: 16,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.black,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             const SizedBox(height: 4),
+//             const Text(
+//               'Informasi orang tua dan wali',
+//               style: TextStyle(fontSize: 12, color: Colors.grey),
+//             ),
+//             const SizedBox(height: 20),
+//             const Text('Data Ayah',
+//                 style: TextStyle(
+//                     fontWeight: FontWeight.bold, color: Color(0xFF4F6C7A))),
+//             const SizedBox(height: 12),
+//             _buildInfoField('Nama Ayah', data.namaAyah ?? '-'),
+//             _buildInfoField('NIK Ayah', data.nikAyah ?? '-'),
+//             _buildInfoField('Pekerjaan Ayah', data.pekerjaanAyah ?? '-'),
+//             _buildInfoField('No. HP Ayah', data.noHpAyah ?? '-'),
+//             _buildInfoField('Penghasilan Ayah', data.penghasilanAyah ?? '-'),
+//             _buildInfoField('Alamat Ayah', data.alamatAyah ?? '-'),
+//             const SizedBox(height: 20),
+//             const Text('Data Ibu',
+//                 style: TextStyle(
+//                     fontWeight: FontWeight.bold, color: Color(0xFF4F6C7A))),
+//             const SizedBox(height: 12),
+//             _buildInfoField('Nama Ibu', data.namaIbu ?? '-'),
+//             _buildInfoField('NIK Ibu', data.nikIbu ?? '-'),
+//             _buildInfoField('Pekerjaan Ibu', data.pekerjaanIbu ?? '-'),
+//             _buildInfoField('No. HP Ibu', data.noHpIbu ?? '-'),
+//             _buildInfoField('Penghasilan Ibu', data.penghasilanIbu ?? '-'),
+//             _buildInfoField('Alamat Ibu', data.alamatIbu ?? '-'),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildInfoField(String label, String value) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 16),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(label,
+//               style: const TextStyle(
+//                   fontSize: 14,
+//                   fontWeight: FontWeight.w500,
+//                   color: Colors.grey)),
+//           const SizedBox(height: 4),
+//           Container(
+//             width: double.infinity,
+//             padding: const EdgeInsets.symmetric(vertical: 8),
+//             decoration: const BoxDecoration(
+//               border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
+//             ),
+//             child: Text(value,
+//                 style: const TextStyle(fontSize: 14, color: Colors.black)),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+// import 'package:SPMB/models/dataOrangTua_models.dart';
+// // import 'package:SPMB/services/profile_services.dart';
+// import 'package:flutter/material.dart';
+
+// class DataOrtuTab extends StatefulWidget {
+//   final Map<String, dynamic> dataOrangTua;
+
+//   const DataOrtuTab({super.key, required this.dataOrangTua});
+
+//   @override
+//   State<DataOrtuTab> createState() => _DataOrtuTabState();
+// }
+
+// class _DataOrtuTabState extends State<DataOrtuTab> {
+//   late Future<DataOrangtua> _futureData;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return FutureBuilder<DataOrangtua>(
+//       future: _futureData,
+//       builder: (context, snapshot) {
+//         if (snapshot.connectionState == ConnectionState.waiting) {
+//           return const Center(child: CircularProgressIndicator());
+//         } else if (snapshot.hasError) {
+//           return Center(child: Text("Terjadi kesalahan: ${snapshot.error}"));
+//         } else if (!snapshot.hasData) {
+//           return const Center(child: Text("Data orang tua tidak ditemukan"));
+//         }
+
+//         final data = snapshot.data!;
+//         return _buildContent(data);
+//       },
+//     );
+//   }
+
+//   Widget _buildContent(DataOrangtua data) {
+//     return Container(
+//       margin: const EdgeInsets.all(12),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         border: Border.all(color: const Color(0xFF4F6C7A), width: 1),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.05),
+//             offset: const Offset(0, 2),
+//             blurRadius: 4,
+//           ),
+//         ],
+//       ),
+//       child: SingleChildScrollView(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Row(
+//               children: [
+//                 Icon(Icons.family_restroom, color: Color(0xFF4F6C7A), size: 24),
+//                 SizedBox(width: 8),
+//                 Text(
+//                   'Data Orang Tua',
+//                   style: TextStyle(
+//                     fontSize: 16,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.black,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             const SizedBox(height: 4),
+//             const Text(
+//               'Informasi orang tua dan wali',
+//               style: TextStyle(fontSize: 12, color: Colors.grey),
+//             ),
+//             const SizedBox(height: 20),
+//             _buildSection('Data Ayah', [
+//               _buildInfoField('Nama Ayah', data.namaAyah),
+//               _buildInfoField('NIK Ayah', data.nikAyah),
+//               _buildInfoField('Pekerjaan Ayah', data.pekerjaanAyah),
+//               _buildInfoField('No. HP Ayah', data.noHpAyah),
+//               _buildInfoField('Penghasilan Ayah', data.penghasilanAyah),
+//               _buildInfoField('Alamat Ayah', data.alamatAyah),
+//             ]),
+//             const SizedBox(height: 20),
+//             _buildSection('Data Ibu', [
+//               _buildInfoField('Nama Ibu', data.namaIbu),
+//               _buildInfoField('NIK Ibu', data.nikIbu),
+//               _buildInfoField('Pekerjaan Ibu', data.pekerjaanIbu),
+//               _buildInfoField('No. HP Ibu', data.noHpIbu),
+//               _buildInfoField('Penghasilan Ibu', data.penghasilanIbu),
+//               _buildInfoField('Alamat Ibu', data.alamatIbu),
+//             ]),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildSection(String title, List<Widget> children) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(title,
+//             style: const TextStyle(
+//                 fontWeight: FontWeight.bold, color: Color(0xFF4F6C7A))),
+//         const SizedBox(height: 12),
+//         ...children,
+//       ],
+//     );
+//   }
+
+//   Widget _buildInfoField(String label, String value) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 12),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(label, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+//           const SizedBox(height: 4),
+//           Container(
+//             width: double.infinity,
+//             padding: const EdgeInsets.symmetric(vertical: 8),
+//             decoration: const BoxDecoration(
+//               border:
+//                   Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
+//             ),
+//             child: Text(value, style: const TextStyle(fontSize: 14)),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+// import 'package:flutter/material.dart';
+
+// class DataOrtuTab extends StatelessWidget {
+//   final Map<String, dynamic> dataOrangTua;
+
+//   const DataOrtuTab({super.key, required this.dataOrangTua});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(12),
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         border: Border.all(color: const Color(0xFF4F6C7A), width: 1),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.05),
+//             offset: const Offset(0, 2),
+//             blurRadius: 4,
+//           ),
+//         ],
+//       ),
+//       child: SingleChildScrollView(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Row(
+//               children: [
+//                 Icon(Icons.family_restroom, color: Color(0xFF4F6C7A), size: 24),
+//                 SizedBox(width: 8),
+//                 Text(
+//                   'Data Orang Tua',
+//                   style: TextStyle(
+//                     fontSize: 16,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.black,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             const SizedBox(height: 4),
+//             const Text(
+//               'Informasi orang tua dan wali',
+//               style: TextStyle(fontSize: 12, color: Colors.grey),
+//             ),
+//             const SizedBox(height: 20),
+
+// // Bagian Ayah
+// _buildSection('Data Ayah', [
+//   _buildInfoField('Nama Ayah', dataOrangTua['nama_ayah'] ?? '-'),
+//   _buildInfoField('NIK Ayah', dataOrangTua['nik_ayah'] ?? '-'),
+//   _buildInfoField(
+//       'Pekerjaan Ayah', dataOrangTua['pekerjaan_ayah'] ?? '-'),
+//   _buildInfoField('No. HP Ayah', dataOrangTua['nohp_ayah'] ?? '-'),
+//   _buildInfoField(
+//       'Penghasilan Ayah', dataOrangTua['penghasilan_ayah'] ?? '-'),
+//   _buildInfoField(
+//       'Alamat Ayah', dataOrangTua['alamat_ayah'] ?? '-'),
+// ]),
+// const SizedBox(height: 20),
+
+// // Bagian Ibu
+// _buildSection('Data Ibu', [
+//   _buildInfoField('Nama Ibu', dataOrangTua['nama_ibu'] ?? '-'),
+//   _buildInfoField('NIK Ibu', dataOrangTua['nik_ibu'] ?? '-'),
+//   _buildInfoField(
+//       'Pekerjaan Ibu', dataOrangTua['pekerjaan_ibu'] ?? '-'),
+//   _buildInfoField('No. HP Ibu', dataOrangTua['nohp_ibu'] ?? '-'),
+//   _buildInfoField(
+//       'Penghasilan Ibu', dataOrangTua['penghasilan_ibu'] ?? '-'),
+//   _buildInfoField('Alamat Ibu', dataOrangTua['alamat_ibu'] ?? '-'),
+// ]),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildSection(String title, List<Widget> children) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(title,
+//             style: const TextStyle(
+//                 fontWeight: FontWeight.bold, color: Color(0xFF4F6C7A))),
+//         const SizedBox(height: 12),
+//         ...children,
+//       ],
+//     );
+//   }
+
+//   Widget _buildInfoField(String label, String? value) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 12),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(label, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+//           const SizedBox(height: 4),
+//           Container(
+//             width: double.infinity,
+//             padding: const EdgeInsets.symmetric(vertical: 8),
+//             decoration: const BoxDecoration(
+//               border:
+//                   Border(bottom: BorderSide(color: Colors.grey, width: 0.8)),
+//             ),
+//             child: Text(value ?? '-', style: const TextStyle(fontSize: 14)),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+
+CODINGAN CADANGAN BACKEDN MODELS DATA MAHASISWA 
+// class dataMahasiswa {
+//   final String id_mahasiswa;
+//   final String id_pengguna;
+//   final String nama_lenggkap;
+//   final String nik;
+// final String tempat_lahir;
+// final String tanggal_lahir;
+// final String jenis_kelamin;
+// final String agama;
+// final String no_hp;
+// final String email;
+// final String alamat_mahasiswa;
+// final String id_provinsi;
+// final String id_kabupaten;
+// final String id_kecamatan;
+// final String id_kelurahan;
+// final String kode_pos;
+// final String tanggal_daftar;
+
+//   dataMahasiswa({
+//     required this.id_mahasiswa,
+//     required this.id_pengguna,
+//     required this.nama_lengkap,
+//     required this.nik,
+//     required this.tempat_lahir,
+//     required this.tanggal_lahir,
+//     required this.jenis_kelamin,
+//     required this.id_provinsi,
+//     required this.id_kabupaten,
+//     required this.id_kelurahan,
+//     required this.kode_pos,
+//     required this.tanggal_daftar,
+//   });
+
+//   factory dataMahasiswa.fromJson(Map<String, dynamic> json) {
+//     return dataMahasiswa(
+//       id: json['id_mahasiswa'] ?? '',
+//       id: json['id_pengguna'] ?? '',
+//       judul: json['nama_lengkap'] ?? '',
+//       isi: json['nik'] ?? '',
+//       gambar: json['tempat_lahir'] ?? '',
+//       gambar: json['tanggal_lahir'] ?? '',
+//       tanggal: json['jenis_kelamin'] ?? '',
+//       tanggal: json['id_provinsi'] ?? '',
+//       tanggal: json['id_kabupaten'] ?? '',
+//       tanggal: json['id_kelurahan'] ?? '',
+//       tanggal: json['kode_pos'] ?? '',
+//       tanggal: json['tanggal_daftar'] ?? '',
+//     );
+//   }
+// }

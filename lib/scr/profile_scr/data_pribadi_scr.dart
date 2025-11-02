@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DataPribadiTab extends StatelessWidget {
-  const DataPribadiTab({super.key});
+  final Map<String, dynamic> dataPribadi; // ⬅️ data dari luar
+
+  const DataPribadiTab({super.key, required this.dataPribadi});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,6 @@ class DataPribadiTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           const Row(
             children: [
               Icon(Icons.person, color: Color(0xFF4F6C7A), size: 24),
@@ -45,20 +46,20 @@ class DataPribadiTab extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // Content Fields - sesuai dengan formulir pendaftaran
-          _buildInfoField('Nama Lengkap', 'Aldi Mahendra'),
-          _buildInfoField('NIK', '1234567890123456'),
-          _buildInfoField('Tempat Lahir', 'Pontianak'),
-          _buildInfoField('Tanggal Lahir', '15 Januari 2005'),
-          _buildInfoField('No. HP', '081234567890'),
-          _buildInfoField('Email', 'aldi.mahendra@email.com'),
-          _buildInfoField('Jenis Kelamin', 'Laki-laki'),
-          _buildInfoField('Alamat', 'Jl. KOYOSO No. 123'),
-          _buildInfoField('Provinsi', 'Kalimantan Barat'),
-          _buildInfoField('Kabupaten/Kota', 'Kota Pontianak'),
-          _buildInfoField('Kecamatan', 'Pontianak Selatan'),
-          _buildInfoField('Kelurahan/Desa', 'Benua Melayu Laut'),
-          _buildInfoField('Kode Pos', '78121'),
+          //  ambil dari map dataPribadi
+          _buildInfoField('Nama Lengkap', dataPribadi['nama_lengkap'] ?? '-'),
+          _buildInfoField('NIK', dataPribadi['nik'] ?? '-'),
+          _buildInfoField('Tempat Lahir', dataPribadi['tempat_lahir'] ?? '-'),
+          _buildInfoField('Tanggal Lahir', dataPribadi['tanggal_lahir'] ?? '-'),
+          _buildInfoField('No. HP', dataPribadi['no_hp'] ?? '-'),
+          _buildInfoField('Email', dataPribadi['email'] ?? '-'),
+          _buildInfoField('Jenis Kelamin', dataPribadi['jenis_kelamin'] ?? '-'),
+          _buildInfoField('Alamat', dataPribadi['alamat'] ?? '-'),
+          _buildInfoField('Provinsi', dataPribadi['provinsi'] ?? '-'),
+          _buildInfoField('Kabupaten/Kota', dataPribadi['kota'] ?? '-'),
+          _buildInfoField('Kecamatan', dataPribadi['kecamatan'] ?? '-'),
+          _buildInfoField('Kelurahan/Desa', dataPribadi['kelurahan'] ?? '-'),
+          _buildInfoField('Kode Pos', dataPribadi['kode_pos'] ?? '-'),
         ],
       ),
     );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class InformasiAkademikTab extends StatelessWidget {
-  const InformasiAkademikTab({super.key});
+  final Map<String, dynamic> dataAkademik;
+
+  const InformasiAkademikTab({super.key, required this.dataAkademik});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,6 @@ class InformasiAkademikTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           const Row(
             children: [
               Icon(Icons.school, color: Color(0xFF4F6C7A), size: 24),
@@ -44,13 +45,14 @@ class InformasiAkademikTab extends StatelessWidget {
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 20),
-
-          // Content Fields - sesuai dengan formulir pendaftaran
-          _buildInfoField('Asal Sekolah', 'SMA Negeri 1 Jakarta'),
-          _buildInfoField('Tahun Lulus', '2024'),
-          _buildInfoField('Nilai Rata-rata', '85.5'),
-          _buildInfoField('Jurusan yang Dipilih', 'Teknik Elektro'),
-          _buildInfoField('Prodi yang Dipilih', 'D3 - Teknik Listrik'),
+          _buildInfoField('Asal Sekolah', dataAkademik['asal_sekolah'] ?? '-'),
+          _buildInfoField('Tahun Lulus', dataAkademik['tahun_lulus'] ?? '-'),
+          _buildInfoField(
+              'Nilai Rata-rata', dataAkademik['nilai_rata_rata'] ?? '-'),
+          _buildInfoField(
+              'Jurusan yang Dipilih', dataAkademik['nama_jurusan'] ?? '-'),
+          _buildInfoField(
+              'Prodi yang Dipilih', dataAkademik['nama_prodi'] ?? '-'),
         ],
       ),
     );
@@ -79,11 +81,7 @@ class InformasiAkademikTab extends StatelessWidget {
             ),
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-                decorationColor: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black),
             ),
           ),
         ],

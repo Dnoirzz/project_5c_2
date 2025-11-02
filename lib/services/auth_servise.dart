@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   static const String baseUrl = "http://44.220.144.82/api";
@@ -8,20 +9,41 @@ class ApiService {
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
     var url = Uri.parse("$baseUrl/login.php");
-    var response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"email": email, "password": password}),
-    );
 
-    return json.decode(response.body);
+    try {
+      var response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
+
+      // Decode hasil dari server
+      final data = json.decode(response.body);
+
+      //  Jika login sukses, simpan user_id ke SharedPreferences
+      if (data['status'] == 'success' && data['data'] != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final userData = data['data'];
+        if (userData['id_pengguna'] != null) {
+          await prefs.setInt('user_id', userData['id_pengguna']);
+          print("[DEBUG] User ID disimpan: ${userData['id_pengguna']}");
+        }
+      }
+
+      return data;
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'Terjadi kesalahan: $e',
+      };
+    }
   }
 
   //  Fungsi Register
   static Future<Map<String, dynamic>> register(
       String email, String password, String namaLengkap,
       [String role = "mahasiswa"]) async {
-    var url = Uri.parse("$baseUrl/registrasi.php");
+    var url = Uri.parse("$baseUrl/registrasii.php");
     var response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
@@ -37,18 +59,71 @@ class ApiService {
   }
 
   //  Fungsi Reset_password
-  static Future<Map<String, dynamic>> reset_password(
-      String email, String new_password) async {
-    var url = Uri.parse("$baseUrl/reset_password.php");
+//   static Future<Map<String, dynamic>> reset_password(
+//       String email, String new_password) async {
+//     var url = Uri.parse("$baseUrl/forgot_password_mahasiswa.php");
+//     var response = await http.post(
+//       url,
+//       headers: {"Content-Type": "application/json"},
+//       body: jsonEncode({
+//         "email": email,
+//         "password": new_password,
+//       }),
+//     );
+
+//     return json.decode(response.body);
+//   }
+// }
+  static Future<Map<String, dynamic>> reset_Password(
+      String email, String oldPassword, String newPassword) async {
+    var url = Uri.parse("$baseUrl/reset_password_mahasiswa.php");
     var response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "email": email,
-        "new_password": new_password,
+        "old_password": oldPassword,
+        "new_password": newPassword,
       }),
     );
 
+    return json.decode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> forgotPassword(
+      String email, String newPassword) async {
+    var url = Uri.parse("$baseUrl/forgot_passworddd.php");
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "new_password": newPassword,
+      }),
+    );
+    return json.decode(response.body);
+  }
+
+  // Kirim OTP ke email
+  static Future<Map<String, dynamic>> sendVerification(String email) async {
+    var url = Uri.parse("$baseUrl/send_verification.php");
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email}),
+    );
+    return json.decode(response.body);
+  }
+
+// Verifikasi OTP
+  static Future<Map<String, dynamic>> verifyOtp(
+      String email, String otp) async {
+    var url = Uri.parse("$baseUrl/verify_otp.php");
+    var response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email, "otp": otp}),
+    );
     return json.decode(response.body);
   }
 }
