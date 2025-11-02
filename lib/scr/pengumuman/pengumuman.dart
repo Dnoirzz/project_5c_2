@@ -56,17 +56,42 @@ class _PengumumanPageState extends State<PengumumanPage> {
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
-                  TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: 'Search',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                  // TextField(
+                  //   controller: searchController,
+                  //   decoration: InputDecoration(
+                  //     prefixIcon: const Icon(Icons.search),
+                  //     hintText: 'Search',
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //     ),
+                  //   ),
+                  // ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white, // warna background textfield
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              Colors.black.withOpacity(0.2), // warna bayangan
+                          spreadRadius: 1, // seberapa lebar menyebar
+                          blurRadius: 3, // seberapa lembut blur
+                          offset: const Offset(0, 3), // posisi bayangan (x, y)
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search),
+                        hintText: 'Search',
+                        border: InputBorder.none, // hilangkan border bawaan
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 14),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   Expanded(
                     child: filteredPengumuman.isEmpty
                         ? const Center(child: Text('No pengumuman found'))
@@ -84,11 +109,17 @@ class _PengumumanPageState extends State<PengumumanPage> {
                                   );
                                 },
                                 child: Card(
+                                  color: Colors.white,
+                                  elevation: 4, // efek shadow
+                                  margin: const EdgeInsets.only(bottom: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
+                                    side: const BorderSide(
+                                      color: Color.fromARGB(255, 207, 207,
+                                          207), // warna border abu
+                                      width: 1,
+                                    ),
                                   ),
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  elevation: 2,
                                   child: Padding(
                                     padding: const EdgeInsets.all(12.0),
                                     child: Column(
