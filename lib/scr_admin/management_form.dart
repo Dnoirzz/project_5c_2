@@ -1,7 +1,8 @@
 // ignore_for_file: unnecessary_to_list_in_spreads
 
 import 'package:flutter/material.dart';
-
+import '../../models/mahasiswa_models.dart';
+import '../services/mahasiswa_service.dart';
 class FormManagementPage extends StatefulWidget {
   const FormManagementPage({super.key});
 
@@ -23,6 +24,10 @@ class _FormManagementPageState extends State<FormManagementPage> {
   int currentPage = 1;
   int itemsPerPage = 20;
 
+  List<Map<String, dynamic>> formData = [];
+  bool isLoading = true;
+  String errorMessage = '';
+
   // List of jurusan options
   final List<String> jurusanList = [
     'Jurusan Akutansi',
@@ -41,151 +46,183 @@ class _FormManagementPageState extends State<FormManagementPage> {
     'Jurusan Teknik Listrik': ['D3-Teknik Listrik', 'D4-Teknik Listrik'],
     'Jurusan Teknik Informatika': ['D3-TIF', 'D4-TIF'],
   };
+  @override
+void initState() {
+  super.initState();
+  _loadMahasiswaData();
+}
 
-  final List<Map<String, dynamic>> formData = [
-    {
-      'id': 1,
-      'nama': 'M.Zaky Pratama',
-      'prodi': 'D4-ASP',
-      'status': 'Belum Terverifikasi',
-      'details': [
-        {'name': 'Data', 'hasSubDetail': false},
-        {'name': 'Data Pribadi', 'hasSubDetail': true},
-        {'name': 'Data Akademik', 'hasSubDetail': true},
-        {'name': 'Data Orang Tua', 'hasSubDetail': true},
-        {'name': 'Dokumen', 'hasSubDetail': true},
-      ],
-      'formData': {
-        'dataPribadi': {
-          'namaLengkap': 'Muhammad Zaky Pratama',
-          'nik': '1234567890123456',
-          'tempatLahir': 'Jakarta',
-          'tanggalLahir': '2000-01-15',
-          'jenisKelamin': 'Laki-laki',
-          'agama': 'Islam',
-          'noHandphone': '081234567890',
-          'email': 'zaky.pratama@email.com',
-          'alamat': 'Jl. Sudirman No. 123',
-          'provinsi': 'DKI Jakarta',
-          'kota': 'Jakarta Selatan',
-          'kodePos': '12190',
-        },
-        'dataAkademik': {
-          'asalSekolah': 'SMAN 1 Jakarta',
-          'tahunLulus': '2023',
-          'jurusan': 'IPA',
-          'prodi': 'D4-ASP',
-          'nilaiRataRata': '85.5',
-        },
-        'dataOrangTua': {
-          'namaAyah': 'Budi Pratama',
-          'nikAyah': '3201234567890001',
-          'pekerjaanAyah': 'Karyawan Swasta',
-          'noTlpAyah': '081234567891',
-          'alamatAyah': 'Jl. Sudirman No. 123',
-          'penghasilanAyah': 'Rp 5.000.000',
-          'namaIbu': 'Siti Aminah',
-          'nikIbu': '3201234567890002',
-          'pekerjaanIbu': 'Ibu Rumah Tangga',
-          'noTlpIbu': '081234567892',
-          'alamatIbu': 'Jl. Sudirman No. 123',
-          'penghasilanIbu': 'Rp 2.000.000',
-        },
-        'dokumen': {
-          'ktp': 'Sudah Upload',
-          'ijazah': 'Sudah Upload',
-          'akta': 'Sudah Upload',
-          'kk': 'Sudah Upload',
-          'foto': 'Sudah Upload',
-        },
-      },
-    },
-    {
-      'id': 2,
-      'nama': 'M.Pahmi',
-      'prodi': 'D3-TIF',
-      'status': 'Terverifikasi',
-      'details': [
-        {'name': 'Data', 'hasSubDetail': false},
-        {'name': 'Data Pribadi', 'hasSubDetail': true},
-        {'name': 'Data Orang Tua', 'hasSubDetail': true},
-        {'name': 'Data Akademik', 'hasSubDetail': true},
-        {'name': 'Dokumen', 'hasSubDetail': true},
-      ],
-      'formData': {
-        'dataPribadi': {
-          'namaLengkap': 'Muhammad Pahmi',
-          'nik': '2345678901234567',
-          'tempatLahir': 'Bandung',
-          'tanggalLahir': '2001-05-20',
-          'jenisKelamin': 'Laki-laki',
-          'agama': 'Islam',
-          'noHandphone': '081234567893',
-          'email': 'pahmi@email.com',
-          'alamat': 'Jl. Gatot Subroto No. 456',
-          'provinsi': 'Jawa Barat',
-          'kota': 'Bandung',
-          'kodePos': '40111',
-        },
-        'dataAkademik': {
-          'asalSekolah': 'SMAN 2 Bandung',
-          'tahunLulus': '2022',
-          'jurusan': 'IPA',
-          'prodi': 'D3-TIF',
-          'nilaiRataRata': '88.0',
-        },
-        'dataOrangTua': {
-          'namaAyah': 'Ahmad Pahmi',
-          'nikAyah': '3273123456789003',
-          'pekerjaanAyah': 'PNS',
-          'noTlpAyah': '081234567894',
-          'alamatAyah': 'Jl. Gatot Subroto No. 456',
-          'penghasilanAyah': 'Rp 7.000.000',
-          'namaIbu': 'Rina Sari',
-          'nikIbu': '3273123456789004',
-          'pekerjaanIbu': 'Guru',
-          'noTlpIbu': '081234567895',
-          'alamatIbu': 'Jl. Gatot Subroto No. 456',
-          'penghasilanIbu': 'Rp 4.000.000',
-        },
-        'dokumen': {
-          'ktp': 'Sudah Upload',
-          'ijazah': 'Sudah Upload',
-          'akta': 'Sudah Upload',
-          'kk': 'Sudah Upload',
-          'foto': 'Sudah Upload',
-        },
-      },
-    },
-    {
-      'id': 3,
-      'nama': 'M.Pahmi',
-      'prodi': 'D3-TIF',
-      'status': 'Terverifikasi',
-      'details': []
-    },
-    {
-      'id': 4,
-      'nama': 'M.Pahmi',
-      'prodi': 'D3-TIF',
-      'status': 'Terverifikasi',
-      'details': []
-    },
-    {
-      'id': 5,
-      'nama': 'M.Pahmi',
-      'prodi': 'D3-TIF',
-      'status': 'Terverifikasi',
-      'details': []
-    },
-    {
-      'id': 6,
-      'nama': 'M.Pahmi',
-      'prodi': 'D3-TIF',
-      'status': 'Terverifikasi',
-      'details': []
-    },
-  ];
+Future<void> _loadMahasiswaData() async {
+  setState(() {
+    isLoading = true;
+    errorMessage = '';
+  });
+
+  try {
+    final List<Mahasiswa> mahasiswaList = await MahasiswaService.getSemuaMahasiswa(
+      jurusan: selectedJurusan,
+      prodi: selectedProdi,
+      status: activeTab == 'semua' ? null : activeTab,
+      search: searchQuery,
+    );
+
+    setState(() {
+      // Convert Mahasiswa model to Map untuk compatibility dengan UI yang sudah ada
+      formData = mahasiswaList.map((m) => m.toJson()).toList();
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      errorMessage = e.toString();
+      isLoading = false;
+    });
+  }
+}
+
+  // final List<Map<String, dynamic>> formData = [
+  //   {
+  //     'id': 1,
+  //     'nama': 'M.Zaky Pratama',
+  //     'prodi': 'D4-ASP',
+  //     'status': 'Belum Terverifikasi',
+  //     'details': [
+  //       {'name': 'Data', 'hasSubDetail': false},
+  //       {'name': 'Data Pribadi', 'hasSubDetail': true},
+  //       {'name': 'Data Akademik', 'hasSubDetail': true},
+  //       {'name': 'Data Orang Tua', 'hasSubDetail': true},
+  //       {'name': 'Dokumen', 'hasSubDetail': true},
+  //     ],
+  //     'formData': {
+  //       'dataPribadi': {
+  //         'namaLengkap': 'Muhammad Zaky Pratama',
+  //         'nik': '1234567890123456',
+  //         'tempatLahir': 'Jakarta',
+  //         'tanggalLahir': '2000-01-15',
+  //         'jenisKelamin': 'Laki-laki',
+  //         'agama': 'Islam',
+  //         'noHandphone': '081234567890',
+  //         'email': 'zaky.pratama@email.com',
+  //         'alamat': 'Jl. Sudirman No. 123',
+  //         'provinsi': 'DKI Jakarta',
+  //         'kota': 'Jakarta Selatan',
+  //         'kodePos': '12190',
+  //       },
+  //       'dataAkademik': {
+  //         'asalSekolah': 'SMAN 1 Jakarta',
+  //         'tahunLulus': '2023',
+  //         'jurusan': 'IPA',
+  //         'prodi': 'D4-ASP',
+  //         'nilaiRataRata': '85.5',
+  //       },
+  //       'dataOrangTua': {
+  //         'namaAyah': 'Budi Pratama',
+  //         'nikAyah': '3201234567890001',
+  //         'pekerjaanAyah': 'Karyawan Swasta',
+  //         'noTlpAyah': '081234567891',
+  //         'alamatAyah': 'Jl. Sudirman No. 123',
+  //         'penghasilanAyah': 'Rp 5.000.000',
+  //         'namaIbu': 'Siti Aminah',
+  //         'nikIbu': '3201234567890002',
+  //         'pekerjaanIbu': 'Ibu Rumah Tangga',
+  //         'noTlpIbu': '081234567892',
+  //         'alamatIbu': 'Jl. Sudirman No. 123',
+  //         'penghasilanIbu': 'Rp 2.000.000',
+  //       },
+  //       'dokumen': {
+  //         'ktp': 'Sudah Upload',
+  //         'ijazah': 'Sudah Upload',
+  //         'akta': 'Sudah Upload',
+  //         'kk': 'Sudah Upload',
+  //         'foto': 'Sudah Upload',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     'id': 2,
+  //     'nama': 'M.Pahmi',
+  //     'prodi': 'D3-TIF',
+  //     'status': 'Terverifikasi',
+  //     'details': [
+  //       {'name': 'Data', 'hasSubDetail': false},
+  //       {'name': 'Data Pribadi', 'hasSubDetail': true},
+  //       {'name': 'Data Orang Tua', 'hasSubDetail': true},
+  //       {'name': 'Data Akademik', 'hasSubDetail': true},
+  //       {'name': 'Dokumen', 'hasSubDetail': true},
+  //     ],
+  //     'formData': {
+  //       'dataPribadi': {
+  //         'namaLengkap': 'Muhammad Pahmi',
+  //         'nik': '2345678901234567',
+  //         'tempatLahir': 'Bandung',
+  //         'tanggalLahir': '2001-05-20',
+  //         'jenisKelamin': 'Laki-laki',
+  //         'agama': 'Islam',
+  //         'noHandphone': '081234567893',
+  //         'email': 'pahmi@email.com',
+  //         'alamat': 'Jl. Gatot Subroto No. 456',
+  //         'provinsi': 'Jawa Barat',
+  //         'kota': 'Bandung',
+  //         'kodePos': '40111',
+  //       },
+  //       'dataAkademik': {
+  //         'asalSekolah': 'SMAN 2 Bandung',
+  //         'tahunLulus': '2022',
+  //         'jurusan': 'IPA',
+  //         'prodi': 'D3-TIF',
+  //         'nilaiRataRata': '88.0',
+  //       },
+  //       'dataOrangTua': {
+  //         'namaAyah': 'Ahmad Pahmi',
+  //         'nikAyah': '3273123456789003',
+  //         'pekerjaanAyah': 'PNS',
+  //         'noTlpAyah': '081234567894',
+  //         'alamatAyah': 'Jl. Gatot Subroto No. 456',
+  //         'penghasilanAyah': 'Rp 7.000.000',
+  //         'namaIbu': 'Rina Sari',
+  //         'nikIbu': '3273123456789004',
+  //         'pekerjaanIbu': 'Guru',
+  //         'noTlpIbu': '081234567895',
+  //         'alamatIbu': 'Jl. Gatot Subroto No. 456',
+  //         'penghasilanIbu': 'Rp 4.000.000',
+  //       },
+  //       'dokumen': {
+  //         'ktp': 'Sudah Upload',
+  //         'ijazah': 'Sudah Upload',
+  //         'akta': 'Sudah Upload',
+  //         'kk': 'Sudah Upload',
+  //         'foto': 'Sudah Upload',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     'id': 3,
+  //     'nama': 'M.Pahmi',
+  //     'prodi': 'D3-TIF',
+  //     'status': 'Terverifikasi',
+  //     'details': []
+  //   },
+  //   {
+  //     'id': 4,
+  //     'nama': 'M.Pahmi',
+  //     'prodi': 'D3-TIF',
+  //     'status': 'Terverifikasi',
+  //     'details': []
+  //   },
+  //   {
+  //     'id': 5,
+  //     'nama': 'M.Pahmi',
+  //     'prodi': 'D3-TIF',
+  //     'status': 'Terverifikasi',
+  //     'details': []
+  //   },
+  //   {
+  //     'id': 6,
+  //     'nama': 'M.Pahmi',
+  //     'prodi': 'D3-TIF',
+  //     'status': 'Terverifikasi',
+  //     'details': []
+  //   },
+  // ];
 
   List<Map<String, dynamic>> get filteredData {
     return formData.where((item) {
@@ -884,6 +921,7 @@ class _FormManagementPageState extends State<FormManagementPage> {
                                 selectedProdi =
                                     null; // Reset prodi when jurusan changes
                               });
+                              _loadMahasiswaData();
                             },
                           ),
                         ),
@@ -904,6 +942,7 @@ class _FormManagementPageState extends State<FormManagementPage> {
                       setState(() {
                         searchQuery = value;
                       });
+                      _loadMahasiswaData();
                     },
                     decoration: const InputDecoration(
                       hintText: 'Search Here ....',
@@ -982,6 +1021,7 @@ class _FormManagementPageState extends State<FormManagementPage> {
                               setState(() {
                                 selectedProdi = newValue;
                               });
+                              _loadMahasiswaData();
                             },
                           ),
                         ),
@@ -1019,299 +1059,278 @@ class _FormManagementPageState extends State<FormManagementPage> {
                 const SizedBox(height: 8),
 
                 // Table with Fixed Header
+                // Table with Fixed Header
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      children: [
-                        // Fixed Table Header
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF0F172A),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(8),
-                              topRight: Radius.circular(8),
-                            ),
+                  child: isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
                           ),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 40,
-                                child: Text(
-                                  'No',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                        )
+                      : errorMessage.isNotEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.error_outline, color: Colors.red, size: 48),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    errorMessage,
+                                    style: TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center,
                                   ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  'Nama',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                                  SizedBox(height: 16),
+                                  ElevatedButton(
+                                    onPressed: _loadMahasiswaData,
+                                    child: Text('Coba Lagi'),
                                   ),
-                                ),
+                                ],
                               ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  'Prodi',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF5F5F5),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  'Status',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Scrollable Table Body
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children:
-                                  filteredData.asMap().entries.map((entry) {
-                                final index = entry.key;
-                                final item = entry.value;
-                                final isExpanded =
-                                    expandedRows.contains(item['id']);
-
-                                return Column(
-                                  children: [
-                                    // Main Row
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF5F5F5),
-                                        border: const Border(
-                                          bottom: BorderSide(
-                                            color: Color(0xFFE0E0E0),
-                                            width: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 40,
-                                            child: Text(
-                                              '${index + 1}',
-                                              style: const TextStyle(
-                                                color: Color(0xFF163042),
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Text(
-                                              item['nama'],
-                                              style: const TextStyle(
-                                                color: Color(0xFF163042),
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Text(
-                                              item['prodi'],
-                                              style: const TextStyle(
-                                                color: Color(0xFF163042),
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    item['status'],
-                                                    style: TextStyle(
-                                                      color: item['status'] ==
-                                                              'Terverifikasi'
-                                                          ? const Color(
-                                                              0xFF4ADE80)
-                                                          : const Color(
-                                                              0xFFEF4444),
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                IconButton(
-                                                  icon: Icon(
-                                                    isExpanded
-                                                        ? Icons
-                                                            .keyboard_arrow_up
-                                                        : Icons
-                                                            .keyboard_arrow_down,
-                                                    color:
-                                                        const Color(0xFF6366F1),
-                                                    size: 20,
-                                                  ),
-                                                  onPressed: () =>
-                                                      toggleRow(item['id']),
-                                                  padding: EdgeInsets.zero,
-                                                  constraints:
-                                                      const BoxConstraints(),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                              child: Column(
+                                children: [
+                                  // Fixed Table Header
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF0F172A),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(8),
+                                        topRight: Radius.circular(8),
                                       ),
                                     ),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 40,
+                                          child: Text(
+                                            'No',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            'Nama',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'Prodi',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            'Status',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
 
-                                    // Expanded Details
-                                    if (isExpanded &&
-                                        (item['details'] as List).isNotEmpty)
-                                      Container(
-                                        color: const Color(0xFFEEEEEE),
-                                        padding: const EdgeInsets.only(
-                                            left: 56,
-                                            right: 16,
-                                            top: 8,
-                                            bottom: 8),
-                                        child: Column(
-                                          children: (item['details'] as List)
-                                              .map<Widget>((detail) {
-                                            final detailKey =
-                                                '${item['id']}_${detail['name']}';
-                                            final isDetailExpanded =
-                                                expandedDetails[detailKey] ??
-                                                    false;
+                                  // Scrollable Table Body
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        children: filteredData.asMap().entries.map((entry) {
+                                          final index = entry.key;
+                                          final item = entry.value;
+                                          final isExpanded = expandedRows.contains(item['id']);
 
-                                            return Column(
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(vertical: 8),
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    border: Border(
-                                                      bottom: BorderSide(
-                                                        color:
-                                                            Color(0xFFE0E0E0),
-                                                        width: 1,
-                                                      ),
+                                          return Column(
+                                            children: [
+                                              // Main Row
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFF5F5F5),
+                                                  border: const Border(
+                                                    bottom: BorderSide(
+                                                      color: Color(0xFFE0E0E0),
+                                                      width: 1,
                                                     ),
                                                   ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Expanded(
-                                                        child: Text(
-                                                          detail['name'],
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Color(
-                                                                0xFF163042),
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 40,
+                                                      child: Text(
+                                                        '${index + 1}',
+                                                        style: const TextStyle(
+                                                          color: Color(0xFF163042),
+                                                          fontSize: 13,
+                                                          fontWeight: FontWeight.w500,
                                                         ),
                                                       ),
-                                                      Row(
+                                                    ),
+                                                    Expanded(
+                                                      flex: 3,
+                                                      child: Text(
+                                                        item['nama'],
+                                                        style: const TextStyle(
+                                                          color: Color(0xFF163042),
+                                                          fontSize: 13,
+                                                          fontWeight: FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: Text(
+                                                        item['prodi'],
+                                                        style: const TextStyle(
+                                                          color: Color(0xFF163042),
+                                                          fontSize: 13,
+                                                          fontWeight: FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 3,
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [
-                                                          if (!detail[
-                                                              'hasSubDetail'])
-                                                            const Text(
-                                                              'Action',
+                                                          Expanded(
+                                                            child: Text(
+                                                              item['status'],
                                                               style: TextStyle(
-                                                                color: Color(
-                                                                    0xFF3B82F6),
-                                                                fontSize: 13,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
+                                                                color: item['status'] == 'Terverifikasi'
+                                                                    ? const Color(0xFF4ADE80)
+                                                                    : const Color(0xFFEF4444),
+                                                                fontSize: 12,
+                                                                fontWeight: FontWeight.w600,
                                                               ),
+                                                              overflow: TextOverflow.ellipsis,
                                                             ),
-                                                          if (detail[
-                                                              'hasSubDetail'])
-                                                            IconButton(
-                                                              icon: Icon(
-                                                                isDetailExpanded
-                                                                    ? Icons
-                                                                        .keyboard_arrow_up
-                                                                    : Icons
-                                                                        .keyboard_arrow_down,
-                                                                color: const Color(
-                                                                    0xFF163042),
-                                                                size: 20,
-                                                              ),
-                                                              onPressed: () =>
-                                                                  toggleDetail(
-                                                                      detailKey),
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .zero,
-                                                              constraints:
-                                                                  const BoxConstraints(),
+                                                          ),
+                                                          const SizedBox(width: 8),
+                                                          IconButton(
+                                                            icon: Icon(
+                                                              isExpanded
+                                                                  ? Icons.keyboard_arrow_up
+                                                                  : Icons.keyboard_arrow_down,
+                                                              color: const Color(0xFF6366F1),
+                                                              size: 20,
                                                             ),
+                                                            onPressed: () => toggleRow(item['id']),
+                                                            padding: EdgeInsets.zero,
+                                                            constraints: const BoxConstraints(),
+                                                          ),
                                                         ],
                                                       ),
-                                                    ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+                                              // Expanded Details
+                                              if (isExpanded && (item['details'] as List).isNotEmpty)
+                                                Container(
+                                                  color: const Color(0xFFEEEEEE),
+                                                  padding: const EdgeInsets.only(left: 56, right: 16, top: 8, bottom: 8),
+                                                  child: Column(
+                                                    children: (item['details'] as List).map<Widget>((detail) {
+                                                      final detailKey = '${item['id']}_${detail['name']}';
+                                                      final isDetailExpanded = expandedDetails[detailKey] ?? false;
+
+                                                      return Column(
+                                                        children: [
+                                                          Container(
+                                                            padding: const EdgeInsets.symmetric(vertical: 8),
+                                                            decoration: const BoxDecoration(
+                                                              border: Border(
+                                                                bottom: BorderSide(
+                                                                  color: Color(0xFFE0E0E0),
+                                                                  width: 1,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            child: Row(
+                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    detail['name'],
+                                                                    style: const TextStyle(
+                                                                      color: Color(0xFF163042),
+                                                                      fontSize: 13,
+                                                                      fontWeight: FontWeight.w500,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    if (!detail['hasSubDetail'])
+                                                                      const Text(
+                                                                        'Action',
+                                                                        style: TextStyle(
+                                                                          color: Color(0xFF3B82F6),
+                                                                          fontSize: 13,
+                                                                          fontWeight: FontWeight.w600,
+                                                                        ),
+                                                                      ),
+                                                                    if (detail['hasSubDetail'])
+                                                                      IconButton(
+                                                                        icon: Icon(
+                                                                          isDetailExpanded
+                                                                              ? Icons.keyboard_arrow_up
+                                                                              : Icons.keyboard_arrow_down,
+                                                                          color: const Color(0xFF163042),
+                                                                          size: 20,
+                                                                        ),
+                                                                        onPressed: () => toggleDetail(detailKey),
+                                                                        padding: EdgeInsets.zero,
+                                                                        constraints: const BoxConstraints(),
+                                                                      ),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          // Sub-detail content (when expanded)
+                                                          if (isDetailExpanded && detail['hasSubDetail'])
+                                                            _buildFormDetailSection(detail['name'], item),
+                                                        ],
+                                                      );
+                                                    }).toList(),
                                                   ),
                                                 ),
-                                                // Sub-detail content (when expanded)
-                                                if (isDetailExpanded &&
-                                                    detail['hasSubDetail'])
-                                                  _buildFormDetailSection(
-                                                      detail['name'], item),
-                                              ],
-                                            );
-                                          }).toList(),
-                                        ),
+                                            ],
+                                          );
+                                        }).toList(),
                                       ),
-                                  ],
-                                );
-                              }).toList(),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -1360,6 +1379,7 @@ class _FormManagementPageState extends State<FormManagementPage> {
         setState(() {
           activeTab = value;
         });
+        _loadMahasiswaData();
       },
       child: Column(
         mainAxisSize: MainAxisSize.min,
