@@ -1,3 +1,5 @@
+// ignore_for_file: sized_box_for_whitespace, avoid_unnecessary_containers
+
 import 'package:flutter/material.dart';
 import '../../widgets/app_bar.dart';
 import 'data_pribadi_page.dart';
@@ -447,11 +449,6 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
                           child: const Text("< Sebelumnya"),
                         ),
                       ),
-// <<<<<<< HEAD
-// =======
-
-//                       // Tombol Simpan Draft (hanya tampil jika bukan di halaman review)
-// >>>>>>> origin/Ryan
                       if (_currentPage != 4)
                         Container(
                           child: ElevatedButton.icon(

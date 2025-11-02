@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, deprecated_member_use
+
 import 'package:SPMB/models/dataDokumen_models.dart';
 import 'package:SPMB/models/dataOrangTua_models.dart';
 import 'package:flutter/material.dart';

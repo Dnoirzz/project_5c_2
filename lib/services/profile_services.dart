@@ -1,3 +1,5 @@
+// ignore_for_file: camel_case_types, avoid_print
+
 import 'dart:convert';
 import 'package:SPMB/models/dataAkademik_models.dart';
 import 'package:SPMB/models/dataDokumen_models.dart';
