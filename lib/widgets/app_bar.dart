@@ -404,10 +404,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       );
     } else if (showMenuButton) {
       return Builder(
-        builder: (context) => IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: onMenuPressed ?? () => Scaffold.of(context).openDrawer(),
-        ),
+        builder:
+            (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed:
+                  onMenuPressed ?? () => Scaffold.of(context).openDrawer(),
+            ),
       );
     }
     return null;
@@ -467,61 +469,66 @@ class _ProfileMenuState extends State<ProfileMenu> {
       offset: const Offset(0, 55),
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 1,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                userName,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+      itemBuilder:
+          (context) => [
+            PopupMenuItem(
+              value: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    userName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    userEmail,
+                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  ),
+                ],
               ),
-              Text(
-                userEmail,
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+            const PopupMenuDivider(),
+            PopupMenuItem(
+              value: 2,
+              enabled: widget.currentPage != 'profile',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.person_outline,
+                    size: 18,
+                    color:
+                        widget.currentPage == 'profile'
+                            ? Colors.grey.shade400
+                            : Colors.black,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Profil',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color:
+                          widget.currentPage == 'profile'
+                              ? Colors.grey.shade400
+                              : Colors.black,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(),
-        PopupMenuItem(
-          value: 2,
-          enabled: widget.currentPage != 'profile',
-          child: Row(
-            children: [
-              Icon(
-                Icons.person_outline,
-                size: 18,
-                color: widget.currentPage == 'profile'
-                    ? Colors.grey.shade400
-                    : Colors.black,
+            ),
+            const PopupMenuItem(
+              value: 3,
+              child: Row(
+                children: [
+                  Icon(Icons.logout, color: Colors.red, size: 18),
+                  SizedBox(width: 8),
+                  Text('Keluar', style: TextStyle(color: Colors.red)),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Profil',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: widget.currentPage == 'profile'
-                      ? Colors.grey.shade400
-                      : Colors.black,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const PopupMenuItem(
-          value: 3,
-          child: Row(
-            children: [
-              Icon(Icons.logout, color: Colors.red, size: 18),
-              SizedBox(width: 8),
-              Text('Keluar', style: TextStyle(color: Colors.red)),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
       onSelected: (value) {
         if (widget.onSelected != null) {
           widget.onSelected!(value);
@@ -547,9 +554,16 @@ class _ProfileMenuState extends State<ProfileMenu> {
         }
         break;
       case 3:
-        // Logout - Clear SharedPreferences dan navigate to landing
+        // Logout - Hapus session data saja, pertahankan remember me
         final prefs = await SharedPreferences.getInstance();
-        await prefs.clear(); // Hapus semua data
+
+        // Hapus hanya status login (session data)
+        await prefs.remove('is_logged_in');
+        await prefs.remove('user_email');
+        await prefs.remove('user_nama_lengkap');
+        await prefs.remove('user_role');
+
+        // APP_rememberMe, APP_saved_email, APP_saved_password TIDAK DIHAPUS
 
         if (context.mounted) {
           Navigator.pushAndRemoveUntil(
@@ -557,9 +571,9 @@ class _ProfileMenuState extends State<ProfileMenu> {
             MaterialPageRoute(builder: (context) => const LandingPage()),
             (route) => false,
           );
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Logout berhasil')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Logout berhasil')));
         }
         break;
     }
