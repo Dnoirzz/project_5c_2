@@ -720,6 +720,9 @@
 //     );
 //   }
 // }
+import 'package:SPMB/models/dataDokumen_models.dart';
+import 'package:SPMB/services/profile_services.dart';
+
 import '../services/pengumuman_services.dart';
 import '../models/pengumuman_models.dart';
 import 'package:flutter/material.dart';
@@ -743,6 +746,9 @@ class _DashboardPageState extends State<DashboardPage> {
   String formattedDate = '';
   bool isLoading = true;
   List<Pengumuman> pengumumanList = [];
+  List<DataDokumen> dokumenUser = [];
+  String statusText = 'Menunggu Verifikasi';
+  Color statusColor = Colors.yellow.shade700;
 
   // 🔹 Variabel untuk menyimpan data user
   String userName = '';
@@ -754,16 +760,101 @@ class _DashboardPageState extends State<DashboardPage> {
     _initializeDateFormatting();
     _loadPengumuman();
     _loadUserData();
+    print('Status dokumen: $statusText');
   }
 
   // Fungsi untuk load data user dari SharedPreferences
+//   Future<void> _loadUserData() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     setState(() {
+//       userName = prefs.getString('user_nama_lengkap') ?? 'User';
+//       userEmail = prefs.getString('user_email') ?? 'email@example.com';
+//     });
+//     try {
+//       // Ambil id_mahasiswa dari dataMahasiswaService
+//       final dataMahasiswa =
+//           await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+//       dokumenUser = await dataMahasiswaService
+//           .getDataDokumenByIdMahasiswa(dataMahasiswa.id);
+
+//       // Tentukan status global dokumen
+//       final status = getStatusDokumen(dokumenUser);
+//       setState(() {
+//         statusText = status['status'];
+//         statusColor = status['color'];
+//       });
+//     } catch (e) {
+//       print("Error load dokumen: $e");
+//     }
+//   }
+
+// // Fungsi menentukan status dokumen
+//   Map<String, dynamic> getStatusDokumen(List<DataDokumen> dokumenList) {
+//     if (dokumenList.any((d) => d.statusVerifikasi == 'Ditolak Verifikasi')) {
+//       return {'status': 'Tolak Verifikasi', 'color': Colors.red};
+//     } else if (dokumenList
+//         .every((d) => d.statusVerifikasi == 'Lulus Verifikasi')) {
+//       return {'status': 'Verifikasi', 'color': Colors.green};
+//     } else {
+//       return {'status': 'Menunggu Verifikasi', 'color': Colors.yellow.shade700};
+//     }
+//   }
+  // Future<void> _loadUserData() async {
+  //   final status = getStatusDokumen(dokumenUser);
+  //   final prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     userName = prefs.getString('user_nama_lengkap') ?? 'User';
+  //     userEmail = prefs.getString('user_email') ?? 'email@example.com';
+  //   });
+  //   dokumenUser.forEach((d) {
+  //     print(
+  //         'Dokumen: ${d.jenisDokumen}, statusVerifikasi raw: "${d.statusVerifikasi}"');
+  //     print(
+  //         'status lowercase trim: "${d.statusVerifikasi.trim().toLowerCase()}"');
+  //   });
+  // }
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        userName = prefs.getString('user_nama_lengkap') ?? 'User';
-        userEmail = prefs.getString('user_email') ?? 'email@example.com';
+    setState(() {
+      userName = prefs.getString('user_nama_lengkap') ?? 'User';
+      userEmail = prefs.getString('user_email') ?? 'email@example.com';
+    });
+
+    try {
+      // Ambil data mahasiswa dulu
+      final dataMahasiswa =
+          await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+
+      // Ambil dokumen mahasiswa
+      dokumenUser = await dataMahasiswaService
+          .getDataDokumenByIdMahasiswa(dataMahasiswa.idMahasiswa);
+
+      // Debug: lihat isi dokumen dan statusnya
+      dokumenUser.forEach((d) {
+        print(
+            'Dokumen: ${d.jenisDokumen}, status raw: "${d.statusVerifikasi}"');
       });
+
+      // Hitung status dokumen
+      final status = getStatusDokumen(dokumenUser);
+      setState(() {
+        statusText = status['status'];
+        statusColor = status['color'];
+      });
+    } catch (e) {
+      print("Error load dokumen: $e");
+    }
+  }
+
+  Map<String, dynamic> getStatusDokumen(List<DataDokumen> dokumenList) {
+    if (dokumenList.any((d) =>
+        d.statusVerifikasi.trim().toLowerCase() == 'ditolak verifikasi')) {
+      return {'status': 'Tolak Verifikasi', 'color': Colors.red};
+    } else if (dokumenList.every(
+        (d) => d.statusVerifikasi.trim().toLowerCase() == 'lulus verifikasi')) {
+      return {'status': 'Verifikasi', 'color': Colors.green};
+    } else {
+      return {'status': 'Menunggu Verifikasi', 'color': Colors.yellow.shade700};
     }
   }
 
@@ -794,6 +885,7 @@ class _DashboardPageState extends State<DashboardPage> {
       }
     }
   }
+// print('Status dokumen: $statusText');
 
   @override
   Widget build(BuildContext context) {
@@ -846,18 +938,34 @@ class _DashboardPageState extends State<DashboardPage> {
                           style: const TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 8),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(
+                        //       horizontal: 8, vertical: 4),
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.yellow.shade700,
+                        //     borderRadius: BorderRadius.circular(8),
+                        //   ),
+                        //   child: const Text(
+                        //     'Status: Lengkapi Verifikasi',
+                        //     style: TextStyle(
+                        //       color: Colors.black87,
+                        //       fontSize: 12,
+                        //       fontWeight: FontWeight.w500,
+                        //     ),
+                        //   ),
+                        // ),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.yellow.shade700,
+                            color: statusColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'Status: Lengkapi Verifikasi',
-                            style: TextStyle(
+                          child: Text(
+                            'Status: $statusText',
+                            style: const TextStyle(
                               color: Colors.black87,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -925,100 +1033,159 @@ class _DashboardPageState extends State<DashboardPage> {
             //     }
             //   }
 
-            //   @override
-            //   Widget build(BuildContext context) {
-            //     return Scaffold(
-            //       backgroundColor: Colors.grey.shade100,
-            //       appBar: CustomAppBar(
-            //         title: 'Dashboard',
-            //         showMenuButton: true,
-            //         showProfileMenu: true,
-            //         currentPage: 'dashboard',
-            //       ),
-            //       drawer: const AppDrawer(currentPage: 'dashboard'),
-            //       body: SingleChildScrollView(
-            //         padding: const EdgeInsets.all(16.0),
-            //         child: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             // Profile Card
-            //             Container(
-            //               decoration: BoxDecoration(
-            //                 color: const Color(0xFF233746),
-            //                 borderRadius: BorderRadius.circular(12),
-            //               ),
-            //               padding: const EdgeInsets.all(16),
-            //               child: Row(
-            //                 children: [
-            //                   const CircleAvatar(
-            //                     radius: 35,
-            //                     backgroundColor: Colors.white24,
-            //                     child: Icon(Icons.person, size: 40, color: Colors.white),
-            //                   ),
-            //                   const SizedBox(width: 16),
-            //                   Expanded(
-            //                     child: Column(
-            //                       crossAxisAlignment: CrossAxisAlignment.start,
-            //                       children: [
-            //                         const Text(
-            //                           'Aldi Mahendra',
-            //                           style: TextStyle(
-            //                             color: Colors.white,
-            //                             fontSize: 18,
-            //                             fontWeight: FontWeight.bold,
-            //                           ),
-            //                         ),
-            //                         const SizedBox(height: 4),
-            //                         const Text(
-            //                           'NIK: 1234567890123456',
-            //                           style: TextStyle(color: Colors.white70),
-            //                         ),
-            //                         const SizedBox(height: 8),
-            //                         Container(
-            //                           padding: const EdgeInsets.symmetric(
-            //                               horizontal: 8, vertical: 4),
-            //                           decoration: BoxDecoration(
-            //                             color: Colors.yellow.shade700,
-            //                             borderRadius: BorderRadius.circular(8),
-            //                           ),
-            //                           child: const Text(
-            //                             'Status: Lengkapi Verifikasi',
-            //                             style: TextStyle(
-            //                               color: Colors.black87,
-            //                               fontSize: 12,
-            //                               fontWeight: FontWeight.w500,
-            //                             ),
-            //                           ),
-            //                         ),
-            //                         const SizedBox(height: 8),
-            //                         Align(
-            //                           alignment: Alignment.bottomRight,
-            //                           child: Row(
-            //                             mainAxisSize: MainAxisSize.min,
-            //                             children: [
-            //                               const Icon(Icons.calendar_today,
-            //                                   size: 16, color: Colors.white70),
-            //                               const SizedBox(width: 6),
-            //                               Text(
-            //                                 formattedDate,
-            //                                 textAlign: TextAlign.right,
-            //                                 style: const TextStyle(
-            //                                     color: Colors.white70, fontSize: 13),
-            //                               ),
-            //                             ],
-            //                           ),
-            //                         ),
-            //                       ],
-            //                     ),
-            //                   ),
-            //                 ],
-            //               ),
-            //             ),
-            const SizedBox(height: 24),
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.grey.shade100,
+//       appBar: CustomAppBar(
+//         title: 'Dashboard',
+//         showMenuButton: true,
+//         showProfileMenu: true,
+//         currentPage: 'dashboard',
+//       ),
+//       drawer: const AppDrawer(currentPage: 'dashboard'),
+//       body: SingleChildScrollView(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             // Profile Card
+//             Container(
+//               decoration: BoxDecoration(
+//                 color: const Color(0xFF233746),
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//               padding: const EdgeInsets.all(16),
+//               child: Row(
+//                 children: [
+//                   const CircleAvatar(
+//                     radius: 35,
+//                     backgroundColor: Colors.white24,
+//                     child: Icon(Icons.person, size: 40, color: Colors.white),
+//                   ),
+//                   const SizedBox(width: 16),
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         const Text(
+//                           'Aldi Mahendra',
+//                           style: TextStyle(
+//                             color: Colors.white,
+//                             fontSize: 18,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         ),
+//                         const SizedBox(height: 4),
+//                         const Text(
+//                           'NIK: 1234567890123456',
+//                           style: TextStyle(color: Colors.white70),
+//                         ),
+//                         const SizedBox(height: 8),
+//                         Container(
+//                           padding: const EdgeInsets.symmetric(
+//                               horizontal: 8, vertical: 4),
+//                           decoration: BoxDecoration(
+//                             color: Colors.yellow.shade700,
+//                             borderRadius: BorderRadius.circular(8),
+//                           ),
+//                           child: const Text(
+//                             'Status: Lengkapi Verifikasi',
+//                             style: TextStyle(
+//                               color: Colors.black87,
+//                               fontSize: 12,
+//                               fontWeight: FontWeight.w500,
+//                             ),
+//                           ),
+//                         ),
+//                         const SizedBox(height: 8),
+//                         Align(
+//                           alignment: Alignment.bottomRight,
+//                           child: Row(
+//                             mainAxisSize: MainAxisSize.min,
+//                             children: [
+//                               const Icon(Icons.calendar_today,
+//                                   size: 16, color: Colors.white70),
+//                               const SizedBox(width: 6),
+//                               Text(
+//                                 formattedDate,
+//                                 textAlign: TextAlign.right,
+//                                 style: const TextStyle(
+//                                     color: Colors.white70, fontSize: 13),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+            const SizedBox(height: 5),
+            Card(
+              elevation: 4,
+              color: const Color(0xFFFFF8E1), // kuning lembut
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.assignment_outlined,
+                            color: Colors.orangeAccent),
+                        SizedBox(width: 8),
+                        Text(
+                          'Informasi Deadline Pendaftaran',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '⏰ Pendaftaran tinggal 5 hari lagi!',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      '📅 Periode: 25 Oktober - 30 Oktober 2025',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      '⚠️ Jika kalian melewati batas tersebut maka formulir pendaftaran tidak akan berfungsi!',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 5),
 
             // Progress Pendaftaran
             Card(
               elevation: 2,
+              color: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -1111,7 +1278,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 5),
 
             // 🔹 Pengumuman section
             _buildPengumumanSection(context),

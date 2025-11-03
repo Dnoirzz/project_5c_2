@@ -1,4 +1,3 @@
-// ignore_for_file: unnecessary_to_list_in_spreads, deprecated_member_use
 import 'package:flutter/material.dart';
 import '../../models/dataDokumen_models.dart';
 
@@ -81,6 +80,40 @@ class DokumenTab extends StatelessWidget {
                         ],
                       ),
                     ),
+                    // IconButton(
+                    //   onPressed: () {
+                    //     // TODO: buka atau unduh file
+                    //   },
+                    //   icon: const Icon(Icons.visibility,
+                    //       color: Color(0xFF4F6C7A)),
+                    // ),
+                    // IconButton(
+                    //   icon: const Icon(Icons.visibility,
+                    //       color: Color(0xFF4F6C7A)),
+                    //   onPressed: () {
+                    //     showDialog(
+                    //       context: context,
+                    //       builder: (_) => AlertDialog(
+                    //         title: Text(doc.jenisDokumen),
+                    //         content: Column(
+                    //           mainAxisSize: MainAxisSize.min,
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: [
+                    //             Text("Nama File: ${doc.namaFile}"),
+                    //             Text("Status: ${doc.statusVerifikasi}"),
+                    //             Text("Tanggal Upload: ${doc.tanggalUpload}"),
+                    //           ],
+                    //         ),
+                    //         actions: [
+                    //           TextButton(
+                    //             onPressed: () => Navigator.pop(context),
+                    //             child: const Text("Tutup"),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
                     IconButton(
                       icon: const Icon(Icons.visibility,
                           color: Color(0xFF4F6C7A)),

@@ -107,18 +107,18 @@ class PengumumanService {
       final res = await http.get(Uri.parse("$baseUrl/get_pengumuman.php"));
 
       if (res.statusCode == 200) {
-        print("=== FULL RESPONSE ===");
-        print(res.body);
-        print("=== END RESPONSE ===");
+        // print("=== FULL RESPONSE ===");
+        // print(res.body);
+        // print("=== END RESPONSE ===");
 
         final body = jsonDecode(res.body);
         if (body['success'] == true && body['data'] != null) {
           final dataList = body['data'] as List;
 
           if (dataList.isNotEmpty) {
-            print("=== SAMPLE ITEM ===");
-            print(dataList[0]); // Print item pertama untuk lihat struktur
-            print("=== END SAMPLE ===");
+            // print("=== SAMPLE ITEM ===");
+            // print(dataList[0]); // Print item pertama untuk lihat struktur
+            // print("=== END SAMPLE ===");
           }
 
           return dataList.map((e) => Pengumuman.fromJson(e)).toList();
