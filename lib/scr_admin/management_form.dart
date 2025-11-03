@@ -59,6 +59,12 @@ Future<void> _loadMahasiswaData() async {
   });
 
   try {
+    print('===== LOADING DATA =====');
+    print('Jurusan: $selectedJurusan');
+    print('Prodi: $selectedProdi');
+    print('Status: $activeTab');
+    print('Search: $searchQuery');
+    
     final List<Mahasiswa> mahasiswaList = await MahasiswaService.getSemuaMahasiswa(
       jurusan: selectedJurusan,
       prodi: selectedProdi,
@@ -66,12 +72,21 @@ Future<void> _loadMahasiswaData() async {
       search: searchQuery,
     );
 
+    print('===== RESPONSE =====');
+    print('Total data: ${mahasiswaList.length}');
+    print('Data: $mahasiswaList');
+    
     setState(() {
-      // Convert Mahasiswa model to Map untuk compatibility dengan UI yang sudah ada
       formData = mahasiswaList.map((m) => m.toJson()).toList();
       isLoading = false;
     });
+    
+    print('===== FORM DATA =====');
+    print('formData length: ${formData.length}');
+    
   } catch (e) {
+    print('===== ERROR =====');
+    print('Error: $e');
     setState(() {
       errorMessage = e.toString();
       isLoading = false;
@@ -225,16 +240,32 @@ Future<void> _loadMahasiswaData() async {
   // ];
 
   List<Map<String, dynamic>> get filteredData {
+    print('===== FILTER DATA =====');
+    print('Total formData: ${formData.length}');
+    print('activeTab: $activeTab');
+    print('selectedProdi: $selectedProdi');
+    
     return formData.where((item) {
       final matchesSearch = item['nama']
           .toString()
           .toLowerCase()
           .contains(searchQuery.toLowerCase());
+      
+      // FIX: Ubah 'Belum Terverifikasi' jadi 'Belum Diverifikasi'
       final matchesTab = activeTab == 'semua' ||
           (activeTab == 'terverifikasi' && item['status'] == 'Terverifikasi') ||
-          (activeTab == 'belum' && item['status'] == 'Belum Terverifikasi');
-      final matchesProdi =
-          selectedProdi == null || item['prodi'] == selectedProdi;
+          (activeTab == 'belum' && (item['status'] == 'Belum Diverifikasi' || item['status'] == 'Belum Terverifikasi'));
+      
+      // FIX: Gunakan kode_prodi untuk filter
+      final matchesProdi = selectedProdi == null || 
+                          selectedProdi == '' || 
+                          item['kode_prodi'] == selectedProdi;
+      
+      print('Item: ${item['nama']} | Status: ${item['status']} | Prodi: ${item['kode_prodi']}');
+      print('  matchesSearch: $matchesSearch');
+      print('  matchesTab: $matchesTab');
+      print('  matchesProdi: $matchesProdi');
+      
       return matchesSearch && matchesTab && matchesProdi;
     }).toList();
   }
@@ -1204,7 +1235,7 @@ Future<void> _loadMahasiswaData() async {
                                                     Expanded(
                                                       flex: 2,
                                                       child: Text(
-                                                        item['prodi'],
+                                                        item['kode_prodi'] ?? '-',
                                                         style: const TextStyle(
                                                           color: Color(0xFF163042),
                                                           fontSize: 13,
