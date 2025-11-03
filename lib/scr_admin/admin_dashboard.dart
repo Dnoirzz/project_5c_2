@@ -27,47 +27,76 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<void> _fetchDashboardData() async {
     try {
       final data = await service.fetchDashboardData();
-      setState(() {
-        dashboardData = data;
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          dashboardData = data;
+          isLoading = false;
+        });
+        print('Dashboard data loaded: $data');
+      }
     } catch (e) {
       print('Error fetching dashboard: $e');
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          // Set default empty data jika error
+          dashboardData = {
+            "jumlahMahasiswa": 0,
+            "lakiLakiCount": 0,
+            "perempuanCount": 0,
+            "jumlahTerverifikasi": 0,
+            "jumlahBelumVerifikasi": 0,
+            "unverified": [],
+          };
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: const Color(0xFF364A63),
+        body: const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
       );
     }
 
-    // ✅ Use Correct Key Names from Service
-    final totalStudents = dashboardData?['jumlahMahasiswa'] ?? 0;
-    final totalMale = dashboardData?['lakiLakiCount'] ?? 0;
-    final totalFemale = dashboardData?['perempuanCount'] ?? 0;
-    final verified = dashboardData?['jumlahTerverifikasi'] ?? 0;
-    final unverifiedCount = dashboardData?['jumlahBelumVerifikasi'] ?? 0;
+    // ✅ Use Correct Key Names from Service with null safety
+    if (dashboardData == null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF364A63),
+        body: const Center(
+          child: Text(
+            'Gagal memuat data dashboard',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+
+    final totalStudents = dashboardData!['jumlahMahasiswa'] ?? 0;
+    final totalMale = dashboardData!['lakiLakiCount'] ?? 0;
+    final totalFemale = dashboardData!['perempuanCount'] ?? 0;
+    final verified = dashboardData!['jumlahTerverifikasi'] ?? 0;
+    final unverifiedCount = dashboardData!['jumlahBelumVerifikasi'] ?? 0;
 
     // ✅ List of unverified students from API
-    final unverifiedStudents = dashboardData?['unverified'] ?? [];
+    final unverifiedStudents = dashboardData!['unverified'] ?? [];
 
     // ✅ Chart Data
     final distribution = [
       {
         'label': 'Laki-Laki',
         'value': totalMale.toDouble(),
-        'color': '0xFF42A5F5'
+        'color': '0xFF42A5F5',
       },
       {
         'label': 'Perempuan',
         'value': totalFemale.toDouble(),
-        'color': '0xFFEF5350'
+        'color': '0xFFEF5350',
       },
     ];
 
@@ -91,8 +120,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search, color: Colors.white),
+            onPressed: () {
+              // Refresh data
+              if (mounted) {
+                setState(() {
+                  isLoading = true;
+                });
+                _fetchDashboardData();
+              }
+            },
+            icon: const Icon(Icons.refresh, color: Colors.white),
           ),
         ],
       ),
@@ -120,8 +157,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   TextSpan(
                     text: "$unverifiedCount Daftar Mahasiswa ",
                     style: const TextStyle(
-                        color: Colors.yellowAccent,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.yellowAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const TextSpan(
                     text: "yang Belum di ",
@@ -130,8 +168,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   const TextSpan(
                     text: "Terverifikasi",
                     style: TextStyle(
-                        color: Colors.lightGreenAccent,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.lightGreenAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -157,11 +196,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: _infoCard(Icons.male, "Total Mhs Laki - Laki", "$totalMale"),
+                  child: _infoCard(
+                    Icons.male,
+                    "Total Mhs Laki - Laki",
+                    "$totalMale",
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _infoCard(Icons.female, "Total Mhs Perempuan", "$totalFemale"),
+                  child: _infoCard(
+                    Icons.female,
+                    "Total Mhs Perempuan",
+                    "$totalFemale",
+                  ),
                 ),
               ],
             ),
@@ -171,10 +218,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Row(
               children: [
                 Expanded(
-                    child: _infoCard(Icons.people, "Total Mhs", "$totalStudents")),
+                  child: _infoCard(Icons.people, "Total Mhs", "$totalStudents"),
+                ),
                 const SizedBox(width: 16),
                 Expanded(
-                    child: _infoCard(Icons.verified, "Terverifikasi", "$verified")),
+                  child: _infoCard(
+                    Icons.verified,
+                    "Terverifikasi",
+                    "$verified",
+                  ),
+                ),
               ],
             ),
 
@@ -193,9 +246,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   const Text(
                     "Distribusi Mahasiswa per Jurusan",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -204,18 +258,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       PieChartData(
                         sectionsSpace: 2,
                         centerSpaceRadius: 40,
-                        sections: distribution.map<PieChartSectionData>((d) {
-                          return PieChartSectionData(
-                            color: Color(int.parse(d['color'])),
-                            value: d['value'],
-                            title: '${d['value']}',
-                            radius: 60,
-                            titleStyle: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          );
-                        }).toList(),
+                        sections:
+                            distribution.map<PieChartSectionData>((d) {
+                              return PieChartSectionData(
+                                color: Color(int.parse(d['color'])),
+                                value: d['value'],
+                                title: '${d['value']}',
+                                radius: 60,
+                                titleStyle: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              );
+                            }).toList(),
                       ),
                     ),
                   ),
@@ -229,8 +285,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       child: const Text(
                         "View All",
                         style: TextStyle(
-                            color: Colors.lightBlueAccent,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.lightBlueAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -241,7 +298,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const AdminPengumumanPage()),
+                            builder: (_) => const AdminPengumumanPage(),
+                          ),
                         );
                       },
                       icon: const Icon(Icons.campaign, color: Colors.white),
@@ -249,11 +307,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blueAccent,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 14),
+                          horizontal: 24,
+                          vertical: 14,
+                        ),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         textStyle: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -266,55 +329,136 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const Text(
               "Daftar Mahasiswa Belum Terverifikasi",
               style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 12),
 
             // ✅ Table Using Unverified Students List
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: MaterialStateProperty.all(Colors.white10),
-                columns: const [
-                  DataColumn(
-                      label: Text('Nama',
-                          style: TextStyle(
+            unverifiedStudents.isEmpty
+                ? Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white12,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Tidak ada mahasiswa yang belum terverifikasi',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  ),
+                )
+                : SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white12,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: DataTable(
+                      headingRowColor: MaterialStateProperty.all(
+                        Colors.white10,
+                      ),
+                      columns: const [
+                        DataColumn(
+                          label: Text(
+                            'Nama',
+                            style: TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold))),
-                  DataColumn(
-                      label: Text('Jurusan',
-                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Jurusan',
+                            style: TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold))),
-                  DataColumn(
-                      label: Text('Prodi',
-                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Prodi',
+                            style: TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold))),
-                  DataColumn(
-                      label: Text('Status',
-                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Status',
+                            style: TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold))),
-                ],
-                rows: unverifiedStudents.map<DataRow>((student) {
-                  return DataRow(cells: [
-                    DataCell(Text(student['nama_mahasiswa'] ?? '-',
-                        style: const TextStyle(color: Colors.white70))),
-                    DataCell(Text(student['jurusan'] ?? '-',
-                        style: const TextStyle(color: Colors.white70))),
-                    DataCell(Text(student['prodi'] ?? '-',
-                        style: const TextStyle(color: Colors.white70))),
-                    DataCell(Text(student['status_verifikasi'] ?? '-',
-                        style: const TextStyle(
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.bold))),
-                  ]);
-                }).toList(),
-              ),
-            ),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                      rows:
+                          unverifiedStudents.map<DataRow>((student) {
+                            // Handle berbagai format field name
+                            final nama =
+                                student['nama_mahasiswa'] ??
+                                student['nama'] ??
+                                student['nama_lengkap'] ??
+                                '-';
+                            final jurusan = student['jurusan'] ?? '-';
+                            final prodi =
+                                student['prodi'] ??
+                                student['kode_prodi'] ??
+                                '-';
+                            final status =
+                                student['status_verifikasi'] ??
+                                student['status'] ??
+                                '-';
+
+                            return DataRow(
+                              cells: [
+                                DataCell(
+                                  Text(
+                                    nama.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Text(
+                                    jurusan.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Text(
+                                    prodi.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Text(
+                                    status.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.redAccent,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ),
           ],
         ),
       ),
@@ -335,7 +479,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
           Text(
             value,
             style: const TextStyle(
-                color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -350,26 +497,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildLegendFromData(List<dynamic> distribution) {
     return Column(
-      children: distribution.map<Widget>((d) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: Color(int.parse(d['color'])),
-                  borderRadius: BorderRadius.circular(4),
-                ),
+      children:
+          distribution.map<Widget>((d) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Color(int.parse(d['color'])),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    d['label'],
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(d['label'],
-                  style: const TextStyle(color: Colors.white70, fontSize: 14)),
-            ],
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
     );
   }
 }
