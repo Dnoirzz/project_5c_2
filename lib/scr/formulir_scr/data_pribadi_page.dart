@@ -43,6 +43,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   final TextEditingController _regencyController = TextEditingController();
   final TextEditingController _districtController = TextEditingController();
   final TextEditingController _villageController = TextEditingController();
+  String? _selectedAgama;
 
   void _notifyDataChanged() {
     Map<String, dynamic> data = {};
@@ -76,6 +77,9 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     }
     if (_jenisKelamin != null) {
       data['jenisKelamin'] = _jenisKelamin;
+    }
+    if (_selectedAgama != null) {
+      data['selectedAgama'] = _selectedAgama;
     }
 
     // Location data
@@ -454,6 +458,45 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                   ),
                 ],
               ),
+              // Agama
+              const Text(
+                "Agama",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _selectedAgama,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF4F6C7A)),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+                hint: const Text("Pilih agama"),
+                items: const [
+                  DropdownMenuItem(value: "Islam", child: Text("Islam")),
+                  DropdownMenuItem(value: "Kristen", child: Text("Kristen")),
+                  DropdownMenuItem(value: "Katolik", child: Text("Katolik")),
+                  DropdownMenuItem(value: "Hindu", child: Text("Hindu")),
+                  DropdownMenuItem(value: "Buddha", child: Text("Buddha")),
+                  DropdownMenuItem(value: "Konghucu", child: Text("Konghucu")),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedAgama = value!;
+                    _notifyDataChanged();
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
               const SizedBox(height: 16),
 
               // Alamat

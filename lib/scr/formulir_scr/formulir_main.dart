@@ -339,8 +339,33 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
     );
 
     try {
-      // 🔹 Kirim data ke server lewat service
-      final result = await FormulirService.uploadFinal(allFormData: _formData);
+      // 🔹 Gabungkan semua data dari halaman 0–3
+      final combinedFormData = {
+        ..._formData[0] ?? {},
+        ..._formData[1] ?? {},
+        ..._formData[2] ?? {},
+        ..._formData[3] ?? {},
+      };
+
+      // 🔹 Samakan nama key Flutter dengan nama field di PHP & database
+      combinedFormData['agama'] =
+          combinedFormData['selectedAgama'] ?? combinedFormData['agama'] ?? '';
+
+      combinedFormData['provinsi'] = combinedFormData['province'];
+      combinedFormData['kabupaten'] = combinedFormData['city'];
+      combinedFormData['kecamatan'] = combinedFormData['district'];
+      combinedFormData['kelurahan'] = combinedFormData['village'];
+
+      // 🔹 Hapus key yang tidak diperlukan supaya JSON bersih
+      combinedFormData.remove('selectedAgama');
+      combinedFormData.remove('province');
+      combinedFormData.remove('city');
+      combinedFormData.remove('district');
+      combinedFormData.remove('village');
+
+      // 🔹 Kirim ke server
+      final result =
+          await FormulirService.uploadFinal(formData: combinedFormData);
 
       // Tutup loading dialog
       if (mounted) Navigator.pop(context);
@@ -358,14 +383,12 @@ class _FormulirPendaftaranMainState extends State<FormulirPendaftaranMain> {
       // 🔹 Jika berhasil, arahkan ke Dashboard
       if (result['status'] == 'success') {
         Navigator.of(context).pushNamedAndRemoveUntil(
-          '/dashboard', // pastikan rute dashboard ada di MaterialApp
+          '/dashboard',
           (route) => false,
         );
       }
     } catch (e) {
-      // Tutup loading kalau error
       if (mounted) Navigator.pop(context);
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Terjadi kesalahan saat upload: $e'),
