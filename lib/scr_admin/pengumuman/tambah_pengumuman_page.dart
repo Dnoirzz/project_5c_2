@@ -162,6 +162,7 @@ class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
                 ),
               ),
               const SizedBox(height: 8),
+
               // Input Deskripsi
               TextField(
                 controller: _deskripsiController,
@@ -210,7 +211,6 @@ class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
               // Tombol Upload dan Text Field Simulasi
               Row(
                 children: [
-                  // Tombol Choose File
                   ElevatedButton(
                     onPressed: _pickImage,
                     style: ElevatedButton.styleFrom(
@@ -231,32 +231,79 @@ class _TambahPengumumanPageState extends State<TambahPengumumanPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  // Text/Placeholder untuk nama file yang dipilih
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            Colors.white12, // Warna abu-abu yang lebih terang
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        _selectedImage != null
-                            ? _selectedImage!.path.split('/').last
-                            : "Upload File/Gambar",
-                        style: TextStyle(
-                          color: Colors.white,
-                          overflow: TextOverflow.ellipsis,
+                  if (_selectedImage == null) ...[
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white12,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          "Upload File/Gambar",
+                          style: TextStyle(
+                            color: Colors.white,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
+              // Row(
+              //   children: [
+              //     // Tombol Choose File
+              //     ElevatedButton(
+              //       onPressed: _pickImage,
+              //       style: ElevatedButton.styleFrom(
+              //         backgroundColor: fileUploadButtonColor,
+              //         padding: const EdgeInsets.symmetric(
+              //           horizontal: 16,
+              //           vertical: 12,
+              //         ),
+              //         shape: RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(8),
+              //         ),
+              //       ),
+              //       child: const Text(
+              //         "Choose File",
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       ),
+              //     ),
+              //     const SizedBox(width: 8),
+              //     // Text/Placeholder untuk nama file yang dipilih
+              //     Expanded(
+              //       child: Container(
+              //         padding: const EdgeInsets.symmetric(
+              //           horizontal: 16,
+              //           vertical: 12,
+              //         ),
+              //         decoration: BoxDecoration(
+              //           color:
+              //               Colors.white12, // Warna abu-abu yang lebih terang
+              //           borderRadius: BorderRadius.circular(8),
+              //         ),
+              //         child: Text(
+              //           _selectedImage != null
+              //               ? _selectedImage!.path.split('/').last
+              //               : "Upload File/Gambar",
+              //           style: TextStyle(
+              //             color: Colors.white,
+              //             overflow: TextOverflow.ellipsis,
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
               const SizedBox(height: 16),
 
               // Preview Gambar (opsional, disembunyikan jika tidak ada)

@@ -293,12 +293,15 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        _fileName,
-                        style: TextStyle(
-                          color: (_selectedImage != null || _existingImagePath != null)
-                              ? Colors.white
-                              : Colors.white70,
-                          overflow: TextOverflow.ellipsis,
+                        // _fileName,
+                        // style: TextStyle(
+                        //   color: (_selectedImage != null || _existingImagePath != null)
+                        //       ? Colors.white
+                        //       : Colors.white70,
+                        //   overflow: TextOverflow.ellipsis,
+                        // ),
+                        _fileName.isNotEmpty ? _fileName : '',
+                        style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     ),
