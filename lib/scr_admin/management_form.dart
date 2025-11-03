@@ -44,6 +44,25 @@ class _FormManagementPageState extends State<FormManagementPage> {
     'Jurusan Teknik Listrik': ['D3-Teknik Listrik', 'D4-Teknik Listrik'],
     'Jurusan Teknik Informatika': ['D3-TIF', 'D4-TIF'],
   };
+
+  // Mapping dari nama jurusan di dropdown ke nama jurusan di database
+  final Map<String, String> jurusanToDatabase = {
+    'Jurusan Akutansi': 'Akuntansi',
+    'Jurusan Elektro': 'Teknik Elektro',
+    'Jurusan Teknik Listrik': 'Teknik Listrik',
+    'Jurusan Teknik Informatika': 'Teknik Informatika',
+  };
+
+  // Mapping dari nama prodi (display) ke kode_prodi (database)
+  final Map<String, String> prodiToKodeProdi = {
+    'D4-ASP': 'ASP',
+    'D3-Akuntansi': 'AK',
+    'D3-Teknik Listrik': 'TL',
+    'D4-Teknologi Rekayasa Sistem Elektronika': 'TRSE',
+    'D4-Teknik Listrik': 'TL',
+    'D3-TIF': 'TIF',
+    'D4-TIF': 'TIF',
+  };
   @override
 void initState() {
   super.initState();
@@ -63,11 +82,26 @@ Future<void> _loadMahasiswaData() async {
     print('Status: $activeTab');
     print('Search: $searchQuery');
     
+    // Map jurusan dari dropdown ke format database
+    final jurusanForApi = jurusanToDatabase[selectedJurusan] ?? selectedJurusan.replaceFirst('Jurusan ', '');
+    
+    // Konversi prodi ke kode_prodi jika ada mapping
+    final prodiForApi = (selectedProdi != null && selectedProdi!.isNotEmpty)
+        ? (prodiToKodeProdi[selectedProdi] ?? selectedProdi)
+        : null;
+    
+    print('===== API PARAMETERS =====');
+    print('Jurusan (original): $selectedJurusan');
+    print('Jurusan (for API): $jurusanForApi');
+    print('Prodi (original): $selectedProdi');
+    print('Prodi (for API): $prodiForApi');
+    
+    // Untuk testing: jika semua filter kosong, coba tanpa filter jurusan dulu
     final List<Mahasiswa> mahasiswaList = await MahasiswaService.getSemuaMahasiswa(
-      jurusan: selectedJurusan,
-      prodi: selectedProdi,
+      jurusan: jurusanForApi.isNotEmpty ? jurusanForApi : null,
+      prodi: prodiForApi,
       status: activeTab == 'semua' ? null : activeTab,
-      search: searchQuery,
+      search: searchQuery.isEmpty ? null : searchQuery,
     );
 
     print('===== RESPONSE =====');
@@ -82,12 +116,14 @@ Future<void> _loadMahasiswaData() async {
     print('===== FORM DATA =====');
     print('formData length: ${formData.length}');
     
-  } catch (e) {
+  } catch (e, stackTrace) {
     print('===== ERROR =====');
     print('Error: $e');
+    print('Stack Trace: $stackTrace');
     setState(() {
       errorMessage = e.toString();
       isLoading = false;
+      formData = []; // Clear data on error
     });
   }
 }
@@ -244,22 +280,26 @@ Future<void> _loadMahasiswaData() async {
     print('selectedProdi: $selectedProdi');
     
     return formData.where((item) {
-      final matchesSearch = item['nama']
-          .toString()
-          .toLowerCase()
-          .contains(searchQuery.toLowerCase());
+      final nama = item['nama']?.toString() ?? '';
+      final matchesSearch = nama.toLowerCase().contains(searchQuery.toLowerCase());
       
       // FIX: Ubah 'Belum Terverifikasi' jadi 'Belum Diverifikasi'
       final matchesTab = activeTab == 'semua' ||
           (activeTab == 'terverifikasi' && item['status'] == 'Terverifikasi') ||
           (activeTab == 'belum' && (item['status'] == 'Belum Diverifikasi' || item['status'] == 'Belum Terverifikasi'));
       
-      // FIX: Gunakan kode_prodi untuk filter
-      final matchesProdi = selectedProdi == null || 
-                          selectedProdi == '' || 
-                          item['kode_prodi'] == selectedProdi;
+      // FIX: Gunakan kode_prodi untuk filter (sesuai database)
+      final itemKodeProdi = item['kode_prodi']?.toString() ?? '';
+      // Konversi selectedProdi (nama) ke kode_prodi jika ada mapping
+      final selectedKodeProdi = (selectedProdi != null && selectedProdi!.isNotEmpty)
+          ? (prodiToKodeProdi[selectedProdi] ?? selectedProdi)
+          : null;
       
-      print('Item: ${item['nama']} | Status: ${item['status']} | Prodi: ${item['kode_prodi']}');
+      final matchesProdi = selectedKodeProdi == null || 
+                          selectedKodeProdi.isEmpty || 
+                          itemKodeProdi == selectedKodeProdi;
+      
+      print('Item: $nama | Status: ${item['status']} | Kode Prodi: $itemKodeProdi | Selected: $selectedProdi -> $selectedKodeProdi');
       print('  matchesSearch: $matchesSearch');
       print('  matchesTab: $matchesTab');
       print('  matchesProdi: $matchesProdi');
@@ -414,6 +454,9 @@ Future<void> _loadMahasiswaData() async {
                 '${sectionData['tempatLahir']}, ${sectionData['tanggalLahir']}';
           }
 
+          // Special handling for Dokumen section - show status with color
+          bool isDokumenField = sectionName == 'Dokumen';
+
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 6),
             decoration: const BoxDecoration(
@@ -440,14 +483,47 @@ Future<void> _loadMahasiswaData() async {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    displayValue,
-                    style: const TextStyle(
-                      color: Color(0xFF163042),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
+                  child: isDokumenField
+                      ? Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _getDocumentStatusColor(fieldValue)
+                                    .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _getDocumentStatusIcon(fieldValue),
+                                    size: 12,
+                                    color: _getDocumentStatusColor(fieldValue),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    displayValue,
+                                    style: TextStyle(
+                                      color: _getDocumentStatusColor(fieldValue),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          displayValue,
+                          style: const TextStyle(
+                            color: Color(0xFF163042),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                 ),
                 if (sectionName == 'Dokumen')
                   Container(
@@ -472,11 +548,117 @@ Future<void> _loadMahasiswaData() async {
     );
   }
 
+  // Helper function untuk check apakah semua dokumen sudah diterima
+  bool _areAllDocumentsAccepted(Map<String, dynamic> dokumenData) {
+    final requiredDocs = ['ktp', 'ijazah', 'akta', 'kk', 'foto'];
+    for (var doc in requiredDocs) {
+      final status = dokumenData[doc]?.toString().toLowerCase() ?? '';
+      // Check untuk status 'diterima', 'lulus verifikasi', atau 'sudah diterima'
+      if (!status.contains('diterima') && 
+          !status.contains('lulus verifikasi') && 
+          status != 'sudah diterima') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Update status dokumen dan check apakah perlu update status mahasiswa
+  Future<void> _updateDocumentStatus(
+    String documentType,
+    String status, // 'diterima' atau 'ditolak'
+    Map<String, dynamic> studentData,
+  ) async {
+    final idMahasiswa = studentData['id_mahasiswa']?.toString() ?? 
+                       studentData['id'].toString();
+    
+    try {
+      // Debug: Cek jenis dokumen yang ada di database untuk mahasiswa ini
+      print('===== DEBUG: Cek jenis dokumen yang ada =====');
+      final jenisDokumenList = await MahasiswaService.getJenisDokumenMahasiswa(idMahasiswa);
+      print('Jenis dokumen yang ada di database: $jenisDokumenList');
+      
+      // Update status dokumen via API
+      final success = await MahasiswaService.updateStatusDokumen(
+        idMahasiswa: idMahasiswa,
+        jenisDokumen: documentType.toLowerCase(),
+        status: status,
+      );
+
+      if (success) {
+        // Update local data terlebih dahulu untuk check
+        final formData = studentData['formData'] ?? {};
+        final dokumen = Map<String, dynamic>.from(formData['dokumen'] ?? {});
+        
+        // Update status dokumen di local data
+        dokumen[documentType.toLowerCase()] = status == 'diterima' 
+            ? 'Diterima' 
+            : 'Ditolak';
+        
+        // Check apakah semua dokumen sudah diterima (setelah update)
+        if (status == 'diterima' && _areAllDocumentsAccepted(dokumen)) {
+          // Update status mahasiswa menjadi Terverifikasi
+          await MahasiswaService.verifikasiMahasiswa(idMahasiswa);
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Semua dokumen diterima. Status mahasiswa menjadi Terverifikasi.'),
+              backgroundColor: Color(0xFF10B981),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else if (status == 'ditolak') {
+          // Update status mahasiswa menjadi Ditolak jika ada dokumen yang ditolak
+          await MahasiswaService.tolakMahasiswa(idMahasiswa);
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Dokumen ditolak. Status mahasiswa menjadi Ditolak.'),
+              backgroundColor: const Color(0xFFEF4444),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        } else {
+          // Hanya update satu dokumen
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Status dokumen berhasil diupdate menjadi ${status == 'diterima' ? 'Diterima' : 'Ditolak'}.'),
+              backgroundColor: status == 'diterima' 
+                  ? const Color(0xFF10B981) 
+                  : const Color(0xFFEF4444),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+
+        // Reload data untuk refresh UI
+        _loadMahasiswaData();
+      } else {
+        throw Exception('Gagal update status dokumen');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: const Color(0xFFEF4444),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   void _showDocumentViewer(String documentName, String documentType,
       Map<String, dynamic> studentData) {
     final formData = studentData['formData'] ?? {};
     final dataPribadi = formData['dataPribadi'] ?? {};
     final dataOrangTua = formData['dataOrangTua'] ?? {};
+    final dokumen = formData['dokumen'] ?? {};
+    
+    // Get current status dokumen
+    final currentStatus = dokumen[documentType.toLowerCase()]?.toString() ?? 'Belum Upload';
 
     showDialog(
       context: context,
@@ -576,27 +758,28 @@ Future<void> _loadMahasiswaData() async {
                                 ),
                               ),
                               const SizedBox(height: 16),
+                              // Show status badge based on current status
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF10B981)
+                                  color: _getDocumentStatusColor(currentStatus)
                                       .withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
-                                      Icons.check_circle,
-                                      color: Color(0xFF10B981),
+                                    Icon(
+                                      _getDocumentStatusIcon(currentStatus),
+                                      color: _getDocumentStatusColor(currentStatus),
                                       size: 16,
                                     ),
                                     const SizedBox(width: 8),
-                                    const Text(
-                                      'Dokumen Tersedia',
+                                    Text(
+                                      _getDocumentStatusText(currentStatus),
                                       style: TextStyle(
-                                        color: Color(0xFF10B981),
+                                        color: _getDocumentStatusColor(currentStatus),
                                         fontWeight: FontWeight.w500,
                                         fontSize: 12,
                                       ),
@@ -624,17 +807,12 @@ Future<void> _loadMahasiswaData() async {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Dokumen $documentName ditolak'),
-                              backgroundColor: const Color(0xFFEF4444),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
+                          await _updateDocumentStatus(
+                            documentType,
+                            'ditolak',
+                            studentData,
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -661,17 +839,12 @@ Future<void> _loadMahasiswaData() async {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Dokumen $documentName diterima'),
-                              backgroundColor: const Color(0xFF10B981),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
+                          await _updateDocumentStatus(
+                            documentType,
+                            'diterima',
+                            studentData,
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -875,6 +1048,54 @@ Future<void> _loadMahasiswaData() async {
     }
   }
 
+  // Helper functions untuk status dokumen
+  // Handle status dari database: 'Lulus Verifikasi', 'Ditolak Verifikasi', 'Menunggu Verifikasi'
+  // Dan status dari UI: 'Diterima', 'Ditolak', 'Sudah Upload', 'Belum Upload'
+  Color _getDocumentStatusColor(String status) {
+    final statusLower = status.toLowerCase();
+    if (statusLower.contains('diterima') || statusLower.contains('lulus verifikasi')) {
+      return const Color(0xFF10B981); // Green
+    } else if (statusLower.contains('ditolak') || statusLower.contains('ditolak verifikasi')) {
+      return const Color(0xFFEF4444); // Red
+    } else if (statusLower.contains('sudah upload') || 
+               statusLower.contains('tersedia') || 
+               statusLower.contains('menunggu verifikasi')) {
+      return const Color(0xFF3B82F6); // Blue
+    } else {
+      return const Color(0xFF9CA3AF); // Gray
+    }
+  }
+
+  IconData _getDocumentStatusIcon(String status) {
+    final statusLower = status.toLowerCase();
+    if (statusLower.contains('diterima') || statusLower.contains('lulus verifikasi')) {
+      return Icons.check_circle;
+    } else if (statusLower.contains('ditolak') || statusLower.contains('ditolak verifikasi')) {
+      return Icons.cancel;
+    } else if (statusLower.contains('sudah upload') || 
+               statusLower.contains('tersedia') || 
+               statusLower.contains('menunggu verifikasi')) {
+      return Icons.upload_file;
+    } else {
+      return Icons.pending;
+    }
+  }
+
+  String _getDocumentStatusText(String status) {
+    final statusLower = status.toLowerCase();
+    if (statusLower.contains('diterima') || statusLower.contains('lulus verifikasi')) {
+      return 'Dokumen Diterima';
+    } else if (statusLower.contains('ditolak') || statusLower.contains('ditolak verifikasi')) {
+      return 'Dokumen Ditolak';
+    } else if (statusLower.contains('sudah upload') || 
+               statusLower.contains('tersedia') || 
+               statusLower.contains('menunggu verifikasi')) {
+      return 'Menunggu Verifikasi';
+    } else {
+      return 'Belum Upload';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -950,6 +1171,7 @@ Future<void> _loadMahasiswaData() async {
                                 selectedProdi =
                                     null; // Reset prodi when jurusan changes
                               });
+                              resetPagination();
                               _loadMahasiswaData();
                             },
                           ),
@@ -970,8 +1192,9 @@ Future<void> _loadMahasiswaData() async {
                     onChanged: (value) {
                       setState(() {
                         searchQuery = value;
+                        resetPagination(); // Reset to page 1 when search changes
                       });
-                      _loadMahasiswaData();
+                      // No need to reload data, filtering is done client-side
                     },
                     decoration: const InputDecoration(
                       hintText: 'Search Here ....',
@@ -1050,6 +1273,7 @@ Future<void> _loadMahasiswaData() async {
                               setState(() {
                                 selectedProdi = newValue;
                               });
+                              resetPagination();
                               _loadMahasiswaData();
                             },
                           ),
@@ -1060,31 +1284,32 @@ Future<void> _loadMahasiswaData() async {
                 ),
                 const SizedBox(height: 12),
 
-                // Show entries
-                Align(
-                  alignment: Alignment.centerRight,
-                  // child: RichText(
-                  //   text: const TextSpan(
-                  //     style: TextStyle(color: Colors.white, fontSize: 12),
-                  //     children: [
-                  //       TextSpan(text: 'Show '),
-                  //       WidgetSpan(
-                  //         child: Padding(
-                  //           padding: EdgeInsets.symmetric(horizontal: 4),
-                  //           child: Text(
-                  //             '10',
-                  //             style: TextStyle(
-                  //               backgroundColor: Colors.white,
-                  //               color: Color(0xFF475569),
-                  //               fontWeight: FontWeight.bold,
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                ),
+                // Debug button untuk test load semua data
+                if (formData.isEmpty && !isLoading)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Test load tanpa filter
+                        try {
+                          print('===== TEST: Loading semua data tanpa filter =====');
+                          final List<Mahasiswa> allData = await MahasiswaService.getSemuaMahasiswa();
+                          print('===== TEST RESULT: Total data tanpa filter: ${allData.length} =====');
+                          setState(() {
+                            formData = allData.map((m) => m.toJson()).toList();
+                            isLoading = false;
+                          });
+                        } catch (e) {
+                          print('===== TEST ERROR: $e =====');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Test: Load Semua Data'),
+                    ),
+                  ),
                 const SizedBox(height: 8),
 
                 // Table with Fixed Header
@@ -1185,62 +1410,99 @@ Future<void> _loadMahasiswaData() async {
 
                                   // Scrollable Table Body
                                   Expanded(
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        children: filteredData.asMap().entries.map((entry) {
-                                          final index = entry.key;
-                                          final item = entry.value;
-                                          final isExpanded = expandedRows.contains(item['id']);
-
-                                          return Column(
-                                            children: [
-                                              // Main Row
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFF5F5F5),
-                                                  border: const Border(
-                                                    bottom: BorderSide(
-                                                      color: Color(0xFFE0E0E0),
-                                                      width: 1,
+                                    child: filteredData.isEmpty
+                                        ? Center(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(32.0),
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    Icons.inbox_outlined,
+                                                    size: 64,
+                                                    color: Colors.grey[400],
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  Text(
+                                                    'Tidak ada data',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
                                                     ),
                                                   ),
-                                                ),
-                                                child: Row(
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    'Tidak ada data mahasiswa yang sesuai dengan filter',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[500],
+                                                      fontSize: 12,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        : SingleChildScrollView(
+                                            child: Column(
+                                              children: paginatedData.asMap().entries.map((entry) {
+                                                final index = entry.key;
+                                                final item = entry.value;
+                                                final isExpanded = expandedRows.contains(item['id'] ?? 0);
+                                                final globalIndex = (currentPage - 1) * itemsPerPage + index;
+
+                                                return Column(
                                                   children: [
-                                                    SizedBox(
-                                                      width: 40,
-                                                      child: Text(
-                                                        '${index + 1}',
-                                                        style: const TextStyle(
-                                                          color: Color(0xFF163042),
-                                                          fontSize: 13,
-                                                          fontWeight: FontWeight.w500,
+                                                    // Main Row
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFF5F5F5),
+                                                        border: const Border(
+                                                          bottom: BorderSide(
+                                                            color: Color(0xFFE0E0E0),
+                                                            width: 1,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 3,
-                                                      child: Text(
-                                                        item['nama'],
-                                                        style: const TextStyle(
-                                                          color: Color(0xFF163042),
-                                                          fontSize: 13,
-                                                          fontWeight: FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      flex: 2,
-                                                      child: Text(
-                                                        item['kode_prodi'] ?? '-',
-                                                        style: const TextStyle(
-                                                          color: Color(0xFF163042),
-                                                          fontSize: 13,
-                                                          fontWeight: FontWeight.w500,
-                                                        ),
-                                                      ),
-                                                    ),
+                                                      child: Row(
+                                                        children: [
+                                                          SizedBox(
+                                                            width: 40,
+                                                            child: Text(
+                                                              '${globalIndex + 1}',
+                                                              style: const TextStyle(
+                                                                color: Color(0xFF163042),
+                                                                fontSize: 13,
+                                                                fontWeight: FontWeight.w500,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Expanded(
+                                                            flex: 3,
+                                                            child: Text(
+                                                              item['nama']?.toString() ?? '-',
+                                                              style: const TextStyle(
+                                                                color: Color(0xFF163042),
+                                                                fontSize: 13,
+                                                                fontWeight: FontWeight.w600,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Expanded(
+                                                            flex: 2,
+                                                            child: Text(
+                                                              (item['prodi']?.toString().isEmpty ?? true) 
+                                                                  ? '-' 
+                                                                  : item['prodi'].toString(),
+                                                              style: const TextStyle(
+                                                                color: Color(0xFF163042),
+                                                                fontSize: 13,
+                                                                fontWeight: FontWeight.w500,
+                                                              ),
+                                                            ),
+                                                          ),
                                                     Expanded(
                                                       flex: 3,
                                                       child: Row(
@@ -1248,9 +1510,9 @@ Future<void> _loadMahasiswaData() async {
                                                         children: [
                                                           Expanded(
                                                             child: Text(
-                                                              item['status'],
+                                                              item['status']?.toString() ?? '-',
                                                               style: TextStyle(
-                                                                color: item['status'] == 'Terverifikasi'
+                                                                color: (item['status']?.toString() == 'Terverifikasi')
                                                                     ? const Color(0xFF4ADE80)
                                                                     : const Color(0xFFEF4444),
                                                                 fontSize: 12,
@@ -1268,7 +1530,7 @@ Future<void> _loadMahasiswaData() async {
                                                               color: const Color(0xFF6366F1),
                                                               size: 20,
                                                             ),
-                                                            onPressed: () => toggleRow(item['id']),
+                                                            onPressed: () => toggleRow(item['id'] ?? 0),
                                                             padding: EdgeInsets.zero,
                                                             constraints: const BoxConstraints(),
                                                           ),
@@ -1280,13 +1542,15 @@ Future<void> _loadMahasiswaData() async {
                                               ),
 
                                               // Expanded Details
-                                              if (isExpanded && (item['details'] as List).isNotEmpty)
+                                              if (isExpanded && 
+                                                  item['details'] != null && 
+                                                  (item['details'] as List).isNotEmpty)
                                                 Container(
                                                   color: const Color(0xFFEEEEEE),
                                                   padding: const EdgeInsets.only(left: 56, right: 16, top: 8, bottom: 8),
                                                   child: Column(
                                                     children: (item['details'] as List).map<Widget>((detail) {
-                                                      final detailKey = '${item['id']}_${detail['name']}';
+                                                      final detailKey = '${item['id'] ?? 0}_${detail['name'] ?? ''}';
                                                       final isDetailExpanded = expandedDetails[detailKey] ?? false;
 
                                                       return Column(
@@ -1306,7 +1570,7 @@ Future<void> _loadMahasiswaData() async {
                                                               children: [
                                                                 Expanded(
                                                                   child: Text(
-                                                                    detail['name'],
+                                                                    detail['name']?.toString() ?? '',
                                                                     style: const TextStyle(
                                                                       color: Color(0xFF163042),
                                                                       fontSize: 13,
@@ -1316,7 +1580,7 @@ Future<void> _loadMahasiswaData() async {
                                                                 ),
                                                                 Row(
                                                                   children: [
-                                                                    if (!detail['hasSubDetail'])
+                                                                    if (!(detail['hasSubDetail'] ?? false))
                                                                       const Text(
                                                                         'Action',
                                                                         style: TextStyle(
@@ -1325,7 +1589,7 @@ Future<void> _loadMahasiswaData() async {
                                                                           fontWeight: FontWeight.w600,
                                                                         ),
                                                                       ),
-                                                                    if (detail['hasSubDetail'])
+                                                                    if (detail['hasSubDetail'] ?? false)
                                                                       IconButton(
                                                                         icon: Icon(
                                                                           isDetailExpanded
@@ -1367,29 +1631,85 @@ Future<void> _loadMahasiswaData() async {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Flexible(
+                    Flexible(
                       child: Text(
-                        'Showing 1 to 6 entries',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
+                        filteredData.isEmpty
+                            ? 'Showing 0 entries'
+                            : 'Showing ${(currentPage - 1) * itemsPerPage + 1} to ${(currentPage * itemsPerPage > filteredData.length) ? filteredData.length : currentPage * itemsPerPage} of ${filteredData.length} entries',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Flexible(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Row(
-                          children: [
-                            _buildPaginationButton('Previous', false),
-                            const SizedBox(width: 4),
-                            _buildPaginationButton('1', true),
-                            const SizedBox(width: 4),
-                            _buildPaginationButton('2', false),
-                            const SizedBox(width: 4),
-                            _buildPaginationButton('Next', false),
-                          ],
-                        ),
-                      ),
+                      child: totalPages == 0
+                          ? const SizedBox.shrink()
+                          : SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Row(
+                                children: [
+                                  // Previous button
+                                  GestureDetector(
+                                    onTap: currentPage > 1
+                                        ? () => changePage(currentPage - 1)
+                                        : null,
+                                    child: _buildPaginationButton(
+                                        'Previous', currentPage > 1),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  // Page numbers
+                                  ...List.generate(
+                                    totalPages > 5 ? 5 : totalPages,
+                                    (index) {
+                                      int pageNum;
+                                      if (totalPages <= 5) {
+                                        pageNum = index + 1;
+                                      } else {
+                                        if (currentPage <= 3) {
+                                          pageNum = index + 1;
+                                        } else if (currentPage >= totalPages - 2) {
+                                          pageNum = totalPages - 4 + index;
+                                        } else {
+                                          pageNum = currentPage - 2 + index;
+                                        }
+                                      }
+                                      return Padding(
+                                        padding: EdgeInsets.only(left: index > 0 ? 4 : 0),
+                                        child: GestureDetector(
+                                          onTap: () => changePage(pageNum),
+                                          child: _buildPaginationButton(
+                                              pageNum.toString(),
+                                              currentPage == pageNum),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  if (totalPages > 5) ...[
+                                    const SizedBox(width: 4),
+                                    const Text(
+                                      '...',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    GestureDetector(
+                                      onTap: () => changePage(totalPages),
+                                      child: _buildPaginationButton(
+                                          totalPages.toString(),
+                                          currentPage == totalPages),
+                                    ),
+                                  ],
+                                  const SizedBox(width: 4),
+                                  // Next button
+                                  GestureDetector(
+                                    onTap: currentPage < totalPages
+                                        ? () => changePage(currentPage + 1)
+                                        : null,
+                                    child: _buildPaginationButton(
+                                        'Next', currentPage < totalPages),
+                                  ),
+                                ],
+                              ),
+                            ),
                     ),
                   ],
                 ),
@@ -1408,6 +1728,7 @@ Future<void> _loadMahasiswaData() async {
         setState(() {
           activeTab = value;
         });
+        resetPagination();
         _loadMahasiswaData();
       },
       child: Column(

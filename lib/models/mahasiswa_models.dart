@@ -25,14 +25,14 @@ class Mahasiswa {
 
   factory Mahasiswa.fromJson(Map<String, dynamic> json) {
     return Mahasiswa(
-      id: json['id'] ?? 0,
+      id: json['id'] is int ? json['id'] : (json['id'] != null ? int.tryParse(json['id'].toString()) ?? 0 : 0),
       idMahasiswa: json['id_mahasiswa']?.toString() ?? '',
-      nama: json['nama'] ?? '',
-      prodi: json['prodi'] ?? '',
-      kodeProdi: json['kode_prodi'] ?? '',
-      jurusan: json['jurusan'] ?? '',
-      kodeJurusan: json['kode_jurusan'] ?? '',
-      status: json['status'] ?? 'Belum Terverifikasi',
+      nama: json['nama']?.toString() ?? '',
+      prodi: json['prodi']?.toString() ?? '',
+      kodeProdi: json['kode_prodi']?.toString() ?? '',
+      jurusan: json['jurusan']?.toString() ?? '',
+      kodeJurusan: json['kode_jurusan']?.toString() ?? '',
+      status: json['status']?.toString() ?? 'Belum Terverifikasi',
       details: (json['details'] as List?)
               ?.map((e) => Detail.fromJson(e))
               .toList() ??
@@ -69,8 +69,10 @@ class Detail {
 
   factory Detail.fromJson(Map<String, dynamic> json) {
     return Detail(
-      name: json['name'] ?? '',
-      hasSubDetail: json['hasSubDetail'] ?? false,
+      name: json['name']?.toString() ?? '',
+      hasSubDetail: json['hasSubDetail'] is bool 
+          ? json['hasSubDetail'] 
+          : (json['hasSubDetail']?.toString().toLowerCase() == 'true' || json['hasSubDetail'] == 1),
     );
   }
 
@@ -152,18 +154,18 @@ class DataPribadi {
 
   factory DataPribadi.fromJson(Map<String, dynamic> json) {
     return DataPribadi(
-      namaLengkap: json['namaLengkap'] ?? '',
-      nik: json['nik'] ?? '',
-      tempatLahir: json['tempatLahir'] ?? '',
-      tanggalLahir: json['tanggalLahir'] ?? '',
-      jenisKelamin: json['jenisKelamin'] ?? '',
-      agama: json['agama'] ?? '',
-      noHandphone: json['noHandphone'] ?? '',
-      email: json['email'] ?? '',
-      alamat: json['alamat'] ?? '',
-      provinsi: json['provinsi'] ?? '',
-      kota: json['kota'] ?? '',
-      kodePos: json['kodePos'] ?? '',
+      namaLengkap: json['namaLengkap']?.toString() ?? '',
+      nik: json['nik']?.toString() ?? '',
+      tempatLahir: json['tempatLahir']?.toString() ?? '',
+      tanggalLahir: json['tanggalLahir']?.toString() ?? '',
+      jenisKelamin: json['jenisKelamin']?.toString() ?? '',
+      agama: json['agama']?.toString() ?? '',
+      noHandphone: json['noHandphone']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      alamat: json['alamat']?.toString() ?? '',
+      provinsi: json['provinsi']?.toString() ?? '',
+      kota: json['kota']?.toString() ?? '',
+      kodePos: json['kodePos']?.toString() ?? '',
     );
   }
 
@@ -202,11 +204,11 @@ class DataAkademik {
 
   factory DataAkademik.fromJson(Map<String, dynamic> json) {
     return DataAkademik(
-      asalSekolah: json['asalSekolah'] ?? '',
-      tahunLulus: json['tahunLulus'] ?? '',
-      jurusan: json['jurusan'] ?? '',
-      prodi: json['prodi'] ?? '',
-      nilaiRataRata: json['nilaiRataRata'] ?? '',
+      asalSekolah: json['asalSekolah']?.toString() ?? '',
+      tahunLulus: json['tahunLulus']?.toString() ?? '',
+      jurusan: json['jurusan']?.toString() ?? '',
+      prodi: json['prodi']?.toString() ?? '',
+      nilaiRataRata: json['nilaiRataRata']?.toString() ?? '',
     );
   }
 
@@ -252,18 +254,18 @@ class DataOrangTua {
 
   factory DataOrangTua.fromJson(Map<String, dynamic> json) {
     return DataOrangTua(
-      namaAyah: json['namaAyah'] ?? '',
-      nikAyah: json['nikAyah'] ?? '',
-      pekerjaanAyah: json['pekerjaanAyah'] ?? '',
-      noTlpAyah: json['noTlpAyah'] ?? '',
-      alamatAyah: json['alamatAyah'] ?? '',
-      penghasilanAyah: json['penghasilanAyah'] ?? '',
-      namaIbu: json['namaIbu'] ?? '',
-      nikIbu: json['nikIbu'] ?? '',
-      pekerjaanIbu: json['pekerjaanIbu'] ?? '',
-      noTlpIbu: json['noTlpIbu'] ?? '',
-      alamatIbu: json['alamatIbu'] ?? '',
-      penghasilanIbu: json['penghasilanIbu'] ?? '',
+      namaAyah: json['namaAyah']?.toString() ?? '',
+      nikAyah: json['nikAyah']?.toString() ?? '',
+      pekerjaanAyah: json['pekerjaanAyah']?.toString() ?? '',
+      noTlpAyah: json['noTlpAyah']?.toString() ?? '',
+      alamatAyah: json['alamatAyah']?.toString() ?? '',
+      penghasilanAyah: json['penghasilanAyah']?.toString() ?? '',
+      namaIbu: json['namaIbu']?.toString() ?? '',
+      nikIbu: json['nikIbu']?.toString() ?? '',
+      pekerjaanIbu: json['pekerjaanIbu']?.toString() ?? '',
+      noTlpIbu: json['noTlpIbu']?.toString() ?? '',
+      alamatIbu: json['alamatIbu']?.toString() ?? '',
+      penghasilanIbu: json['penghasilanIbu']?.toString() ?? '',
     );
   }
 
@@ -285,6 +287,60 @@ class DataOrangTua {
   }
 }
 
+// Model untuk tabel dokumen di database
+class DokumenItem {
+  final int idDokumen;
+  final int idMahasiswa;
+  final String jenisDokumen;
+  final String namaFile;
+  final String formatFile;
+  final String pathFile;
+  final String? tanggalUpload;
+  final String statusVerifikasi; // 'Menunggu Verifikasi', 'Lulus Verifikasi', 'Ditolak Verifikasi'
+
+  DokumenItem({
+    required this.idDokumen,
+    required this.idMahasiswa,
+    required this.jenisDokumen,
+    required this.namaFile,
+    required this.formatFile,
+    required this.pathFile,
+    this.tanggalUpload,
+    required this.statusVerifikasi,
+  });
+
+  factory DokumenItem.fromJson(Map<String, dynamic> json) {
+    return DokumenItem(
+      idDokumen: json['id_dokumen'] is int 
+          ? json['id_dokumen'] 
+          : (json['id_dokumen'] != null ? int.tryParse(json['id_dokumen'].toString()) ?? 0 : 0),
+      idMahasiswa: json['id_mahasiswa'] is int 
+          ? json['id_mahasiswa'] 
+          : (json['id_mahasiswa'] != null ? int.tryParse(json['id_mahasiswa'].toString()) ?? 0 : 0),
+      jenisDokumen: json['jenis_dokumen']?.toString() ?? '',
+      namaFile: json['nama_file']?.toString() ?? '',
+      formatFile: json['format_file']?.toString() ?? '',
+      pathFile: json['path_file']?.toString() ?? '',
+      tanggalUpload: json['tanggal_upload']?.toString(),
+      statusVerifikasi: json['status_verifikasi']?.toString() ?? 'Menunggu Verifikasi',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id_dokumen': idDokumen,
+      'id_mahasiswa': idMahasiswa,
+      'jenis_dokumen': jenisDokumen,
+      'nama_file': namaFile,
+      'format_file': formatFile,
+      'path_file': pathFile,
+      'tanggal_upload': tanggalUpload,
+      'status_verifikasi': statusVerifikasi,
+    };
+  }
+}
+
+// Model untuk compatibility dengan struktur formData lama
 class Dokumen {
   final String ktp;
   final String ijazah;
@@ -302,12 +358,66 @@ class Dokumen {
 
   factory Dokumen.fromJson(Map<String, dynamic> json) {
     return Dokumen(
-      ktp: json['ktp'] ?? '',
-      ijazah: json['ijazah'] ?? '',
-      akta: json['akta'] ?? '',
-      kk: json['kk'] ?? '',
-      foto: json['foto'] ?? '',
+      ktp: json['ktp']?.toString() ?? '',
+      ijazah: json['ijazah']?.toString() ?? '',
+      akta: json['akta']?.toString() ?? '',
+      kk: json['kk']?.toString() ?? '',
+      foto: json['foto']?.toString() ?? '',
     );
+  }
+
+  // Factory untuk membuat Dokumen dari list DokumenItem
+  factory Dokumen.fromDokumenItems(List<DokumenItem> dokumenItems) {
+    String getStatus(String jenis) {
+      final item = dokumenItems.firstWhere(
+        (d) => _normalizeJenisDokumen(d.jenisDokumen) == jenis.toLowerCase(),
+        orElse: () => DokumenItem(
+          idDokumen: 0,
+          idMahasiswa: 0,
+          jenisDokumen: '',
+          namaFile: '',
+          formatFile: '',
+          pathFile: '',
+          statusVerifikasi: 'Belum Upload',
+        ),
+      );
+      
+      // Convert status_verifikasi ke format yang digunakan di UI
+      if (item.statusVerifikasi == 'Lulus Verifikasi') {
+        return 'Diterima';
+      } else if (item.statusVerifikasi == 'Ditolak Verifikasi') {
+        return 'Ditolak';
+      } else if (item.statusVerifikasi == 'Menunggu Verifikasi') {
+        return 'Sudah Upload';
+      } else {
+        return 'Belum Upload';
+      }
+    }
+
+    return Dokumen(
+      ktp: getStatus('ktp'),
+      ijazah: getStatus('ijazah'),
+      akta: getStatus('akta'),
+      kk: getStatus('kk'),
+      foto: getStatus('foto'),
+    );
+  }
+
+  // Helper untuk normalize jenis dokumen
+  static String _normalizeJenisDokumen(String jenis) {
+    final jenisLower = jenis.toLowerCase();
+    if (jenisLower.contains('ktp') || jenisLower.contains('kartu tanda penduduk')) {
+      return 'ktp';
+    } else if (jenisLower.contains('ijazah') || jenisLower.contains('skl')) {
+      return 'ijazah';
+    } else if (jenisLower.contains('akta')) {
+      return 'akta';
+    } else if (jenisLower.contains('kartu keluarga') || jenisLower.contains('kk')) {
+      return 'kk';
+    } else if (jenisLower.contains('foto') || jenisLower.contains('pas foto')) {
+      return 'foto';
+    }
+    return jenisLower;
   }
 
   Map<String, dynamic> toJson() {
