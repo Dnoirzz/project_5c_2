@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, deprecated_member_use
+
 import 'package:SPMB/models/dataDokumen_models.dart';
 import 'package:SPMB/models/dataOrangTua_models.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,9 @@ class _ProfileMainState extends State<ProfileMain>
   List<DataAkademik>? _dataAkademik;
   List<DataOrangtua>? _dataOrangtua;
   List<DataDokumen>? _dataDokumen;
-
+  List<DataDokumen> dokumenUser = [];
+  String statusText = 'Menunggu Verifikasi';
+  Color statusColor = Colors.yellow.shade700;
   bool _isLoading = true;
   String? errorMessage;
 
@@ -54,8 +58,45 @@ class _ProfileMainState extends State<ProfileMain>
     userName = prefs.getString('user_nama_lengkap') ?? 'User';
     userEmail = prefs.getString('user_email') ?? 'email@example.com';
 
-    setState(() {});
+    // setState(() {});
+
+    try {
+      // Ambil data mahasiswa dulu
+      final dataMahasiswa =
+          await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
+
+      // Ambil dokumen mahasiswa
+      dokumenUser = await dataMahasiswaService
+          .getDataDokumenByIdMahasiswa(dataMahasiswa.idMahasiswa);
+
+      // Debug: lihat isi dokumen dan statusnya
+      dokumenUser.forEach((d) {
+        print(
+            'Dokumen: ${d.jenisDokumen}, status raw: "${d.statusVerifikasi}"');
+      });
+
+      // Hitung status dokumen
+      final status = getStatusDokumen(dokumenUser);
+      setState(() {
+        statusText = status['status'];
+        statusColor = status['color'];
+      });
+    } catch (e) {
+      print("Error load dokumen: $e");
+    }
     await _fetchDataMahasiswa();
+  }
+
+  Map<String, dynamic> getStatusDokumen(List<DataDokumen> dokumenList) {
+    if (dokumenList.any((d) =>
+        d.statusVerifikasi.trim().toLowerCase() == 'ditolak verifikasi')) {
+      return {'status': 'Tolak Verifikasi', 'color': Colors.red};
+    } else if (dokumenList.every(
+        (d) => d.statusVerifikasi.trim().toLowerCase() == 'lulus verifikasi')) {
+      return {'status': 'Verifikasi', 'color': Colors.green};
+    } else {
+      return {'status': 'Menunggu Verifikasi', 'color': Colors.yellow.shade700};
+    }
   }
 
   // Future<void> _fetchDataMahasiswa() async {
@@ -88,8 +129,7 @@ class _ProfileMainState extends State<ProfileMain>
     try {
       final data =
           await dataMahasiswaService.getDataMahasiswaByEmail(userEmail);
-          print("✅ Data Mahasiswa Ditemukan: ${data.idMahasiswa}");
-
+      print("✅ Data Mahasiswa Ditemukan: ${data.idMahasiswa}");
 
       setState(() {
         _dataMahasiswa = data;
@@ -425,22 +465,38 @@ class _ProfileMainState extends State<ProfileMain>
             top: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              //   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              //   decoration: BoxDecoration(
+              //     color: const Color(0xFFF0E68C),
+              //     borderRadius: BorderRadius.circular(3),
+              //     border: Border.all(color: const Color(0xFFBDB76B), width: 1),
+              //   ),
+              //   child: Text(
+              //     'Status: $statusText', // 'Status: Menunggu Verifikasi',
+              //     style: const TextStyle(
+              //       color: Colors.black,
+              //       fontSize: 9,
+              //       fontWeight: FontWeight.w500,
+              //     ),
+              //   ),
+              // ),
+              // ),
+              // Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0E68C),
-                borderRadius: BorderRadius.circular(3),
-                border: Border.all(color: const Color(0xFFBDB76B), width: 1),
+                color: statusColor,
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
-                'Status: Menunggu Verifikasi',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 9,
+              child: Text(
+                'Status: $statusText',
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-          ),
+          )
         ],
       ),
     );

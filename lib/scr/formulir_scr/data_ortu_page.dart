@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class DataOrtuPage extends StatefulWidget {
   final Map<String, dynamic>? savedData;
   final Function(Map<String, dynamic>) onDataChanged;
+  final VoidCallback? onNext;
+  final VoidCallback? onPrevious;
 
   const DataOrtuPage({
     super.key,
     this.savedData,
     required this.onDataChanged,
+    this.onNext,
+    this.onPrevious,
   });
 
   @override
@@ -18,7 +22,6 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
   String? _selectedPenghasilanAyah;
   String? _selectedPenghasilanIbu;
 
-  // TextEditingController untuk setiap field
   final TextEditingController _namaAyahController = TextEditingController();
   final TextEditingController _nikAyahController = TextEditingController();
   final TextEditingController _pekerjaanAyahController =
@@ -47,6 +50,13 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
       'alamatIbu': _alamatIbuController.text,
       'penghasilanIbu': _selectedPenghasilanIbu,
     });
+  }
+
+  bool _isFormValid() {
+    return _namaAyahController.text.isNotEmpty &&
+        _pekerjaanAyahController.text.isNotEmpty &&
+        _namaIbuController.text.isNotEmpty &&
+        _pekerjaanIbuController.text.isNotEmpty;
   }
 
   void _setupTextFieldListeners() {
@@ -89,7 +99,6 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
     _pekerjaanAyahController.dispose();
     _noTlpAyahController.dispose();
     _alamatAyahController.dispose();
-
     _namaIbuController.dispose();
     _nikIbuController.dispose();
     _pekerjaanIbuController.dispose();
@@ -113,252 +122,317 @@ class _DataOrtuPageState extends State<DataOrtuPage> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Colors.white,
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        children: [
+          Card(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            color: Colors.white,
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.family_restroom, color: Colors.blue),
+                      SizedBox(width: 8),
+                      Text(
+                        "Data Orang Tua",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Informasi orang tua dan wali",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Data Ayah
+                  const Text(
+                    "Data Ayah",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4F6C7A),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  _inputField(
+                    "Nama Ayah",
+                    "Masukkan nama ayah",
+                    controller: _namaAyahController,
+                  ),
+
+                  _inputField(
+                    "NIK Ayah",
+                    "Masukkan NIK ayah (16 digit)",
+                    controller: _nikAyahController,
+                    keyboardType: TextInputType.number,
+                  ),
+
+                  _inputField(
+                    "Pekerjaan Ayah",
+                    "Masukkan pekerjaan ayah",
+                    controller: _pekerjaanAyahController,
+                  ),
+
+                  _inputField(
+                    "No. Telepon Ayah",
+                    "Masukkan nomor telepon ayah",
+                    controller: _noTlpAyahController,
+                    keyboardType: TextInputType.phone,
+                  ),
+
+                  // Penghasilan Ayah - Dropdown
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Penghasilan Ayah",
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _selectedPenghasilanAyah,
+                        isExpanded: true,
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.black),
+                        decoration: InputDecoration(
+                          hintText: "Pilih range penghasilan",
+                          hintStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                const BorderSide(color: Color(0xFF4F6C7A)),
+                          ),
+                        ),
+                        items: _getPenghasilanList().map((String penghasilan) {
+                          return DropdownMenuItem<String>(
+                            value: penghasilan,
+                            child: Text(
+                              penghasilan,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedPenghasilanAyah = newValue;
+                          });
+                          _notifyDataChanged();
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  _inputField(
+                    "Alamat Ayah",
+                    "Masukkan alamat ayah",
+                    controller: _alamatAyahController,
+                    maxLines: 3,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Data Ibu
+                  const Text(
+                    "Data Ibu",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4F6C7A),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  _inputField(
+                    "Nama Ibu",
+                    "Masukkan nama ibu",
+                    controller: _namaIbuController,
+                  ),
+
+                  _inputField(
+                    "NIK Ibu",
+                    "Masukkan NIK ibu (16 digit)",
+                    controller: _nikIbuController,
+                    keyboardType: TextInputType.number,
+                  ),
+
+                  _inputField(
+                    "Pekerjaan Ibu",
+                    "Masukkan pekerjaan ibu",
+                    controller: _pekerjaanIbuController,
+                  ),
+
+                  _inputField(
+                    "No. Telepon Ibu",
+                    "Masukkan nomor telepon ibu",
+                    controller: _noTlpIbuController,
+                    keyboardType: TextInputType.phone,
+                  ),
+
+                  // Penghasilan Ibu - Dropdown
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Penghasilan Ibu",
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _selectedPenghasilanIbu,
+                        isExpanded: true,
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.black),
+                        decoration: InputDecoration(
+                          hintText: "Pilih range penghasilan",
+                          hintStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide:
+                                const BorderSide(color: Color(0xFF4F6C7A)),
+                          ),
+                        ),
+                        items: _getPenghasilanList().map((String penghasilan) {
+                          return DropdownMenuItem<String>(
+                            value: penghasilan,
+                            child: Text(
+                              penghasilan,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedPenghasilanIbu = newValue;
+                          });
+                          _notifyDataChanged();
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  _inputField(
+                    "Alamat Ibu",
+                    "Masukkan alamat ibu",
+                    controller: _alamatIbuController,
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Navigation Buttons
+          const SizedBox(height: 16),
+          Row(
             children: [
-              const Row(
-                children: [
-                  Icon(Icons.family_restroom, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text(
-                    "Data Orang Tua",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              // Tombol Sebelumnya
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: widget.onPrevious,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 0,
+                    side: BorderSide(color: Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                "Informasi orang tua dan wali",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-
-              // Data Ayah
-              const Text(
-                "Data Ayah",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF4F6C7A),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.arrow_back),
+                      SizedBox(width: 8),
+                      Text("Sebelumnya"),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 12),
-
-              // Nama Ayah
-              _inputField(
-                "Nama Ayah",
-                "Masukkan nama ayah",
-                controller: _namaAyahController,
-              ),
-
-              // NIK Ayah
-              _inputField(
-                "NIK Ayah",
-                "Masukkan NIK ayah (16 digit)",
-                controller: _nikAyahController,
-                keyboardType: TextInputType.number,
-              ),
-
-              // Pekerjaan Ayah
-              _inputField(
-                "Pekerjaan Ayah",
-                "Masukkan pekerjaan ayah",
-                controller: _pekerjaanAyahController,
-              ),
-
-              // No. Telepon Ayah
-              _inputField(
-                "No. Telepon Ayah",
-                "Masukkan nomor telepon ayah",
-                controller: _noTlpAyahController,
-                keyboardType: TextInputType.phone,
-              ),
-
-              // Penghasilan Ayah - Dropdown
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Penghasilan Ayah",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: _selectedPenghasilanAyah,
-                    isExpanded: true,
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                    decoration: InputDecoration(
-                      hintText: "Pilih range penghasilan",
-                      hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 14,
-                        horizontal: 12,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF4F6C7A)),
-                      ),
+              const SizedBox(width: 12),
+              // Tombol Selanjutnya
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _isFormValid() && widget.onNext != null
+                      ? widget.onNext
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isFormValid()
+                        ? const Color(0xFF233746)
+                        : Colors.grey.shade300,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    items: _getPenghasilanList().map((String penghasilan) {
-                      return DropdownMenuItem<String>(
-                        value: penghasilan,
-                        child: Text(
-                          penghasilan,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedPenghasilanAyah = newValue;
-                      });
-                      _notifyDataChanged();
-                    },
+                    elevation: _isFormValid() ? 2 : 0,
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Alamat Ayah
-              _inputField(
-                "Alamat Ayah",
-                "Masukkan alamat ayah",
-                controller: _alamatAyahController,
-                maxLines: 3,
-              ),
-
-              const SizedBox(height: 20),
-
-              // Data Ibu
-              const Text(
-                "Data Ibu",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF4F6C7A),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Selanjutnya",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-
-              // Nama Ibu
-              _inputField(
-                "Nama Ibu",
-                "Masukkan nama ibu",
-                controller: _namaIbuController,
-              ),
-
-              // NIK Ibu
-              _inputField(
-                "NIK Ibu",
-                "Masukkan NIK ibu (16 digit)",
-                controller: _nikIbuController,
-                keyboardType: TextInputType.number,
-              ),
-
-              // Pekerjaan Ibu
-              _inputField(
-                "Pekerjaan Ibu",
-                "Masukkan pekerjaan ibu",
-                controller: _pekerjaanIbuController,
-              ),
-
-              // No. Telepon Ibu
-              _inputField(
-                "No. Telepon Ibu",
-                "Masukkan nomor telepon ibu",
-                controller: _noTlpIbuController,
-                keyboardType: TextInputType.phone,
-              ),
-
-              // Penghasilan Ibu - Dropdown
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Penghasilan Ibu",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: _selectedPenghasilanIbu,
-                    isExpanded: true,
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                    decoration: InputDecoration(
-                      hintText: "Pilih range penghasilan",
-                      hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 14,
-                        horizontal: 12,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF4F6C7A)),
-                      ),
-                    ),
-                    items: _getPenghasilanList().map((String penghasilan) {
-                      return DropdownMenuItem<String>(
-                        value: penghasilan,
-                        child: Text(
-                          penghasilan,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedPenghasilanIbu = newValue;
-                      });
-                      _notifyDataChanged();
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Alamat Ibu
-              _inputField(
-                "Alamat Ibu",
-                "Masukkan alamat ibu",
-                controller: _alamatIbuController,
-                maxLines: 3,
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

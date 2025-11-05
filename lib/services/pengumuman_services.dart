@@ -80,6 +80,8 @@
 //     final url = Uri.parse("$baseUrl/get_pengumuman_mahasiswa.php");
 //     final response = await http.get(url);
 
+// ignore_for_file: avoid_print
+
 //     if (response.statusCode == 200) {
 //       final body = json.decode(response.body);
 //       if (body["success"] == true) {

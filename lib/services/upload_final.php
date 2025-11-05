@@ -51,7 +51,7 @@ $nik            = $formData['nik'] ?? '';
 $tempat_lahir   = $formData['tempatLahir'] ?? '';
 $tanggal_lahir  = isset($formData['tanggalLahir']) ? date('Y-m-d', strtotime($formData['tanggalLahir'])) : null;
 $jenis_kelamin  = $formData['jenisKelamin'] ?? '';
-$agama = $page_0['agama'] ?? ($page_0['selectedAgama'] ?? '');
+$agama = $formData['agama'] ?? ($formData['selectedAgama'] ?? '');  
 $no_hp          = $formData['noHp'] ?? '';
 $email          = $formData['email'] ?? '';
 $alamat         = $formData['alamat'] ?? '';
@@ -89,9 +89,32 @@ if (!$stmt->execute()) {
     echo json_encode(['status' => 'error', 'message' => 'Query error: ' . $stmt->error]);
     exit;
 }
+// Dapatkan id_mahasiswa yang baru disimpan
+$id_mahasiswa = $conn->insert_id;
+
+// 🔹 Ambil data akademik dari formData
+$asal_sekolah = $formData['asalSekolah'] ?? '';
+$tahun_lulus  = $formData['tahunLulus'] ?? '';
+$nilai_rata   = $formData['nilaiRata'] ?? '';
+$id_jurusan   = $formData['idJurusan'] ?? null;
+$id_prodi     = $formData['idProdi'] ?? null;
+
+// 🔹 Simpan ke tabel data_akademik
+$sql_akademik = "INSERT INTO data_akademik (id_mahasiswa, id_jurusan, id_prodi, asal_sekolah, tahun_lulus, nilai_rata_rata)
+                 VALUES (?, ?, ?, ?, ?, ?)";
+
+$stmt2 = $conn->prepare($sql_akademik);
+$stmt2->bind_param("iiisss", $id_mahasiswa, $id_jurusan, $id_prodi, $asal_sekolah, $tahun_lulus, $nilai_rata);
+
+if (!$stmt2->execute()) {
+    echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan data akademik: ' . $stmt2->error]);
+    exit;
+}
+
 
 echo json_encode([
     'status' => 'success',
-    'message' => 'Data berhasil disimpan ke tabel mahasiswa',
-    'affected_rows' => $stmt->affected_rows
+    'message' => 'Data mahasiswa dan akademik berhasil disimpan',
+    'id_mahasiswa' => $id_mahasiswa
 ]);
+

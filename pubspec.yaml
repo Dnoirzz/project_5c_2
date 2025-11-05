@@ -22,11 +22,10 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
-  http: ^1.5.0
 
 # flutter:
 #   assets:
-#     - assets/data/
+#     - assets/data/f
 #     - assets/images/
 flutter:
   uses-material-design: true

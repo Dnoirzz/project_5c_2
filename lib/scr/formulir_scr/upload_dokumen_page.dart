@@ -5,11 +5,15 @@ import 'dart:io';
 class UploadDokumenPage extends StatefulWidget {
   final Map<String, dynamic>? savedData;
   final Function(Map<String, dynamic>)? onDataChanged;
+  final VoidCallback? onNext;
+  final VoidCallback? onPrevious;
 
   const UploadDokumenPage({
     super.key,
     this.savedData,
     this.onDataChanged,
+    this.onNext,
+    this.onPrevious,
   });
 
   @override
@@ -127,6 +131,13 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
     }
   }
 
+  bool _isFormValid() {
+    return _images['Ijazah/SKL'] != null &&
+        _images['Kartu Keluarga'] != null &&
+        _images['Akta Kelahiran'] != null &&
+        _images['Pas Foto 3x4'] != null;
+  }
+
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     final months = [
@@ -151,37 +162,103 @@ class _UploadDokumenPageState extends State<UploadDokumenPage> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Colors.white,
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
+      child: Column(
+        children: [
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            color: Colors.white,
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.upload_file, color: Colors.blue, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    "Upload Dokumen",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  const Row(
+                    children: [
+                      Icon(Icons.upload_file, color: Colors.blue, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        "Upload Dokumen",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Upload berkas pendaftaran",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Upload cards
+                  ..._images.keys.map((docType) => _buildDocumentCard(docType)),
                 ],
               ),
-              const SizedBox(height: 4),
-              const Text(
-                "Upload berkas pendaftaran",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
+            ),
+          ),
 
-              // Upload cards
-              ..._images.keys.map((docType) => _buildDocumentCard(docType)),
+          // Navigation Buttons
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              // Tombol Sebelumnya
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: widget.onPrevious,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 0,
+                    side: BorderSide(color: Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.arrow_back),
+                      SizedBox(width: 8),
+                      Text("Sebelumnya"),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Tombol Selanjutnya
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _isFormValid() && widget.onNext != null
+                      ? widget.onNext
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isFormValid()
+                        ? const Color(0xFF233746)
+                        : Colors.grey.shade300,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: _isFormValid() ? 2 : 0,
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Selanjutnya",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

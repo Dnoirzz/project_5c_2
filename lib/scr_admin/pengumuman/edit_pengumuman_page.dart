@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'package:SPMB/models/pengumuman_models.dart';
 import 'package:SPMB/services/pengumuman_services.dart';
@@ -211,14 +213,32 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
   }
 
   // Helper untuk mendapatkan nama file
+  // String get _fileName {
+  //   if (_selectedImage != null) {
+  //     return _selectedImage!.path.split('/').last;
+  //   }
+  //   if (_existingImagePath != null) {
+  //     return _existingImagePath!.split('/').last;
+  //   }
+  //   return "Upload File/Gambar";
+  // }
+
   String get _fileName {
     if (_selectedImage != null) {
       return _selectedImage!.path.split('/').last;
     }
     if (_existingImagePath != null) {
+      // kalau path-nya kosong atau bukan nama file sebenarnya, kosongkan saja
+      if (_existingImagePath == '' || _existingImagePath == 'Z') {
+        return '';
+      }
+      if (_existingImagePath!.startsWith('data:image') ||
+          _existingImagePath!.length > 100) {
+        return '';
+      }
       return _existingImagePath!.split('/').last;
     }
-    return "Upload File/Gambar";
+    return ''; // biar field kosong
   }
 
   @override
@@ -337,47 +357,62 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
                 ],
               ),
               const SizedBox(height: 8),
+
+              // Tombol Upload
               Row(
                 children: [
                   // Tombol Choose File
                   ElevatedButton(
                     onPressed: _showImageSourceDialog,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          formContainerColor, // Warna sama seperti kontainer form
+                      backgroundColor: formContainerColor,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      "Choose File",
+                    child: Text(
+                      // "Choose File",
+                      _selectedImage == null && _existingImagePath == null
+                          ? "Choose File"
+                          : "Change File",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
                   const SizedBox(width: 8),
+
                   // Placeholder/Nama File
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: inputFieldColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        _fileName,
-                        style: TextStyle(
-                          color: (_selectedImage != null ||
-                                  _existingImagePath != null)
-                              ? Colors.white
-                              : Colors.white70,
-                          overflow: TextOverflow.ellipsis,
+                  if (_selectedImage == null && _existingImagePath == null) ...[
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: inputFieldColor,
+                          borderRadius: BorderRadius.circular(8),
                         ),
+                        child: const Text(
+                          "Upload File/Gambar",
+                          style: TextStyle(
+                            color: Colors.white,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // child: Text(
+                        //   _fileName,
+                        //   style: TextStyle(
+                        //     color: (_selectedImage != null ||
+                        //             _existingImagePath != null)
+                        //         ? Colors.white
+                        //         : Colors.white70,
+                        //     overflow: TextOverflow.ellipsis,
+                        //   ),
+                        // ),
                       ),
                     ),
-                  ),
+                  ]
                 ],
               ),
               const SizedBox(height: 16),
@@ -393,26 +428,85 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
                     width: double.infinity,
                   ),
                 )
+              // else if (_existingImagePath != null)
+              //   ClipRRect(
+              //     borderRadius: BorderRadius.circular(12),
+              //     child: Image.asset(
+              //       _existingImagePath!,
+              //       fit: BoxFit.cover,
+              //       height: 200,
+              //       width: double.infinity,
+              //       errorBuilder: (context, error, stackTrace) {
+              //         return Container(
+              //           height: 200,
+              //           decoration: BoxDecoration(
+              //             color: inputFieldColor,
+              //             borderRadius: BorderRadius.circular(12),
+              //           ),
+              //           child: const Center(
+              //             child: Icon(Icons.broken_image,
+              //                 color: Colors.white70, size: 80),
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   )
+              // else
+              //   const SizedBox
+              //       .shrink(), // Menghilangkan placeholder default jika kosong
+
               else if (_existingImagePath != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    _existingImagePath!,
-                    fit: BoxFit.cover,
-                    height: 200,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 200,
-                        decoration: BoxDecoration(
-                          color: inputFieldColor,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.broken_image,
-                              color: Colors.white70, size: 80),
-                        ),
-                      );
+                  child: Builder(
+                    builder: (context) {
+                      // Jika string-nya Base64
+                      if (_existingImagePath!.startsWith('data:image') ||
+                          _existingImagePath!.length > 100) {
+                        // Biasanya base64 panjang
+                        try {
+                          final base64Str = _existingImagePath!.split(',').last;
+                          return Image.memory(
+                            base64Decode(base64Str),
+                            fit: BoxFit.cover,
+                            height: 200,
+                            width: double.infinity,
+                          );
+                        } catch (e) {
+                          return const Icon(Icons.broken_image,
+                              color: Colors.white70, size: 80);
+                        }
+                      }
+                      // Jika berupa URL server Laravel
+                      else if (_existingImagePath!.startsWith('http')) {
+                        return Image.network(
+                          _existingImagePath!,
+                          fit: BoxFit.cover,
+                          height: 200,
+                          width: double.infinity,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                            Icons.broken_image,
+                            color: Colors.white70,
+                            size: 80,
+                          ),
+                        );
+                      }
+                      // Jika nama file saja (misal 'foto.jpg'), buat jadi URL storage Laravel
+                      else {
+                        return Image.network(
+                          "http://44.220.144.82/storage/${_existingImagePath!}",
+                          fit: BoxFit.cover,
+                          height: 200,
+                          width: double.infinity,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                            Icons.broken_image,
+                            color: Colors.white70,
+                            size: 80,
+                          ),
+                        );
+                      }
                     },
                   ),
                 )

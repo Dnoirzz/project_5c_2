@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 class LocalStorageService {
   /// Simpan draft ke file JSON lokal
   static Future<Map<String, dynamic>> saveDraftLocal({
@@ -255,4 +255,29 @@ class LocalStorageService {
       return [];
     }
   }
+  //  Tambahkan di bagian paling bawah local_storage_service.dart
+  // 🔹 Tambahkan setelah fungsi getDraftLocal() (sekitar baris 75)
+static Future<Map<String, dynamic>?> loadDraftLocal({
+  required int userId,
+  required int pageNumber,
+}) async {
+  try {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/draft_user_${userId}_page_$pageNumber.json';
+    final file = File(filePath);
+
+    if (await file.exists()) {
+      final jsonString = await file.readAsString();
+      final data = jsonDecode(jsonString);
+      return Map<String, dynamic>.from(data['form_data']);
+    } else {
+      return null;
+    }
+  } catch (e) {
+    print('Gagal load draft lokal page $pageNumber: $e');
+    return null;
+  }
+}
+
+
 }

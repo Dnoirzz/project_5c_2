@@ -1,3 +1,4 @@
+import 'package:SPMB/services/formulir_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -7,11 +8,13 @@ import '../../services/location_service.dart';
 class DataPribadiPage extends StatefulWidget {
   final Map<String, dynamic>? savedData;
   final Function(Map<String, dynamic>) onDataChanged;
+  final VoidCallback? onNext; // Tambahkan callback untuk next
 
   const DataPribadiPage({
     super.key,
     this.savedData,
     required this.onDataChanged,
+    this.onNext, // Tambahkan parameter
   });
 
   @override
@@ -26,7 +29,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   Province? _selectedProvince;
   Regency? _selectedRegency;
   District? _selectedDistrict;
-  // ignore: unused_field
   Village? _selectedVillage;
 
   // TextEditingController untuk setiap field
@@ -43,7 +45,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   final TextEditingController _regencyController = TextEditingController();
   final TextEditingController _districtController = TextEditingController();
   final TextEditingController _villageController = TextEditingController();
-  String? _selectedAgama;
 
   void _notifyDataChanged() {
     Map<String, dynamic> data = {};
@@ -78,9 +79,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     if (_jenisKelamin != null) {
       data['jenisKelamin'] = _jenisKelamin;
     }
-    if (_selectedAgama != null) {
-      data['selectedAgama'] = _selectedAgama;
-    }
 
     // Location data
     if (_selectedProvince != null) {
@@ -99,6 +97,16 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     widget.onDataChanged(data);
   }
 
+  bool _isFormValid() {
+    return _namaLengkapController.text.isNotEmpty &&
+        _nikController.text.isNotEmpty &&
+        _tempatLahirController.text.isNotEmpty &&
+        _tanggalLahir != null &&
+        _jenisKelamin != null &&
+        _alamatController.text.isNotEmpty &&
+        _selectedProvince != null;
+  }
+
   void _setupTextFieldListeners() {
     _namaLengkapController.addListener(_notifyDataChanged);
     _nikController.addListener(_notifyDataChanged);
@@ -108,6 +116,63 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     _emailController.addListener(_notifyDataChanged);
     _kodePosController.addListener(_notifyDataChanged);
   }
+    // 🟢 Fungsi untuk mengirim data ke server
+  Future<void> _submitData() async {
+    if (!_isFormValid()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Harap isi semua data dengan lengkap")),
+      );
+      return;
+    }
+
+    // Ambil data dari form
+    final Map<String, dynamic> formData = {
+      "nama_lengkap": _namaLengkapController.text,
+      "nik": _nikController.text,
+      "tempat_lahir": _tempatLahirController.text,
+      "tanggal_lahir": _tanggalLahir?.toIso8601String(),
+      "jenis_kelamin": _jenisKelamin,
+      "agama": "Islam",
+      "alamat_mahasiswa": _alamatController.text,
+      "no_hp": _noHpController.text,
+      "email": _emailController.text,
+      "kode_pos": _kodePosController.text,
+      "provinsi": _selectedProvince?.name,
+      "kabupaten": _selectedRegency?.name,
+      "kecamatan": _selectedDistrict?.name,
+      "kelurahan": _selectedVillage?.name,
+    };
+
+    // Tampilkan loading indikator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    // Kirim data ke server
+    final result = await FormulirService.uploadDataPribadi(formData);
+
+    // Tutup loading
+    Navigator.pop(context);
+
+    // Tangani hasil respon
+    if (result['status'] == 'success') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Data berhasil dikirim ke server")),
+      );
+
+      // Lanjut ke halaman berikut
+      if (widget.onNext != null) widget.onNext!();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("❌ Gagal kirim data: ${result['message']}"),
+        ),
+      );
+    }
+  }
+
 
   @override
   void initState() {
@@ -252,356 +317,356 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Colors.white,
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
+      child: Column(
+        children: [
+          Card(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            color: Colors.white,
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.person),
-                  SizedBox(width: 8),
-                  Text(
-                    "Data Pribadi",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                "Informasi personal dan kontak",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-
-              // Nama Lengkap
-              _inputField(
-                "Nama Lengkap",
-                "Masukkan nama lengkap",
-                controller: _namaLengkapController,
-              ),
-
-              // NIK
-              _inputField(
-                "NIK",
-                "Masukkan NIK",
-                controller: _nikController,
-                keyboardType: TextInputType.number,
-              ),
-
-              // Tempat Lahir
-              _inputField(
-                "Tempat Lahir",
-                "Masukkan tempat lahir",
-                controller: _tempatLahirController,
-              ),
-
-              // Tanggal Lahir Picker
-              InkWell(
-                onTap: _pickDate,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: "Tanggal Lahir",
-                    labelStyle: const TextStyle(color: Colors.grey),
-                    border: const OutlineInputBorder(),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF4F6C7A)),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  const Row(
                     children: [
+                      Icon(Icons.person),
+                      SizedBox(width: 8),
                       Text(
-                        _formatTanggalLahir(),
-                        style: const TextStyle(fontSize: 16),
+                        "Data Pribadi",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      const Icon(Icons.calendar_today, color: Colors.grey),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Informasi personal dan kontak",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 16),
 
-              // No. HP
-              _inputField(
-                "No. HP",
-                "Masukkan nomor HP",
-                controller: _noHpController,
-                keyboardType: TextInputType.phone,
-              ),
+                  // Nama Lengkap
+                  _inputField(
+                    "Nama Lengkap",
+                    "Masukkan nama lengkap",
+                    controller: _namaLengkapController,
+                  ),
 
-              // Email
-              _inputField(
-                "Email",
-                "Masukkan email",
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-              ),
+                  // NIK
+                  _inputField(
+                    "NIK",
+                    "Masukkan NIK",
+                    controller: _nikController,
+                    keyboardType: TextInputType.number,
+                  ),
 
-              // Jenis Kelamin
-              const Text(
-                "Jenis Kelamin",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _jenisKelamin = 'Laki-laki';
-                          _notifyDataChanged();
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
+                  // Tempat Lahir
+                  _inputField(
+                    "Tempat Lahir",
+                    "Masukkan tempat lahir",
+                    controller: _tempatLahirController,
+                  ),
+
+                  // Tanggal Lahir Picker
+                  InkWell(
+                    onTap: _pickDate,
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: "Tanggal Lahir",
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        border: const OutlineInputBorder(),
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFF4F6C7A)),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
+                          vertical: 14,
                         ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: _jenisKelamin == 'Laki-laki'
-                                ? const Color(0xFF4F6C7A)
-                                : Colors.grey.shade300,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _formatTanggalLahir(),
+                            style: const TextStyle(fontSize: 16),
                           ),
-                          borderRadius: BorderRadius.circular(8),
-                          color: _jenisKelamin == 'Laki-laki'
-                              ? const Color(0xFF4F6C7A).withValues(alpha: 0.1)
-                              : Colors.white,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.male,
-                              color: _jenisKelamin == 'Laki-laki'
-                                  ? const Color(0xFF4F6C7A)
-                                  : Colors.grey,
+                          const Icon(Icons.calendar_today, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // No. HP
+                  _inputField(
+                    "No. HP",
+                    "Masukkan nomor HP",
+                    controller: _noHpController,
+                    keyboardType: TextInputType.phone,
+                  ),
+
+                  // Email
+                  _inputField(
+                    "Email",
+                    "Masukkan email",
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+
+                  // Jenis Kelamin
+                  const Text(
+                    "Jenis Kelamin",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _jenisKelamin = 'Laki-laki';
+                              _notifyDataChanged();
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Laki-laki',
-                              style: TextStyle(
+                            decoration: BoxDecoration(
+                              border: Border.all(
                                 color: _jenisKelamin == 'Laki-laki'
                                     ? const Color(0xFF4F6C7A)
-                                    : Colors.grey,
-                                fontWeight: _jenisKelamin == 'Laki-laki'
-                                    ? FontWeight.w500
-                                    : FontWeight.normal,
+                                    : Colors.grey.shade300,
                               ),
+                              borderRadius: BorderRadius.circular(8),
+                              color: _jenisKelamin == 'Laki-laki'
+                                  ? const Color(0xFF4F6C7A)
+                                      .withValues(alpha: 0.1)
+                                  : Colors.white,
                             ),
-                          ],
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.male,
+                                  color: _jenisKelamin == 'Laki-laki'
+                                      ? const Color(0xFF4F6C7A)
+                                      : Colors.grey,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Laki-laki',
+                                  style: TextStyle(
+                                    color: _jenisKelamin == 'Laki-laki'
+                                        ? const Color(0xFF4F6C7A)
+                                        : Colors.grey,
+                                    fontWeight: _jenisKelamin == 'Laki-laki'
+                                        ? FontWeight.w500
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _jenisKelamin = 'Perempuan';
-                          _notifyDataChanged();
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: _jenisKelamin == 'Perempuan'
-                                ? const Color(0xFF4F6C7A)
-                                : Colors.grey.shade300,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                          color: _jenisKelamin == 'Perempuan'
-                              ? const Color(0xFF4F6C7A).withValues(alpha: 0.1)
-                              : Colors.white,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.female,
-                              color: _jenisKelamin == 'Perempuan'
-                                  ? const Color(0xFF4F6C7A)
-                                  : Colors.grey,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _jenisKelamin = 'Perempuan';
+                              _notifyDataChanged();
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Perempuan',
-                              style: TextStyle(
+                            decoration: BoxDecoration(
+                              border: Border.all(
                                 color: _jenisKelamin == 'Perempuan'
                                     ? const Color(0xFF4F6C7A)
-                                    : Colors.grey,
-                                fontWeight: _jenisKelamin == 'Perempuan'
-                                    ? FontWeight.w500
-                                    : FontWeight.normal,
+                                    : Colors.grey.shade300,
                               ),
+                              borderRadius: BorderRadius.circular(8),
+                              color: _jenisKelamin == 'Perempuan'
+                                  ? const Color(0xFF4F6C7A)
+                                      .withValues(alpha: 0.1)
+                                  : Colors.white,
                             ),
-                          ],
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.female,
+                                  color: _jenisKelamin == 'Perempuan'
+                                      ? const Color(0xFF4F6C7A)
+                                      : Colors.grey,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Perempuan',
+                                  style: TextStyle(
+                                    color: _jenisKelamin == 'Perempuan'
+                                        ? const Color(0xFF4F6C7A)
+                                        : Colors.grey,
+                                    fontWeight: _jenisKelamin == 'Perempuan'
+                                        ? FontWeight.w500
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Alamat
+                  _inputField(
+                    "Alamat",
+                    "Masukkan alamat lengkap",
+                    controller: _alamatController,
+                    maxLines: 3,
+                  ),
+
+                  // Provinsi
+                  _locationField(
+                    "Provinsi",
+                    "Pilih Provinsi",
+                    controller: _provinceController,
+                    suggestionsCallback: (pattern) async {
+                      await LocationService.initialize();
+                      return LocationService.searchProvinces(pattern);
+                    },
+                    onSelected: (Province province) {
+                      setState(() {
+                        _selectedProvince = province;
+                        _provinceController.text = province.name;
+                      });
+                      _clearRegencyAndBelow();
+                    },
+                    enabled: true,
+                  ),
+
+                  // Kabupaten/Kota
+                  _locationField(
+                    "Kabupaten/Kota",
+                    "Pilih Kabupaten/Kota",
+                    controller: _regencyController,
+                    suggestionsCallback: (pattern) async {
+                      await LocationService.initialize();
+                      return LocationService.searchRegencies(
+                        pattern,
+                        _selectedProvince?.id,
+                      );
+                    },
+                    onSelected: (Regency regency) {
+                      setState(() {
+                        _selectedRegency = regency;
+                        _regencyController.text = regency.name;
+                      });
+                      _clearDistrictAndBelow();
+                    },
+                    enabled: _selectedProvince != null,
+                  ),
+
+                  // Kecamatan
+                  _locationField(
+                    "Kecamatan",
+                    "Pilih Kecamatan",
+                    controller: _districtController,
+                    suggestionsCallback: (pattern) async {
+                      await LocationService.initialize();
+                      return LocationService.searchDistricts(
+                        pattern,
+                        _selectedRegency?.id,
+                      );
+                    },
+                    onSelected: (District district) {
+                      setState(() {
+                        _selectedDistrict = district;
+                        _districtController.text = district.name;
+                      });
+                      _clearVillage();
+                    },
+                    enabled: _selectedRegency != null,
+                  ),
+
+                  // Kelurahan/Desa
+                  _locationField(
+                    "Kelurahan/Desa",
+                    "Pilih Kelurahan/Desa",
+                    controller: _villageController,
+                    suggestionsCallback: (pattern) async {
+                      await LocationService.initialize();
+                      return LocationService.searchVillages(
+                        pattern,
+                        _selectedDistrict?.id,
+                      );
+                    },
+                    onSelected: (Village village) {
+                      setState(() {
+                        _selectedVillage = village;
+                        _villageController.text = village.name;
+                      });
+                    },
+                    enabled: _selectedDistrict != null,
+                  ),
+
+                  // Kode Pos
+                  _inputField(
+                    "Kode Pos",
+                    "Masukkan kode pos",
+                    controller: _kodePosController,
+                    keyboardType: TextInputType.number,
                   ),
                 ],
               ),
-              // Agama
-              const Text(
-                "Agama",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _selectedAgama,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF4F6C7A)),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-                hint: const Text("Pilih agama"),
-                items: const [
-                  DropdownMenuItem(value: "Islam", child: Text("Islam")),
-                  DropdownMenuItem(value: "Kristen", child: Text("Kristen")),
-                  DropdownMenuItem(value: "Katolik", child: Text("Katolik")),
-                  DropdownMenuItem(value: "Hindu", child: Text("Hindu")),
-                  DropdownMenuItem(value: "Buddha", child: Text("Buddha")),
-                  DropdownMenuItem(value: "Konghucu", child: Text("Konghucu")),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedAgama = value!;
-                    _notifyDataChanged();
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              const SizedBox(height: 16),
-
-              // Alamat
-              _inputField(
-                "Alamat",
-                "Masukkan alamat lengkap",
-                controller: _alamatController,
-                maxLines: 3,
-              ),
-
-              // Provinsi
-              _locationField(
-                "Provinsi",
-                "Pilih Provinsi",
-                controller: _provinceController,
-                suggestionsCallback: (pattern) async {
-                  // Ensure initialization is complete
-                  await LocationService.initialize();
-                  return LocationService.searchProvinces(pattern);
-                },
-                onSelected: (Province province) {
-                  setState(() {
-                    _selectedProvince = province;
-                    _provinceController.text = province.name;
-                  });
-                  _clearRegencyAndBelow();
-                },
-                enabled: true,
-              ),
-
-              // Kabupaten/Kota
-              _locationField(
-                "Kabupaten/Kota",
-                "Pilih Kabupaten/Kota",
-                controller: _regencyController,
-                suggestionsCallback: (pattern) async {
-                  await LocationService.initialize();
-                  return LocationService.searchRegencies(
-                    pattern,
-                    _selectedProvince?.id,
-                  );
-                },
-                onSelected: (Regency regency) {
-                  setState(() {
-                    _selectedRegency = regency;
-                    _regencyController.text = regency.name;
-                  });
-                  _clearDistrictAndBelow();
-                },
-                enabled: _selectedProvince != null,
-              ),
-
-              // Kecamatan
-              _locationField(
-                "Kecamatan",
-                "Pilih Kecamatan",
-                controller: _districtController,
-                suggestionsCallback: (pattern) async {
-                  await LocationService.initialize();
-                  return LocationService.searchDistricts(
-                    pattern,
-                    _selectedRegency?.id,
-                  );
-                },
-                onSelected: (District district) {
-                  setState(() {
-                    _selectedDistrict = district;
-                    _districtController.text = district.name;
-                  });
-                  _clearVillage();
-                },
-                enabled: _selectedRegency != null,
-              ),
-
-              // Kelurahan/Desa
-              _locationField(
-                "Kelurahan/Desa",
-                "Pilih Kelurahan/Desa",
-                controller: _villageController,
-                suggestionsCallback: (pattern) async {
-                  await LocationService.initialize();
-                  return LocationService.searchVillages(
-                    pattern,
-                    _selectedDistrict?.id,
-                  );
-                },
-                onSelected: (Village village) {
-                  setState(() {
-                    _selectedVillage = village;
-                    _villageController.text = village.name;
-                  });
-                },
-                enabled: _selectedDistrict != null,
-              ),
-
-              // Kode Pos
-              _inputField(
-                "Kode Pos",
-                "Masukkan kode pos",
-                controller: _kodePosController,
-                keyboardType: TextInputType.number,
-              ),
-            ],
+            ),
           ),
-        ),
+
+          // Tombol Selanjutnya
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isFormValid() ? _submitData : null,
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _isFormValid()
+                    ? const Color(0xFF233746)
+                    : Colors.grey.shade300,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: _isFormValid() ? 2 : 0,
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Selanjutnya",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -678,7 +743,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
           suggestionsCallback:
               enabled ? suggestionsCallback : (pattern) async => [],
           builder: (context, textEditingController, focusNode) {
-            // Sinkronisasi controller internal & eksternal
             textEditingController.text = controller.text;
             textEditingController.selection = TextSelection.fromPosition(
               TextPosition(offset: textEditingController.text.length),
@@ -738,7 +802,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
             controller.text = item.toString();
 
             FocusScope.of(context).unfocus();
-            // sinkronisasi manual
             WidgetsBinding.instance.addPostFrameCallback((_) {
               controller.selection = TextSelection.fromPosition(
                 TextPosition(offset: controller.text.length),

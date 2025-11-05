@@ -1,4 +1,6 @@
 // import 'package:SPMB/services/auth_servise.dart';
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import '../scr_admin/admin_dashboard.dart';
 import '../services/auth_servise.dart';

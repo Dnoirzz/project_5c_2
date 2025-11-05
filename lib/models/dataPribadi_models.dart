@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 class DataMahasiswa {
   final int idMahasiswa;
   final int idPengguna;
@@ -53,10 +55,10 @@ class DataMahasiswa {
       noHp: json['no_hp'] ?? '',
       email: json['email'] ?? '',
       alamatMahasiswa: json['alamat_mahasiswa'] ?? '',
-      namaProvinsi: json['nama_provinsi'] ?? '',
-      namaKabupaten: json['nama_kabupaten'] ?? '',
-      namaKecamatan: json['nama_kecamatan'] ?? '',
-      namaKelurahan: json['nama_kelurahan'] ?? '',
+      namaProvinsi: json['provinsi'] ?? '',
+      namaKabupaten: json['kabupaten'] ?? '',
+      namaKecamatan: json['kecamatan'] ?? '',
+      namaKelurahan: json['kelurahan'] ?? '',
       kodePos: json['kode_pos'] ?? '',
       tanggalDaftar: json['tanggal_daftar'] ?? '',
     );

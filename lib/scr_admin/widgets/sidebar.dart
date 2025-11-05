@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../management_form.dart';
 import '../pengumuman/admin_pengumuman_page.dart';
-
+import '../../scr/login_scr.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Sidebar extends StatefulWidget {
   final String userName;
@@ -131,18 +132,13 @@ class _CustomDrawerState extends State<Sidebar> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF6B8399),
-      ),
+      decoration: const BoxDecoration(color: Color(0xFF6B8399)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Welcome,',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 4),
           Text(
@@ -252,9 +248,7 @@ class _CustomDrawerState extends State<Sidebar> {
               color: Colors.white10,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
-              children: submenuItems,
-            ),
+            child: Column(children: submenuItems),
           ),
           crossFadeState:
               isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
@@ -275,8 +269,12 @@ class _CustomDrawerState extends State<Sidebar> {
       splashColor: Colors.yellowAccent.withValues(alpha: 0.5),
       highlightColor: Colors.yellowAccent.withValues(alpha: 0.2),
       child: Container(
-        padding:
-            const EdgeInsets.only(left: 56, right: 16, top: 12, bottom: 12),
+        padding: const EdgeInsets.only(
+          left: 56,
+          right: 16,
+          top: 12,
+          bottom: 12,
+        ),
         child: Row(
           children: [
             Container(
@@ -290,10 +288,7 @@ class _CustomDrawerState extends State<Sidebar> {
             const SizedBox(width: 12),
             Text(
               title,
-              style: const TextStyle(
-                color: Color(0xFF364A63),
-                fontSize: 14,
-              ),
+              style: const TextStyle(color: Color(0xFF364A63), fontSize: 14),
             ),
           ],
         ),
@@ -361,10 +356,7 @@ class _CustomDrawerState extends State<Sidebar> {
               ),
               Text(
                 'Admin@example.com',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ],
           ),
@@ -376,23 +368,42 @@ class _CustomDrawerState extends State<Sidebar> {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Logout'),
-        content: const Text('Apakah Anda yakin ingin keluar?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Konfirmasi Logout'),
+            content: const Text('Apakah Anda yakin ingin keluar?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context); // Tutup dialog
+
+                  // Hapus session data dari SharedPreferences
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('is_logged_in');
+                  await prefs.remove('user_role');
+                  await prefs.remove('user_email');
+                  await prefs.remove('user_nama_lengkap');
+
+                  // Navigate ke login screen dan hapus semua route sebelumnya
+                  if (context.mounted) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  }
+                },
+                child: const Text(
+                  'Keluar',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text('Keluar', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
   }
 }

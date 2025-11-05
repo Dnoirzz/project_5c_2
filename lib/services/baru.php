@@ -1,109 +1,153 @@
 <?php
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
-require_once 'koneksi.php';// sesuaikan path jika koneksi.php di root project
-
-header('Content-Type: application/json; charset=utf-8');
-
-$destination = null;
-$id_mahasiswa = intval($_POST['id_mahasiswa'] ?? 0);
-
-try {
-    if ($id_mahasiswa <= 0) {
-        throw new Exception('id_mahasiswa tidak dikirim atau nol. Jika mendaftar baru, insert data mahasiswa dulu.');
-    }
-
-    // cek apakah id_mahasiswa ada pada tabel mahasiswa
-    $chk = $conn->prepare("SELECT 1 FROM mahasiswa WHERE id_mahasiswa = ?");
-    $chk->bind_param('i', $id_mahasiswa);
-    $chk->execute();
-    $chk->store_result();
-    if ($chk->num_rows === 0) {
-        $chk->close();
-        throw new Exception('id_mahasiswa tidak ditemukan di tabel mahasiswa (foreign key gagal).');
-    }
-    $chk->close();
-
-    $conn->begin_transaction();
-
-    // 1) INSERT dokumen (file upload) — jika ada file
-    if (isset($_FILES['file_dokumen']) && $_FILES['file_dokumen']['error'] === UPLOAD_ERR_OK) {
-        $file = $_FILES['file_dokumen'];
-        $originalName = $file['name'];
-        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-        $safeName = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
-        $uploadDir = __DIR__ . '/uploads/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-        $destination = $uploadDir . $safeName;
-        if (!move_uploaded_file($file['tmp_name'], $destination)) {
-            throw new Exception('Gagal memindahkan file.');
-        }
-        $jenis = $_POST['jenis_dokumen'] ?? 'lainnya';
-        $format = $ext;
-        $path_rel = 'lib/services/uploads/' . $safeName; // path relatif sesuai struktur Anda
-
-        $stmt = $conn->prepare("INSERT INTO dokumen (id_mahasiswa, jenis_dokumen, nama_file, format_file, path_file) VALUES (?,?,?,?,?)");
-        $stmt->bind_param('issss', $id_mahasiswa, $jenis, $originalName, $format, $path_rel);
-        if (!$stmt->execute()) throw new Exception('Gagal insert dokumen: ' . $stmt->error);
-        $stmt->close();
-    }
-
-    // 2) INSERT data_akademik
-    $id_jurusan = intval($_POST['id_jurusan'] ?? 0);
-    $id_prodi = intval($_POST['id_prodi'] ?? 0);
-    $asal_sekolah = $_POST['asal_sekolah'] ?? '';
-    $tahun_lulus = $_POST['tahun_lulus'] ?? '';
-    $nilai_rata_rata = $_POST['nilai_rata_rata'] !== null ? floatval($_POST['nilai_rata_rata']) : null;
-
-    $stmt = $conn->prepare("INSERT INTO data_akademik (id_mahasiswa, id_jurusan, id_prodi, asal_sekolah, tahun_lulus, nilai_rata_rata) VALUES (?,?,?,?,?,?)");
-    // i i i s s d
-    $stmt->bind_param('iiissd', $id_mahasiswa, $id_jurusan, $id_prodi, $asal_sekolah, $tahun_lulus, $nilai_rata_rata);
-    if (!$stmt->execute()) throw new Exception('Gagal insert data_akademik: ' . $stmt->error);
-    $stmt->close();
-
-    // 3) INSERT data_orangtua
-    $nama_ayah = $_POST['nama_ayah'] ?? '';
-    $nik_ayah = $_POST['nik_ayah'] ?? '';
-    $pekerjaan_ayah = $_POST['pekerjaan_ayah'] ?? '';
-    $penghasilan_ayah = $_POST['penghasilan_ayah'] ?? '';
-    $nohp_ayah = $_POST['nohp_ayah'] ?? '';
-    $alamat_ayah = $_POST['alamat_ayah'] ?? '';
-
-    $nama_ibu = $_POST['nama_ibu'] ?? '';
-    $nik_ibu = $_POST['nik_ibu'] ?? '';
-    $pekerjaan_ibu = $_POST['pekerjaan_ibu'] ?? '';
-    $penghasilan_ibu = $_POST['penghasilan_ibu'] ?? '';
-    $nohp_ibu = $_POST['nohp_ibu'] ?? '';
-    $alamat_ibu = $_POST['alamat_ibu'] ?? '';
-
-    $stmt = $conn->prepare("INSERT INTO data_orangtua (id_mahasiswa, nama_ayah, nik_ayah, pekerjaan_ayah, penghasilan_ayah, nohp_ayah, alamat_ayah, nama_ibu, nik_ibu, pekerjaan_ibu, penghasilan_ibu, nohp_ibu, alamat_ibu) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    $stmt->bind_param(
-        'issssssssssss',
-        $id_mahasiswa,
-        $nama_ayah,
-        $nik_ayah,
-        $pekerjaan_ayah,
-        $penghasilan_ayah,
-        $nohp_ayah,
-        $alamat_ayah,
-        $nama_ibu,
-        $nik_ibu,
-        $pekerjaan_ibu,
-        $penghasilan_ibu,
-        $nohp_ibu,
-        $alamat_ibu
-    );
-    if (!$stmt->execute()) throw new Exception('Gagal insert data_orangtua: ' . $stmt->error);
-    $stmt->close();
-
-    $conn->commit();
-
-    echo json_encode(['success' => true, 'message' => 'Data berhasil disimpan.']);
-} catch (Exception $e) {
-    if ($conn && $conn->errno) {
-        $conn->rollback();
-    }
-    if (!empty($destination) && file_exists($destination)) @unlink($destination);
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
 }
-// ...existing code...
+
+require_once 'koneksi.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['status' => 'error', 'message' => 'Gunakan metode POST']);
+    exit;
+}
+
+$raw = file_get_contents('php://input');
+$data = json_decode($raw, true);
+
+if (!$data) {
+    echo json_encode(['status' => 'error', 'message' => 'JSON tidak valid']);
+    exit;
+}
+
+$userId = $data['user_id'] ?? 0;
+$formData = $data['form_data'] ?? [];
+
+if ($userId <= 0) {
+    echo json_encode(['status' => 'error', 'message' => 'User ID tidak valid']);
+    exit;
+}
+
+// =========================
+// 1️⃣ Simpan ke tabel mahasiswa
+// =========================
+$nama_lengkap  = $formData['namaLengkap'] ?? '';
+$nik           = $formData['nik'] ?? '';
+$tempat_lahir  = $formData['tempatLahir'] ?? '';
+$tanggal_lahir = isset($formData['tanggalLahir']) ? date('Y-m-d', strtotime($formData['tanggalLahir'])) : null;
+$jenis_kelamin = $formData['jenisKelamin'] ?? '';
+$agama         = $formData['agama'] ?? ($formData['selectedAgama'] ?? '');
+$no_hp         = $formData['noHp'] ?? '';
+$email         = $formData['email'] ?? '';
+$alamat        = $formData['alamat'] ?? '';
+$provinsi      = is_array($formData['provinsi']) ? ($formData['provinsi']['name'] ?? '') : ($formData['provinsi'] ?? '');
+$kabupaten     = is_array($formData['kabupaten']) ? ($formData['kabupaten']['name'] ?? '') : ($formData['kabupaten'] ?? '');
+$kecamatan     = is_array($formData['kecamatan']) ? ($formData['kecamatan']['name'] ?? '') : ($formData['kecamatan'] ?? '');
+$kelurahan     = is_array($formData['kelurahan']) ? ($formData['kelurahan']['name'] ?? '') : ($formData['kelurahan'] ?? '');
+$kode_pos      = $formData['kodePos'] ?? '';
+
+$sql = "INSERT INTO mahasiswa (
+    id_pengguna, nama_lengkap, nik, tempat_lahir, tanggal_lahir, jenis_kelamin, agama,
+    no_hp, email, alamat_mahasiswa, provinsi, kabupaten, kecamatan, kelurahan, kode_pos, tanggal_daftar
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("issssssssssssss",
+    $userId, $nama_lengkap, $nik, $tempat_lahir, $tanggal_lahir, $jenis_kelamin,
+    $agama, $no_hp, $email, $alamat, $provinsi, $kabupaten, $kecamatan, $kelurahan, $kode_pos
+);
+$stmt->execute();
+$id_mahasiswa = $conn->insert_id;
+
+
+// =========================
+// 2️⃣ Simpan ke tabel data_akademik
+// =========================
+$id_jurusan   = $formData['id_jurusan'] ?? null;
+$id_prodi     = $formData['id_prodi'] ?? null;
+$asal_sekolah = $formData['asalSekolah'] ?? '';
+$tahun_lulus  = $formData['tahunLulus'] ?? null;
+$nilai_rata   = $formData['nilaiRataRata'] ?? null;
+
+if ($asal_sekolah || $id_prodi || $id_jurusan) {
+    $sql = "INSERT INTO data_akademik (id_mahasiswa, id_jurusan, id_prodi, asal_sekolah, tahun_lulus, nilai_rata_rata)
+            VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iiisis", $id_mahasiswa, $id_jurusan, $id_prodi, $asal_sekolah, $tahun_lulus, $nilai_rata);
+
+    $stmt->execute();
+}
+
+// =========================
+// 3️⃣ Simpan ke tabel data_orangtua
+// =========================
+$nama_ayah = $formData['namaAyah'] ?? '';
+$nik_ayah  = $formData['nikAyah'] ?? '';
+$pekerjaan_ayah = $formData['pekerjaanAyah'] ?? '';
+$penghasilan_ayah = $formData['penghasilanAyah'] ?? '';
+$nohp_ayah = $formData['noTlpAyah'] ?? '';
+$alamat_ayah = $formData['alamatAyah'] ?? '';
+
+$nama_ibu = $formData['namaIbu'] ?? '';
+$nik_ibu  = $formData['nikIbu'] ?? '';
+$pekerjaan_ibu = $formData['pekerjaanIbu'] ?? '';
+$penghasilan_ibu = $formData['penghasilanIbu'] ?? '';
+$nohp_ibu = $formData['noTlpIbu'] ?? '';
+$alamat_ibu = $formData['alamatIbu'] ?? '';
+
+if ($nama_ayah || $nama_ibu) {
+    $sql = "INSERT INTO data_orangtua (
+        id_mahasiswa, nama_ayah, nik_ayah, pekerjaan_ayah, penghasilan_ayah, nohp_ayah, alamat_ayah,
+        nama_ibu, nik_ibu, pekerjaan_ibu, penghasilan_ibu, nohp_ibu, alamat_ibu
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("issssssssssss",
+    $id_mahasiswa,
+    $nama_ayah, $nik_ayah, $pekerjaan_ayah, $penghasilan_ayah, $nohp_ayah, $alamat_ayah,
+    $nama_ibu, $nik_ibu, $pekerjaan_ibu, $penghasilan_ibu, $nohp_ibu, $alamat_ibu
+);
+
+    $stmt->execute();
+}
+
+// =========================
+// 4️⃣ Simpan ke tabel dokumen
+// =========================
+$ijazah = $formData['ijazah'] ?? null;
+$kk     = $formData['kk'] ?? null;
+$akta   = $formData['akta'] ?? null;
+$foto   = $formData['foto'] ?? null;
+
+$dokumen = [
+    ['Ijazah/SKL', $ijazah],
+    ['Kartu Keluarga', $kk],
+    ['Akta Kelahiran', $akta],
+    ['Pas Foto', $foto]
+];
+
+foreach ($dokumen as $dok) {
+    if (!empty($dok[1])) {
+        $sql = "INSERT INTO dokumen (id_mahasiswa, jenis_dokumen, nama_file, format_file, path_file, status_verifikasi)
+                VALUES (?, ?, ?, ?, ?, 'Menunggu Verifikasi')";
+        $stmt = $conn->prepare($sql);
+        $nama_file = basename($dok[1]);
+        $format_file = pathinfo($dok[1], PATHINFO_EXTENSION);
+        $stmt->bind_param("issss", $id_mahasiswa, $dok[0], $nama_file, $format_file, $dok[1]);
+        $stmt->execute();
+    }
+}
+if ($stmt->error) {
+    echo json_encode(['status' => 'error', 'message' => $stmt->error]);
+    exit;
+}
+
+echo json_encode([
+    'status' => 'success',
+    'message' => 'Data mahasiswa, akademik, orangtua, dan dokumen berhasil disimpan',
+    'id_mahasiswa' => $id_mahasiswa
+]);
+?>

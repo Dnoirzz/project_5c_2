@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,14 +22,13 @@ class ApiService {
       // Decode hasil dari server
       final data = json.decode(response.body);
 
-
       //  Jika login sukses, simpan user_id ke SharedPreferences
 
       if (data['status'] == 'success' && data['data'] != null) {
         final prefs = await SharedPreferences.getInstance();
         final userData = data['data'];
         if (userData['id_pengguna'] != null) {
-          await prefs.setInt('user_id', userData['id_pengguna']);
+          await prefs.setInt('id_pengguna', userData['id_pengguna']);
           print("[DEBUG] User ID disimpan: ${userData['id_pengguna']}");
         }
       }

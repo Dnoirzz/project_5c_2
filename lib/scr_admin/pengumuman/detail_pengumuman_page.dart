@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:SPMB/models/pengumuman_models.dart';
 import 'package:SPMB/services/pengumuman_services.dart';
 import 'package:flutter/material.dart';
