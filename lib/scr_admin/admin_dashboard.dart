@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../scr_admin/widgets/sidebar.dart'; 
+import '../scr_admin/widgets/sidebar.dart';
 import '../scr_admin/pengumuman/admin_pengumuman_page.dart';
-
+import '/services/admin_dashboard_services.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -13,9 +13,67 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final AdminDashboardService service = AdminDashboardService();
+
+  Map<String, dynamic>? dashboardData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDashboardData();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    try {
+      final data = await AdminDashboardService.fetchDashboardData(); // ✅ correct
+      setState(() {
+        dashboardData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching dashboard: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // ✅ Match JSON keys from your PHP output
+    final totalMahasiswa = dashboardData?['total_mahasiswa'] ?? 0;
+    final totalUser = dashboardData?['total_user'] ?? 0;
+    final pendingList = dashboardData?['pending_verifikasi'] ?? [];
+    final mahasiswaList = dashboardData?['data_mahasiswa_user'] ?? [];
+
+    // ✅ Example pie chart: verified vs pending
+    final verifiedCount = mahasiswaList
+        .where((m) => m['status_verifikasi'] == 'Sudah')
+        .length;
+    final pendingCount = mahasiswaList
+        .where((m) => m['status_verifikasi'] == 'Belum')
+        .length;
+
+    final chartData = [
+      {
+        'label': 'Terverifikasi',
+        'value': verifiedCount.toDouble(),
+        'color': '0xFF4CAF50'
+      },
+      {
+        'label': 'Belum Verifikasi',
+        'value': pendingCount.toDouble(),
+        'color': '0xFFF44336'
+      },
+    ];
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xFF364A63),
@@ -23,9 +81,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         backgroundColor: const Color(0xFF36566F),
         elevation: 0,
         leading: IconButton(
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
           icon: const Icon(Icons.menu, color: Colors.white),
         ),
         title: const Text(
@@ -36,12 +92,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             letterSpacing: 1.2,
           ),
         ),
-        centerTitle: false,
         actions: [
           IconButton(
-            onPressed: () {
-              // Search action
-            },
+            onPressed: () {},
             icon: const Icon(Icons.search, color: Colors.white),
           ),
         ],
@@ -61,23 +114,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             const SizedBox(height: 4),
             RichText(
-              text: const TextSpan(
+              text: TextSpan(
                 children: [
-                  TextSpan(
+                  const TextSpan(
                     text: "Kamu Mempunyai ",
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   TextSpan(
-                    text: "20 Daftar Mahasiswa ",
-                    style: TextStyle(
+                    text: "${pendingList.length} Mahasiswa ",
+                    style: const TextStyle(
                         color: Colors.yellowAccent,
                         fontWeight: FontWeight.bold),
                   ),
-                  TextSpan(
-                    text: "yang Belum di ",
+                  const TextSpan(
+                    text: "yang Belum ",
                     style: TextStyle(color: Colors.white),
                   ),
-                  TextSpan(
+                  const TextSpan(
                     text: "Terverifikasi",
                     style: TextStyle(
                         color: Colors.lightGreenAccent,
@@ -101,32 +154,26 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // ✅ Info Cards
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: _infoCard(Icons.male, "Total Mhs Laki - Laki", "20"),
+                  child: _infoCard(Icons.people, "Total Mahasiswa",
+                      totalMahasiswa.toString()),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _infoCard(Icons.female, "Total Mhs Perempuan", "20"),
+                  child: _infoCard(
+                      Icons.admin_panel_settings, "Total User", totalUser.toString()),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: _infoCard(Icons.people, "Total Mhs", "100"),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _infoCard(Icons.verified, "Terverifikasi", "20"),
-                ),
-              ],
-            ),
+
             const SizedBox(height: 20),
+
+            // 📊 Chart Section
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -137,12 +184,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Distribusi Mahasiswa per Jurusan",
+                    "Status Verifikasi Mahasiswa",
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -151,83 +197,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       PieChartData(
                         sectionsSpace: 2,
                         centerSpaceRadius: 40,
-                        sections: [
-                          PieChartSectionData(
-                            color: Colors.redAccent,
-                            value: 40,
-                            title: '40%',
+                        sections: chartData.map<PieChartSectionData>((d) {
+                          return PieChartSectionData(
+                            color: Color(int.parse(d['color'])),
+                            value: d['value'],
+                            title: '${d['value']}',
                             radius: 60,
                             titleStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          PieChartSectionData(
-                            color: Colors.greenAccent,
-                            value: 30,
-                            title: '30%',
-                            radius: 60,
-                            titleStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          PieChartSectionData(
-                            color: Colors.blueAccent,
-                            value: 20,
-                            title: '20%',
-                            radius: 60,
-                            titleStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          PieChartSectionData(
-                            color: Colors.orangeAccent,
-                            value: 10,
-                            title: '10%',
-                            radius: 60,
-                            titleStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildLegend(),
+                  _buildLegendFromData(chartData),
                   const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        // Navigate to full chart page
-                      },
-                      child: const Text(
-                        "View All",
-                        style: TextStyle(
-                          color: Colors.lightBlueAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // 🔥 Tombol menuju halaman pengumuman
                   Center(
                     child: ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const AdminPengumumanPage(),
-                          ),
+                              builder: (_) => const AdminPengumumanPage()),
                         );
                       },
                       icon: const Icon(Icons.campaign, color: Colors.white),
@@ -237,79 +231,56 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                            borderRadius: BorderRadius.circular(12)),
                         textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 20),
+
             const Text(
               "Daftar Mahasiswa Belum Terverifikasi",
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
+
+            // ✅ Table from pending_verifikasi list
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: DataTable(
-                  headingRowColor: WidgetStateProperty.all(Colors.white10),
-                  columnSpacing: 20,
-                  horizontalMargin: 16,
-                  columns: const [
-                    DataColumn(
-                        label: Text('Nama',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold))),
-                    DataColumn(
-                        label: Text('Jurusan',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold))),
-                    DataColumn(
-                        label: Text('Prodi',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold))),
-                    DataColumn(
-                        label: Text('Status',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold))),
-                  ],
-                  rows: List.generate(5, (index) {
-                    return const DataRow(cells: [
-                      DataCell(Text('Sari Putriani',
-                          style: TextStyle(color: Colors.white70))),
-                      DataCell(Text('Teknik Elektro',
-                          style: TextStyle(color: Colors.white70))),
-                      DataCell(Text('D3 Teknik Informatika',
-                          style: TextStyle(color: Colors.white70))),
-                      DataCell(Text('Belum Terverifikasi',
+              child: DataTable(
+                headingRowColor: MaterialStateProperty.all(Colors.white10),
+                columns: const [
+                  DataColumn(
+                      label: Text('Nama',
                           style: TextStyle(
-                              color: Colors.redAccent,
+                              color: Colors.white,
                               fontWeight: FontWeight.bold))),
-                    ]);
-                  }),
-                ),
+                  DataColumn(
+                      label: Text('Status',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold))),
+                ],
+                rows: pendingList.map<DataRow>((student) {
+                  return DataRow(cells: [
+                    DataCell(Text(student['nama_lengkap'] ?? '-',
+                        style: const TextStyle(color: Colors.white70))),
+                    DataCell(Text(student['status_verifikasi'] ?? '-',
+                        style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold))),
+                  ]);
+                }).toList(),
               ),
             ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -343,37 +314,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildLegend() {
+  Widget _buildLegendFromData(List<dynamic> chartData) {
     return Column(
-      children: [
-        _legendItem(Colors.redAccent, 'Teknik Informatika'),
-        const SizedBox(height: 8),
-        _legendItem(Colors.greenAccent, 'Teknik Elektro'),
-        const SizedBox(height: 8),
-        _legendItem(Colors.blueAccent, 'Teknik Mesin'),
-        const SizedBox(height: 8),
-        _legendItem(Colors.orangeAccent, 'Lainnya'),
-      ],
-    );
-  }
-
-  Widget _legendItem(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
+      children: chartData.map<Widget>((d) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: Color(int.parse(d['color'])),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(d['label'],
+                  style: const TextStyle(color: Colors.white70, fontSize: 14)),
+            ],
           ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 14),
-        ),
-      ],
+        );
+      }).toList(),
     );
   }
 }
