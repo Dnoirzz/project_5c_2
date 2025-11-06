@@ -475,10 +475,8 @@ class _ProfileMenuState extends State<ProfileMenu> {
             children: [
               Text(
                 userName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               Text(
                 userEmail,
@@ -549,16 +547,9 @@ class _ProfileMenuState extends State<ProfileMenu> {
         }
         break;
       case 3:
-        // Logout - Hapus session data saja, pertahankan remember me
+        // Logout - Clear SharedPreferences dan navigate to landing
         final prefs = await SharedPreferences.getInstance();
-
-        // Hapus hanya status login (session data)
-        await prefs.remove('is_logged_in');
-        await prefs.remove('user_email');
-        await prefs.remove('user_nama_lengkap');
-        await prefs.remove('user_role');
-
-        // APP_rememberMe, APP_saved_email, APP_saved_password TIDAK DIHAPUS
+        await prefs.clear(); // Hapus semua data
 
         if (context.mounted) {
           Navigator.pushAndRemoveUntil(
@@ -566,9 +557,9 @@ class _ProfileMenuState extends State<ProfileMenu> {
             MaterialPageRoute(builder: (context) => const LandingPage()),
             (route) => false,
           );
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Logout berhasil')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Logout berhasil')),
+          );
         }
         break;
     }
