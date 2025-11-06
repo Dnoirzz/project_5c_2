@@ -103,27 +103,27 @@ class dataMahasiswaService {
 
     try {
       final response = await http.get(url);
-      print("📄 Response status: ${response.statusCode}");
-      print("📄 Response body: ${response.body}");
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final body = json.decode(response.body);
 
         if (body["success"] == true && body["data"] != null) {
           final List data = body["data"];
-          print("📄 Total dokumen ditemukan: ${data.length}");
+          print("Total dokumen ditemukan: ${data.length}");
 
           // Parse setiap dokumen dan print detailnya
           final dokumenList = data.map((e) {
             print(
-                "📄 Parsing dokumen: ${e['jenis_dokumen']} - Status: ${e['status_verifikasi']}");
+                "Parsing dokumen: ${e['jenis_dokumen']} - Status: ${e['status_verifikasi']}");
             return DataDokumen.fromJson(e);
           }).toList();
 
           return dokumenList;
         } else {
-          print("📄 Data kosong atau success=false");
-          return []; // Return list kosong jika tidak ada data
+          print("Data kosong atau success=false");
+          return [];
         }
       } else {
         throw Exception("Gagal koneksi ke server: ${response.statusCode}");
