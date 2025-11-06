@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import '../services/auth_servise.dart';
 import 'package:flutter/material.dart';
 import 'forgot_scr.dart';

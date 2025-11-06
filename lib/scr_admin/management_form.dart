@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_to_list_in_spreads
+// ignore_for_file: unnecessary_to_list_in_spreads, avoid_print, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import '../../models/mahasiswa_models.dart';

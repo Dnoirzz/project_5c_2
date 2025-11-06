@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import '../../models/pengumuman_models.dart';
 import '../../services/pengumuman_services.dart';

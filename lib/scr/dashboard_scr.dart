@@ -695,6 +695,8 @@
 //     this.number,
 //   });
 
+// ignore_for_file: avoid_print, avoid_function_literals_in_foreach_calls
+
 //   @override
 //   Widget build(BuildContext context) {
 //     return ListTile(
