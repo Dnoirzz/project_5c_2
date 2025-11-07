@@ -747,8 +747,8 @@ class _DashboardPageState extends State<DashboardPage> {
   bool isLoading = true;
   List<Pengumuman> pengumumanList = [];
   List<DataDokumen> dokumenUser = [];
-  String statusText = 'Menunggu Verifikasi';
-  Color statusColor = Colors.yellow.shade700;
+  String statusText = 'Anda Belum Melakukan Pendaftaran';
+  Color statusColor = const Color.fromARGB(255, 231, 231, 230);
 
   // 🔹 Variabel untuk menyimpan data user
   String userName = '';

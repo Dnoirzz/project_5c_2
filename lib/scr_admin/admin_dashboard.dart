@@ -26,6 +26,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
   String? errorMessage;
   String adminNama = "Admin";
   List<dynamic> jurusanist = [];
+  final Map<String, Color> jurusanColors = {
+    'Teknik Elektro': Colors.red,
+    'Teknik Sipil': Colors.yellow,
+    'Teknik Mesin': Colors.blue,
+    'Akuntansi': Colors.green,
+    'Teknologi Pertanian': Colors.orange,
+    'Administrasi Bisnis': Colors.purple,
+    'Ilmu Kelautan dan Perikanan': Colors.cyan,
+    'Teknik Arsitektur': Colors.pink,
+  };
   void initState() {
     super.initState();
     loadDashboardData();
@@ -36,15 +46,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
     setState(() {
       isLoading = true;
       errorMessage = null;
-      adminNama = data['admin_nama'] ?? 'Admin';
+      adminNama = data['nama_lengkap'] ?? 'Admin';
     });
 
     try {
       print(' Loading dashboard data...');
       final prefs = await SharedPreferences.getInstance();
-      final email = prefs.getString('email') ?? '';
+      final email = prefs.getString('user_email') ?? '';
       final data = await DashboardService.getDashboardStats(email);
       print(' Processing data...');
+      print('Email dikirim ke API: $email');
+      if (email.isEmpty) {
+        setState(() {
+          adminNama = 'Admin';
+          isLoading = false;
+        });
+        return;
+      }
+
       // Parse statistik dengan null safety
       final stats = data['statistik'];
       if (stats == null) {
@@ -52,8 +71,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
       }
 
       setState(() {
-        adminNama =
-            data['admin_nama'] ?? 'Admin'; // Konversi ke int dengan aman
+        adminNama = data['nama_lengkap'] ??
+            prefs.getString('user_nama_lengkap') ??
+            'Admin';
         totalMahasiswa =
             int.tryParse(stats['total_mahasiswa']?.toString() ?? '0') ?? 0;
         totalLaki = int.tryParse(stats['total_laki']?.toString() ?? '0') ?? 0;
@@ -66,6 +86,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
         // Parse list mahasiswa
         mahasiswaList = (data['belum_verifikasi'] as List?) ?? [];
+        jurusanist = (data['jurusan'] as List?) ?? [];
 
         isLoading = false;
         print('Dashboard loaded successfully');
@@ -75,6 +96,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } catch (e) {
       print(' Load error: $e');
       setState(() {
+        // adminNama = prefs.getString('user_nama_lengkap') ?? 'Admin';
         isLoading = false;
         errorMessage = e.toString();
       });
@@ -136,9 +158,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Good Morning, Sarah",
-              style: TextStyle(color: Colors.white70, fontSize: 16),
+            RichText(
+              text: TextSpan(
+                children: [
+                  const TextSpan(
+                    text: "Good Morning, ",
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  TextSpan(
+                    text: adminNama,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 4),
             RichText(
@@ -285,25 +320,58 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         //     ],
                         //   ),
                         // ),
+                        // udah benar
+                        // PieChart(
+                        //     PieChartData(
+                        //       sectionsSpace: 3,
+                        //       centerSpaceRadius: 40,
+                        //       sections: jurusanist.map((item) {
+                        //         final jumlah =
+                        //             int.tryParse(item['jumlah'].toString()) ?? 0;
+                        //         final nama = item['nama_jurusan'].toString();
+                        //         return PieChartSectionData(
+                        //           value: jumlah.toDouble(),
+                        //           title: nama,
+                        //           radius: 60,
+                        //           titleStyle: const TextStyle(
+                        //             fontSize: 10,
+                        //             fontWeight: FontWeight.bold,
+                        //             color: Colors.white,
+                        //           ),
+                        //         );
+                        //       }).toList(),
+                        //     ),
+                        //   ),
+                        // ),
+
                         PieChart(
                       PieChartData(
                         sectionsSpace: 3,
                         centerSpaceRadius: 40,
-                        sections: jurusanist.map((item) {
+                        sections: List.generate(jurusanist.length, (index) {
+                          final item = jurusanist[index];
                           final jumlah =
                               int.tryParse(item['jumlah'].toString()) ?? 0;
                           final nama = item['nama_jurusan'].toString();
+
+                          // Hitung persentase
+                          final persen = totalMahasiswa > 0
+                              ? ((jumlah / totalMahasiswa) * 100)
+                                  .toStringAsFixed(1)
+                              : '0';
+
                           return PieChartSectionData(
                             value: jumlah.toDouble(),
-                            title: nama,
+                            color: jurusanColors[nama] ?? Colors.grey,
+                            title: '$persen%',
                             radius: 60,
                             titleStyle: const TextStyle(
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           );
-                        }).toList(),
+                        }),
                       ),
                     ),
                   ),
@@ -568,13 +636,21 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildLegend() {
     return Column(
       children: [
-        _legendItem(Colors.redAccent, 'Teknik Informatika'),
+        _legendItem(Colors.redAccent, 'Teknik Elektro'),
         const SizedBox(height: 8),
-        _legendItem(Colors.greenAccent, 'Teknik Elektro'),
+        _legendItem(Colors.yellow, 'Teknik Sipil'),
         const SizedBox(height: 8),
-        _legendItem(Colors.blueAccent, 'Teknik Mesin'),
+        _legendItem(Colors.blue, 'Teknik Mesin'),
         const SizedBox(height: 8),
-        _legendItem(Colors.orangeAccent, 'Lainnya'),
+        _legendItem(Colors.green, 'Akuntansi'),
+        const SizedBox(height: 8),
+        _legendItem(Colors.orange, 'Teknologi Pertanian'),
+        const SizedBox(height: 8),
+        _legendItem(Colors.purple, 'Administrasi Bisnis'),
+        const SizedBox(height: 8),
+        _legendItem(Colors.cyan, 'Ilmu Kelautan dan Perikanan'),
+        const SizedBox(height: 8),
+        _legendItem(Colors.pink, 'Teknik Arsitektur'),
       ],
     );
   }

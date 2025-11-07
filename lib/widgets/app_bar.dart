@@ -354,6 +354,7 @@
 //     );
 //   }
 // }
+import 'package:SPMB/services/dashboard_admin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../scr/formulir_scr/formulir_main.dart';
@@ -456,7 +457,9 @@ class _ProfileMenuState extends State<ProfileMenu> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       userName = prefs.getString('user_nama_lengkap') ?? 'User';
+      print("$userName");
       userEmail = prefs.getString('user_email') ?? 'email@example.com';
+      print("$userEmail");
     });
   }
 
@@ -596,6 +599,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Future<void> _loadUserData() async {
+    final data = await DashboardService.getDashboardStats(userEmail);
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       userName = prefs.getString('user_nama_lengkap') ?? 'User';

@@ -75,8 +75,8 @@ class DashboardService {
         final data = json.decode(response.body);
 
         // Jika API memiliki key nama admin
-        if (data.containsKey('admin_nama')) {
-          print("Nama admin: ${data['admin_nama']}");
+        if (data.containsKey('nama_lengkap')) {
+          print("Nama admin: ${data['nama_lengkap']}");
         }
 
         print('✅ Data parsed successfully');
