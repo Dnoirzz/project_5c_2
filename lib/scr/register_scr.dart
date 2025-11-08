@@ -1,10 +1,9 @@
-// import 'package:SPMB/services/auth_servise.dart';
-// ignore_for_file: use_build_context_synchronously
-
+import 'package:SPMB/services/auth_servise.dart';
 import 'package:flutter/material.dart';
 import '../scr_admin/admin_dashboard.dart';
 import '../services/auth_servise.dart';
 import 'login_scr.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -223,6 +222,18 @@ class RegisterScreen extends StatelessWidget {
                             );
 
                             if (data['status'] == 'success') {
+                              final user = data['data'];
+
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.clear();
+                              await prefs.setInt(
+                                  'user_id', user['id_pengguna'] ?? 0);
+                              await prefs.setString(
+                                  'user_email', user['email'] ?? '');
+                              await prefs.setString('user_nama_lengkap',
+                                  user['nama_lengkap'] ?? '');
+                              await prefs.setBool('is_logged_in', true);
                               String role = data['role'] ?? 'mahasiswa';
 
                               if (role == 'admin') {
