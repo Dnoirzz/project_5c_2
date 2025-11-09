@@ -215,6 +215,28 @@ class RegisterScreen extends StatelessWidget {
                             return;
                           }
 
+                          final password = passwordController.text.trim();
+                          final passwordRegex = RegExp(
+                              r'^(?=.*[A-Za-z])(?=.*\d)(?=[^!@#$%^&*(),.?":{}|<>]*[!@#$%^&*(),.?":{}|<>][^!@#$%^&*(),.?":{}|<>]*$)[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$');
+
+                          if (!passwordRegex.hasMatch(password)) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Password tidak valid"),
+                                content: const Text(
+                                    "Password harus minimal 8 karakter, mengandung huruf, angka, dan hanya 1 simbol."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("OK"),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return;
+                          }
+
                           try {
                             var data = await ApiService.register(
                               emailController.text.trim(),

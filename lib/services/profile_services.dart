@@ -73,6 +73,68 @@ class dataMahasiswaService {
     }
   }
 
+//sudah hapirbenar
+  // static Future<List<DataDokumen>> getDataDokumenByIdMahasiswa(
+  //     int idMahasiswa) async {
+  //   final url = Uri.parse(
+  //       "$baseUrl/get_dataMahasiswa_finall.php?id_mahasiswa=$idMahasiswa");
+  //   final response = await http.get(url);
+
+  //   if (response.statusCode == 200) {
+  //     final body = json.decode(response.body);
+
+  //     if (body["success"] == true) {
+  //       final List data = body["data"];
+  //       // kalau data kosong, tetap kembalikan list kosong tanpa error
+  //       return data.map((e) => DataDokumen.fromJson(e)).toList();
+  //     } else {
+  //       return []; // aman kalau tidak ada data
+  //     }
+  //   } else {
+  //     throw Exception("Gagal koneksi ke server: ${response.statusCode}");
+  //   }
+  // }
+
+  static Future<List<DataDokumen>> getDataDokumenByIdMahasiswa(
+      int idMahasiswa) async {
+    // Sesuaikan dengan endpoint yang benar dari gambar (tanpa double 'l')
+    final url = Uri.parse(
+        "$baseUrl/get_dataMahasiswa_finall.php?id_mahasiswa=$idMahasiswa");
+
+    print("📄 Fetching dokumen from: $url");
+
+    try {
+      final response = await http.get(url);
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body);
+
+        if (body["success"] == true && body["data"] != null) {
+          final List data = body["data"];
+          print("Total dokumen ditemukan: ${data.length}");
+
+          // Parse setiap dokumen dan print detailnya
+          final dokumenList = data.map((e) {
+            print(
+                "Parsing dokumen: ${e['jenis_dokumen']} - Status: ${e['status_verifikasi']}");
+            return DataDokumen.fromJson(e);
+          }).toList();
+
+          return dokumenList;
+        } else {
+          print("Data kosong atau success=false");
+          return [];
+        }
+      } else {
+        throw Exception("Gagal koneksi ke server: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("📄 Error getDataDokumen: $e");
+      throw Exception("Gagal memuat data dokumen: $e");
+    }
+  }
   // static Future<List<DataDokumen>> getDataDokumenByIdMahasiswa(
   //     int idMahasiswa) async {
   //   final url =
@@ -92,45 +154,24 @@ class dataMahasiswaService {
   //     throw Exception("Gagal koneksi ke server: ${response.statusCode}");
   //   }
   // }
-//sudah hapirbenar
   // static Future<List<DataDokumen>> getDataDokumenByIdMahasiswa(
   //     int idMahasiswa) async {
-  //   final url =
-  //       Uri.parse("$baseUrl/get_dokumen_final.php?id_mahasiswa=$idMahasiswa");
+  //   final url = Uri.parse(
+  //       "$baseUrl/get_data_dokumen_final.php?id_mahasiswa=$idMahasiswa");
+  //   print("📤 Fetch Dokumen dari URL: $url");
   //   final response = await http.get(url);
+  //   print("📥 Response Dokumen: ${response.body}");
 
   //   if (response.statusCode == 200) {
   //     final body = json.decode(response.body);
-
-  //     if (body["success"] == true) {
+  //     if (body["success"] == true && body["data"] != null) {
   //       final List data = body["data"];
-  //       // kalau data kosong, tetap kembalikan list kosong tanpa error
   //       return data.map((e) => DataDokumen.fromJson(e)).toList();
   //     } else {
-  //       return []; // aman kalau tidak ada data
+  //       return [];
   //     }
   //   } else {
   //     throw Exception("Gagal koneksi ke server: ${response.statusCode}");
   //   }
   // }
-  static Future<List<DataDokumen>> getDataDokumenByIdMahasiswa(
-      int idMahasiswa) async {
-    final url = Uri.parse(
-        "$baseUrl/get_data_dokumen_final.php?id_mahasiswa=$idMahasiswa");
-    print("📤 Fetch Dokumen dari URL: $url");
-    final response = await http.get(url);
-    print("📥 Response Dokumen: ${response.body}");
-
-    if (response.statusCode == 200) {
-      final body = json.decode(response.body);
-      if (body["success"] == true && body["data"] != null) {
-        final List data = body["data"];
-        return data.map((e) => DataDokumen.fromJson(e)).toList();
-      } else {
-        return [];
-      }
-    } else {
-      throw Exception("Gagal koneksi ke server: ${response.statusCode}");
-    }
-  }
 }

@@ -34,8 +34,8 @@ class _ProfileMainState extends State<ProfileMain>
   List<DataOrangtua>? _dataOrangtua;
   List<DataDokumen>? _dataDokumen;
   List<DataDokumen> dokumenUser = [];
-  String statusText = 'Menunggu Verifikasi';
-  Color statusColor = Colors.yellow.shade700;
+  String statusText = 'Anda Belum Melakukan Pendaftaran';
+  Color statusColor = const Color.fromARGB(255, 231, 231, 230);
   bool _isLoading = true;
   String? errorMessage;
 
