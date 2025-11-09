@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/location_models.dart';
 import '../../services/location_service.dart';
 
@@ -33,6 +34,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
   final TextEditingController _namaLengkapController = TextEditingController();
   final TextEditingController _nikController = TextEditingController();
   final TextEditingController _tempatLahirController = TextEditingController();
+  final TextEditingController _agamaController = TextEditingController();
   final TextEditingController _alamatController = TextEditingController();
   final TextEditingController _noHpController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -57,6 +59,11 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     if (_tempatLahirController.text.isNotEmpty) {
       data['tempatLahir'] = _tempatLahirController.text;
     }
+    if (_agamaController.text.isNotEmpty) {
+      // ✅ FIX: was using _tempatLahirController
+      data['agama'] = _agamaController.text;
+    }
+
     if (_alamatController.text.isNotEmpty) {
       data['alamat'] = _alamatController.text;
     }
@@ -72,6 +79,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
 
     // Selected values
     if (_tanggalLahir != null) {
+      // data['tanggalLahir'] = _tanggalLahir!.toIso8601String();
       data['tanggalLahir'] = _tanggalLahir!.toIso8601String();
     }
     if (_jenisKelamin != null) {
@@ -99,73 +107,230 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     _namaLengkapController.addListener(_notifyDataChanged);
     _nikController.addListener(_notifyDataChanged);
     _tempatLahirController.addListener(_notifyDataChanged);
+    _agamaController.addListener(_notifyDataChanged);
     _alamatController.addListener(_notifyDataChanged);
     _noHpController.addListener(_notifyDataChanged);
     _emailController.addListener(_notifyDataChanged);
     _kodePosController.addListener(_notifyDataChanged);
   }
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _initializeLocationData();
+  //   _setupTextFieldListeners();
+  //   _loadSavedUserData();
+
+  //   // Restore saved data if available
+  //   if (widget.savedData != null) {
+  //     // Restore text fields
+  //     if (widget.savedData?['namaLengkap'] != null) {
+  //       _namaLengkapController.text = widget.savedData!['namaLengkap'];
+  //     }
+  //     if (widget.savedData?['nik'] != null) {
+  //       _nikController.text = widget.savedData!['nik'];
+  //     }
+  //     if (widget.savedData?['tempatLahir'] != null) {
+  //       _tempatLahirController.text = widget.savedData!['tempatLahir'];
+  //     }
+
+  //     if (widget.savedData?['agama'] != null) {
+  //       _nikController.text = widget.savedData!['agama'];
+  //     }
+  //     if (widget.savedData?['alamat'] != null) {
+  //       _alamatController.text = widget.savedData!['alamat'];
+  //     }
+  //     if (widget.savedData?['kodePos'] != null) {
+  //       _kodePosController.text = widget.savedData!['kodePos'];
+  //     }
+  //     if (widget.savedData?['noHp'] != null) {
+  //       _noHpController.text = widget.savedData!['noHp'];
+  //     }
+  //     if (widget.savedData?['email'] != null) {
+  //       _emailController.text = widget.savedData!['email'];
+  //     }
+
+  //     // Restore selected values
+  //     if (widget.savedData?['tanggalLahir'] != null) {
+  //       _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
+  //     }
+  //     if (widget.savedData?['jenisKelamin'] != null) {
+  //       _jenisKelamin = widget.savedData!['jenisKelamin'];
+  //     }
+
+  //     // Restore location data
+  //     if (widget.savedData?['province'] != null) {
+  //       _selectedProvince = Province.fromJson(widget.savedData!['province']);
+  //       _provinceController.text = _selectedProvince?.name ?? '';
+  //     }
+  //     if (widget.savedData?['regency'] != null) {
+  //       _selectedRegency = Regency.fromJson(widget.savedData?['regency']);
+  //       _regencyController.text = _selectedRegency?.name ?? '';
+  //     }
+  //     if (widget.savedData?['district'] != null) {
+  //       _selectedDistrict = District.fromJson(widget.savedData?['district']);
+  //       _districtController.text = _selectedDistrict?.name ?? '';
+  //     }
+  //     if (widget.savedData?['village'] != null) {
+  //       _selectedVillage = Village.fromJson(widget.savedData?['village']);
+  //       _villageController.text = _selectedVillage?.name ?? '';
+  //     }
+  //   }
+  // }
+  @override
+  void didUpdateWidget(DataPribadiPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Jika savedData berubah, restore data baru
+    if (widget.savedData != oldWidget.savedData &&
+        widget.savedData != null &&
+        widget.savedData!.isNotEmpty) {
+      _restoreSavedData();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _initializeLocationData();
     _setupTextFieldListeners();
 
-    // Restore saved data if available
-    if (widget.savedData != null) {
-      // Restore text fields
-      if (widget.savedData?['namaLengkap'] != null) {
-        _namaLengkapController.text = widget.savedData!['namaLengkap'];
-      }
-      if (widget.savedData?['nik'] != null) {
-        _nikController.text = widget.savedData!['nik'];
-      }
-      if (widget.savedData?['tempatLahir'] != null) {
-        _tempatLahirController.text = widget.savedData!['tempatLahir'];
-      }
-      if (widget.savedData?['alamat'] != null) {
-        _alamatController.text = widget.savedData!['alamat'];
-      }
-      if (widget.savedData?['kodePos'] != null) {
-        _kodePosController.text = widget.savedData!['kodePos'];
-      }
-      if (widget.savedData?['noHp'] != null) {
-        _noHpController.text = widget.savedData!['noHp'];
-      }
-      if (widget.savedData?['email'] != null) {
-        _emailController.text = widget.savedData!['email'];
-      }
+    // Restore saved data if available SEBELUM load user data
+    if (widget.savedData != null && widget.savedData!.isNotEmpty) {
+      _restoreSavedData();
+    }
 
-      // Restore selected values
-      if (widget.savedData?['tanggalLahir'] != null) {
-        _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
-      }
-      if (widget.savedData?['jenisKelamin'] != null) {
-        _jenisKelamin = widget.savedData!['jenisKelamin'];
-      }
+    _initializeLocationData();
+    _loadSavedUserData();
+  }
 
-      // Restore location data
-      if (widget.savedData?['province'] != null) {
-        _selectedProvince = Province.fromJson(widget.savedData!['province']);
-        _provinceController.text = _selectedProvince?.name ?? '';
+  // void _restoreSavedData() {
+  //   // Restore text fields
+  //   if (widget.savedData?['namaLengkap'] != null) {
+  //     _namaLengkapController.text = widget.savedData!['namaLengkap'];
+  //   }
+  //   if (widget.savedData?['nik'] != null) {
+  //     _nikController.text = widget.savedData!['nik'];
+  //   }
+  //   if (widget.savedData?['tempatLahir'] != null) {
+  //     _tempatLahirController.text = widget.savedData!['tempatLahir'];
+  //   }
+  //   if (widget.savedData?['agama'] != null) {
+  //     _agamaController.text = widget.savedData!['agama'];
+  //   }
+  //   if (widget.savedData?['alamat'] != null) {
+  //     _alamatController.text = widget.savedData!['alamat'];
+  //   }
+  //   if (widget.savedData?['kodePos'] != null) {
+  //     _kodePosController.text = widget.savedData!['kodePos'];
+  //   }
+  //   if (widget.savedData?['noHp'] != null) {
+  //     _noHpController.text = widget.savedData!['noHp'];
+  //   }
+  //   if (widget.savedData?['email'] != null) {
+  //     _emailController.text = widget.savedData!['email'];
+  //   }
+
+  //   // Restore selected values
+  //   if (widget.savedData?['tanggalLahir'] != null) {
+  //     // _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
+  //     _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
+  //   }
+  //   if (widget.savedData?['jenisKelamin'] != null) {
+  //     _jenisKelamin = widget.savedData!['jenisKelamin'];
+  //   }
+
+  //   // Restore location data
+  //   if (widget.savedData?['province'] != null) {
+  //     _selectedProvince = Province.fromJson(widget.savedData!['province']);
+  //     _provinceController.text = _selectedProvince?.name ?? '';
+  //   }
+  //   if (widget.savedData?['regency'] != null) {
+  //     _selectedRegency = Regency.fromJson(widget.savedData!['regency']);
+  //     _regencyController.text = _selectedRegency?.name ?? '';
+  //   }
+  //   if (widget.savedData?['district'] != null) {
+  //     _selectedDistrict = District.fromJson(widget.savedData!['district']);
+  //     _districtController.text = _selectedDistrict?.name ?? '';
+  //   }
+  //   if (widget.savedData?['village'] != null) {
+  //     _selectedVillage = Village.fromJson(widget.savedData!['village']);
+  //     _villageController.text = _selectedVillage?.name ?? '';
+  //   }
+  // }
+  void _restoreSavedData() {
+    // Restore text fields
+    if (widget.savedData?['namaLengkap'] != null) {
+      _namaLengkapController.text = widget.savedData!['namaLengkap'];
+    }
+    if (widget.savedData?['nik'] != null) {
+      _nikController.text = widget.savedData!['nik'];
+    }
+    if (widget.savedData?['tempatLahir'] != null) {
+      _tempatLahirController.text = widget.savedData!['tempatLahir'];
+    }
+    if (widget.savedData?['agama'] != null) {
+      _agamaController.text = widget.savedData!['agama'];
+    }
+    if (widget.savedData?['alamat'] != null) {
+      _alamatController.text = widget.savedData!['alamat'];
+    }
+    if (widget.savedData?['kodePos'] != null) {
+      _kodePosController.text = widget.savedData!['kodePos'];
+    }
+    if (widget.savedData?['noHp'] != null) {
+      _noHpController.text = widget.savedData!['noHp'];
+    }
+    if (widget.savedData?['email'] != null) {
+      _emailController.text = widget.savedData!['email'];
+    }
+
+    // ✅ FIX: Restore selected values with proper type checking
+    if (widget.savedData?['tanggalLahir'] != null) {
+      final tanggalLahirData = widget.savedData!['tanggalLahir'];
+      if (tanggalLahirData is DateTime) {
+        _tanggalLahir = tanggalLahirData;
+      } else if (tanggalLahirData is String) {
+        _tanggalLahir = DateTime.parse(tanggalLahirData);
       }
-      if (widget.savedData?['regency'] != null) {
-        _selectedRegency = Regency.fromJson(widget.savedData?['regency']);
-        _regencyController.text = _selectedRegency?.name ?? '';
-      }
-      if (widget.savedData?['district'] != null) {
-        _selectedDistrict = District.fromJson(widget.savedData?['district']);
-        _districtController.text = _selectedDistrict?.name ?? '';
-      }
-      if (widget.savedData?['village'] != null) {
-        _selectedVillage = Village.fromJson(widget.savedData?['village']);
-        _villageController.text = _selectedVillage?.name ?? '';
-      }
+    }
+
+    if (widget.savedData?['jenisKelamin'] != null) {
+      _jenisKelamin = widget.savedData!['jenisKelamin'];
+    }
+
+    // Restore location data
+    if (widget.savedData?['province'] != null) {
+      _selectedProvince = Province.fromJson(widget.savedData!['province']);
+      _provinceController.text = _selectedProvince?.name ?? '';
+    }
+    if (widget.savedData?['regency'] != null) {
+      _selectedRegency = Regency.fromJson(widget.savedData!['regency']);
+      _regencyController.text = _selectedRegency?.name ?? '';
+    }
+    if (widget.savedData?['district'] != null) {
+      _selectedDistrict = District.fromJson(widget.savedData!['district']);
+      _districtController.text = _selectedDistrict?.name ?? '';
+    }
+    if (widget.savedData?['village'] != null) {
+      _selectedVillage = Village.fromJson(widget.savedData!['village']);
+      _villageController.text = _selectedVillage?.name ?? '';
     }
   }
 
   Future<void> _initializeLocationData() async {
     await LocationService.initialize();
+  }
+
+  Future<void> _loadSavedUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('user_email');
+    String? namaLengkap = prefs.getString('user_nama_lengkap');
+
+    setState(() {
+      if (email != null) _emailController.text = email;
+      if (namaLengkap != null) _namaLengkapController.text = namaLengkap;
+    });
+
+    _notifyDataChanged(); // update data ke parent
   }
 
   @override
@@ -174,6 +339,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     _namaLengkapController.removeListener(_notifyDataChanged);
     _nikController.removeListener(_notifyDataChanged);
     _tempatLahirController.removeListener(_notifyDataChanged);
+    _agamaController.removeListener(_notifyDataChanged);
     _alamatController.removeListener(_notifyDataChanged);
     _noHpController.removeListener(_notifyDataChanged);
     _emailController.removeListener(_notifyDataChanged);
@@ -183,6 +349,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     _namaLengkapController.dispose();
     _nikController.dispose();
     _tempatLahirController.dispose();
+    _agamaController.dispose();
     _alamatController.dispose();
     _noHpController.dispose();
     _emailController.dispose();
@@ -279,6 +446,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                 "Nama Lengkap",
                 "Masukkan nama lengkap",
                 controller: _namaLengkapController,
+                enabled: false,
               ),
 
               // NIK
@@ -328,22 +496,7 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // No. HP
-              _inputField(
-                "No. HP",
-                "Masukkan nomor HP",
-                controller: _noHpController,
-                keyboardType: TextInputType.phone,
-              ),
-
-              // Email
-              _inputField(
-                "Email",
-                "Masukkan email",
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-              ),
+              const SizedBox(height: 16),
 
               // Jenis Kelamin
               const Text(
@@ -455,6 +608,30 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                 ],
               ),
               const SizedBox(height: 16),
+              // Agama
+              _inputField(
+                "Agama",
+                "Masukkan agama anda",
+                controller: _agamaController,
+              ),
+              const SizedBox(height: 16),
+
+              // No. HP
+              _inputField(
+                "No. HP",
+                "Masukkan nomor HP",
+                controller: _noHpController,
+                keyboardType: TextInputType.phone,
+              ),
+
+              // Email
+              _inputField(
+                "Email",
+                "Masukkan email",
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                enabled: false,
+              ),
 
               // Alamat
               _inputField(
@@ -563,13 +740,11 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     );
   }
 
-  Widget _inputField(
-    String label,
-    String hint, {
-    int maxLines = 1,
-    TextEditingController? controller,
-    TextInputType? keyboardType,
-  }) {
+  Widget _inputField(String label, String hint,
+      {int maxLines = 1,
+      TextEditingController? controller,
+      TextInputType? keyboardType,
+      bool enabled = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -582,19 +757,26 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
           controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
+          enabled: enabled,
+          style: TextStyle(color: Colors.black),
           onChanged: (value) => _notifyDataChanged(),
+          // backgroundColor: enabled ? Colors.white : Colors.grey.shade200,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: enabled
+                ? const Color.fromARGB(255, 255, 255, 255)
+                : Colors.grey.shade200,
+            // colo: enabled ? Colors.black : Colors.grey,
             contentPadding: const EdgeInsets.symmetric(
               vertical: 14,
               horizontal: 12,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide:
+                  BorderSide(color: const Color.fromARGB(255, 243, 187, 187)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
