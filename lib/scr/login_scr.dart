@@ -26,93 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _initialize();
   }
 
-  // Future<void> _initialize() async {
-  //   final prefs = await SharedPreferences.getInstance();
-
-  //   print('=== INITIALIZE LOGIN SCREEN ===');
-  //   print('is_logged_in: ${prefs.getBool('is_logged_in')}');
-  //   print('APP_rememberMe: ${prefs.getBool('APP_rememberMe')}');
-  //   print('APP_saved_email: ${prefs.getString('APP_saved_email')}');
-  //   print('APP_saved_password: ${prefs.getString('APP_saved_password')}');
-
-  //   // Cek apakah user sudah login
-  //   bool isLoggedIn = prefs.getBool('is_logged_in') ?? false;
-
-  //   if (isLoggedIn) {
-  //     // Auto-login: langsung redirect
-  //     String role = prefs.getString('user_role') ?? 'mahasiswa';
-  //     print('Auto-login detected, redirecting...');
-
-  //     await Future.delayed(const Duration(milliseconds: 200));
-
-  //     if (mounted) {
-  //       if (role == 'admin') {
-  //         Navigator.pushReplacement(
-  //           context,
-  //           MaterialPageRoute(builder: (_) => const AdminDashboard()),
-  //         );
-  //       } else {
-  //         Navigator.pushReplacement(
-  //           context,
-  //           MaterialPageRoute(builder: (_) => const DashboardPage()),
-  //         );
-  //       }
-  //     }
-  //   } else {
-  //     // Tidak auto-login: load remember me data
-  //     print('Loading remember me data...');
-
-  //     bool savedRememberMe = prefs.getBool('APP_rememberMe') ?? false;
-  //     String savedEmail = prefs.getString('APP_saved_email') ?? '';
-  //     String savedPassword = prefs.getString('APP_saved_password') ?? '';
-
-  //     print('Loaded: rememberMe=$savedRememberMe, email=$savedEmail');
-
-  //     setState(() {
-  //       rememberMe = savedRememberMe;
-  //       emailController.text = savedEmail;
-  //       passwordController.text = savedPassword;
-  //       _isChecking = false;
-  //     });
-
-  //     print('TextField updated');
-  //   }
-  // }
-  // Future<void> _initialize() async {
-  //   final prefs = await SharedPreferences.getInstance();
-
-  //   print('=== INITIALIZE LOGIN SCREEN ===');
-  //   print('is_logged_in: ${prefs.getBool('is_logged_in')}');
-  //   print('user_role: ${prefs.getString('user_role')}');
-  //   print('APP_rememberMe: ${prefs.getBool('APP_rememberMe')}');
-  //   print('APP_saved_email: ${prefs.getString('APP_saved_email')}');
-
-  //   bool isLoggedIn = prefs.getBool('is_logged_in') ?? false;
-
-  //   // Jika sebelumnya ada session login, hapus dulu
-  //   if (isLoggedIn) {
-  //     print('Clearing previous session...');
-  //     await prefs.remove('is_logged_in');
-  //     await prefs.remove('user_role');
-  //     await prefs.remove('user_email');
-  //     await prefs.remove('user_nama_lengkap');
-  //     isLoggedIn = false; // reset flag supaya tidak auto-redirect
-  //   }
-
-  //   // Load remember me data tetap bisa
-  //   bool savedRememberMe = prefs.getBool('APP_rememberMe') ?? false;
-  //   String savedEmail = prefs.getString('APP_saved_email') ?? '';
-  //   String savedPassword = prefs.getString('APP_saved_password') ?? '';
-
-  //   print('Loaded remember me: email=$savedEmail, rememberMe=$savedRememberMe');
-
-  //   setState(() {
-  //     rememberMe = savedRememberMe;
-  //     emailController.text = savedEmail;
-  //     passwordController.text = savedPassword;
-  //     _isChecking = false;
-  //   });
-  // }
   Future<void> _initialize() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -147,30 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       }
-<<<<<<< HEAD
-    } else {
-      // Tidak auto-login: load remember me data
-      print('Loading remember me data...');
-
-      bool savedRememberMe = prefs.getBool('APP_rememberMe') ?? false;
-      String savedEmail = prefs.getString('APP_saved_email') ?? '';
-      String savedPassword = prefs.getString('APP_saved_password') ?? '';
-
-      print('Loaded: rememberMe=$savedRememberMe, email=$savedEmail');
-
-      if (mounted) {
-        setState(() {
-          rememberMe = savedRememberMe;
-          emailController.text = savedEmail;
-          passwordController.text = savedPassword;
-          _isChecking = false;
-        });
-      }
-
-      print('TextField updated');
-=======
       return; // hentikan eksekusi agar tidak lanjut ke bawah
->>>>>>> origin/sarput_new
     }
 
     // Load remember me data

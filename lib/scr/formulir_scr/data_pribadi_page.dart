@@ -113,70 +113,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     _emailController.addListener(_notifyDataChanged);
     _kodePosController.addListener(_notifyDataChanged);
   }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _initializeLocationData();
-  //   _setupTextFieldListeners();
-  //   _loadSavedUserData();
-
-  //   // Restore saved data if available
-  //   if (widget.savedData != null) {
-  //     // Restore text fields
-  //     if (widget.savedData?['namaLengkap'] != null) {
-  //       _namaLengkapController.text = widget.savedData!['namaLengkap'];
-  //     }
-  //     if (widget.savedData?['nik'] != null) {
-  //       _nikController.text = widget.savedData!['nik'];
-  //     }
-  //     if (widget.savedData?['tempatLahir'] != null) {
-  //       _tempatLahirController.text = widget.savedData!['tempatLahir'];
-  //     }
-
-  //     if (widget.savedData?['agama'] != null) {
-  //       _nikController.text = widget.savedData!['agama'];
-  //     }
-  //     if (widget.savedData?['alamat'] != null) {
-  //       _alamatController.text = widget.savedData!['alamat'];
-  //     }
-  //     if (widget.savedData?['kodePos'] != null) {
-  //       _kodePosController.text = widget.savedData!['kodePos'];
-  //     }
-  //     if (widget.savedData?['noHp'] != null) {
-  //       _noHpController.text = widget.savedData!['noHp'];
-  //     }
-  //     if (widget.savedData?['email'] != null) {
-  //       _emailController.text = widget.savedData!['email'];
-  //     }
-
-  //     // Restore selected values
-  //     if (widget.savedData?['tanggalLahir'] != null) {
-  //       _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
-  //     }
-  //     if (widget.savedData?['jenisKelamin'] != null) {
-  //       _jenisKelamin = widget.savedData!['jenisKelamin'];
-  //     }
-
-  //     // Restore location data
-  //     if (widget.savedData?['province'] != null) {
-  //       _selectedProvince = Province.fromJson(widget.savedData!['province']);
-  //       _provinceController.text = _selectedProvince?.name ?? '';
-  //     }
-  //     if (widget.savedData?['regency'] != null) {
-  //       _selectedRegency = Regency.fromJson(widget.savedData?['regency']);
-  //       _regencyController.text = _selectedRegency?.name ?? '';
-  //     }
-  //     if (widget.savedData?['district'] != null) {
-  //       _selectedDistrict = District.fromJson(widget.savedData?['district']);
-  //       _districtController.text = _selectedDistrict?.name ?? '';
-  //     }
-  //     if (widget.savedData?['village'] != null) {
-  //       _selectedVillage = Village.fromJson(widget.savedData?['village']);
-  //       _villageController.text = _selectedVillage?.name ?? '';
-  //     }
-  //   }
-  // }
   @override
   void didUpdateWidget(DataPribadiPage oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -201,61 +137,6 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
     _initializeLocationData();
     _loadSavedUserData();
   }
-
-  // void _restoreSavedData() {
-  //   // Restore text fields
-  //   if (widget.savedData?['namaLengkap'] != null) {
-  //     _namaLengkapController.text = widget.savedData!['namaLengkap'];
-  //   }
-  //   if (widget.savedData?['nik'] != null) {
-  //     _nikController.text = widget.savedData!['nik'];
-  //   }
-  //   if (widget.savedData?['tempatLahir'] != null) {
-  //     _tempatLahirController.text = widget.savedData!['tempatLahir'];
-  //   }
-  //   if (widget.savedData?['agama'] != null) {
-  //     _agamaController.text = widget.savedData!['agama'];
-  //   }
-  //   if (widget.savedData?['alamat'] != null) {
-  //     _alamatController.text = widget.savedData!['alamat'];
-  //   }
-  //   if (widget.savedData?['kodePos'] != null) {
-  //     _kodePosController.text = widget.savedData!['kodePos'];
-  //   }
-  //   if (widget.savedData?['noHp'] != null) {
-  //     _noHpController.text = widget.savedData!['noHp'];
-  //   }
-  //   if (widget.savedData?['email'] != null) {
-  //     _emailController.text = widget.savedData!['email'];
-  //   }
-
-  //   // Restore selected values
-  //   if (widget.savedData?['tanggalLahir'] != null) {
-  //     // _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
-  //     _tanggalLahir = DateTime.parse(widget.savedData!['tanggalLahir']);
-  //   }
-  //   if (widget.savedData?['jenisKelamin'] != null) {
-  //     _jenisKelamin = widget.savedData!['jenisKelamin'];
-  //   }
-
-  //   // Restore location data
-  //   if (widget.savedData?['province'] != null) {
-  //     _selectedProvince = Province.fromJson(widget.savedData!['province']);
-  //     _provinceController.text = _selectedProvince?.name ?? '';
-  //   }
-  //   if (widget.savedData?['regency'] != null) {
-  //     _selectedRegency = Regency.fromJson(widget.savedData!['regency']);
-  //     _regencyController.text = _selectedRegency?.name ?? '';
-  //   }
-  //   if (widget.savedData?['district'] != null) {
-  //     _selectedDistrict = District.fromJson(widget.savedData!['district']);
-  //     _districtController.text = _selectedDistrict?.name ?? '';
-  //   }
-  //   if (widget.savedData?['village'] != null) {
-  //     _selectedVillage = Village.fromJson(widget.savedData!['village']);
-  //     _villageController.text = _selectedVillage?.name ?? '';
-  //   }
-  // }
   void _restoreSavedData() {
     // Restore text fields
     if (widget.savedData?['namaLengkap'] != null) {

@@ -153,34 +153,6 @@ class _EditPengumumanPageState extends State<EditPengumumanPage> {
         'gambar': base64Image,
       },
     );
-
-    // if (success) {
-    //   if (context.mounted) {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(
-    //         content: Text("Pengumuman berhasil diperbarui!"),
-    //         backgroundColor: Colors.green,
-    //       ),
-    //     );
-    //     Navigator.pop(context, true); // refresh halaman admin
-    //   }
-    //   if (success) {
-    // if (context.mounted) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text("Pengumuman berhasil diperbarui!"),
-    //       backgroundColor: Colors.green,
-    //     ),
-    //   );
-
-    //   Navigator.pop(context, Pengumuman(
-    //     id: widget.pengumuman?['id'] ?? 0,
-    //     judul: _judulController.text,
-    //     isi: _deskripsiController.text,
-    //     tanggal: DateTime.now().toIso8601String(),
-    //     gambar: base64Image ?? (widget.pengumuman?['gambar'] ?? ""),
-    //   ));
-    // }
     if (success) {
       if (context.mounted) {
         final updated = Pengumuman(
